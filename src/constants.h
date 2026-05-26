@@ -13,6 +13,10 @@
 #define PLAYER_HEIGHT 60        // Player height
 #define PLAYER_SPEED 280        // Player speed
 
+#define BULLET_WIDTH 10
+#define BULLET_HEIGHT 10
+#define BULLET_SPEED 400
+
 #define FPS 60                  // Target FPS
 
 typedef enum {STATE_MENU, STATE_PLAY, STATE_PAUSE, STATE_GAMEOVER} State;
