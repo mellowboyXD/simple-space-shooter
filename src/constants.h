@@ -16,6 +16,8 @@
 #define BULLET_WIDTH 10
 #define BULLET_HEIGHT 10
 #define BULLET_SPEED 400
+#define DEFAULT_AMMO_COUNT 50
+#define DEFAULT_FIRE_RATE 0.1f
 
 #define FPS 60                  // Target FPS
 
