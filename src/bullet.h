@@ -1,22 +1,10 @@
-#ifndef _BULLET_H
-#define _BULLET_H
+#ifndef BULLET_H
+#define BULLET_H
 
-#include "constants.h"
-#include "raylib.h"
+#include "types.h"
 
-typedef struct {
-        Vector2 pos;
-        Color color;
-        int speed;
-        int width;
-        int height;
-        bool active;
-} Bullet;
+void InitBullets(Bullet bulletPool[MAX_BULLETS]);
+void DrawBullets(Bullet bulletPool[MAX_BULLETS]);
+void UpdateBullets(GameState *gameState, float dt);
 
-void InitBullet(Bullet *bullet);
-void DrawBullet(Bullet bullet);
-void UpdateBullet(Bullet *bullet, float dt);
-
-extern Bullet bulletPool[MAX_BULLETS];
-
-#endif // _BULLET_H
+#endif // BULLET_H

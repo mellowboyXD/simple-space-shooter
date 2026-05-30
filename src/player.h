@@ -1,19 +1,10 @@
-#ifndef _PLAYER_H
-#define _PLAYER_H
+#ifndef PLAYER_H
+#define PLAYER_H
 
-#include "raylib.h"
-
-typedef struct {
-        Vector2 pos;
-        int width;
-        int height;
-        int speed;
-        float fireRate;
-        Color color;
-} Player;
+#include "types.h"
 
 void InitPlayer(Player *player);
 void DrawPlayer(Player player);
-void UpdatePlayer(Player *player, float dt);
+void UpdatePlayer(GameState *gameState, float dt);
 
-#endif // _PLAYER_H
+#endif // PLAYER_H

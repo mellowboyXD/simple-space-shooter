@@ -1,31 +1,45 @@
 #include "bullet.h"
-#include "constants.h"
-#include "raylib.h"
 
-void InitBullet(Bullet *bullet)
+void InitBullets(Bullet bulletPool[MAX_BULLETS])
 {
-        bullet->width = BULLET_WIDTH;
-        bullet->height = BULLET_HEIGHT;
-        bullet->speed = BULLET_SPEED;
-        bullet->pos.x = 0;
-        bullet->pos.y = 0;
-        bullet->active = false;
-        bullet->color = RED;
+        for (int i = 0; i < MAX_BULLETS; i++) {
+                bulletPool[i].width = BULLET_WIDTH;
+                bulletPool[i].height = BULLET_HEIGHT;
+                bulletPool[i].speed = BULLET_SPEED;
+                bulletPool[i].pos.x = 0;
+                bulletPool[i].pos.y = 0;
+                bulletPool[i].active = false;
+                bulletPool[i].color = RED;
+                bulletPool[i].owner = BO_NONE;
+        }
 }
 
-void DrawBullet(Bullet bullet)
+void DrawBullets(Bullet bulletPool[MAX_BULLETS])
 {
-        float x = bullet.pos.x;
-        float y = bullet.pos.y;
-        if (bullet.active)
-                DrawRectangle(x, y, bullet.width, bullet.height, bullet.color);
+        for (int i = 0; i < MAX_BULLETS; i++) {
+                if (bulletPool[i].active) {
+                        float x = bulletPool[i].pos.x;
+                        float y = bulletPool[i].pos.y;
+                        DrawRectangle(x, y, bulletPool[i].width, 
+                                        bulletPool[i].height, 
+                                        bulletPool[i].color);
+                }
+        }
 }
 
-void UpdateBullet(Bullet *bullet, float dt)
+void UpdateBullets(GameState *gameState, float dt)
 {
-        if (bullet->active)
-                bullet->pos.y -= bullet->speed * dt;
+        Bullet *bulletPool = gameState->bulletPool;
 
-        if (bullet->pos.y < 0)
-                bullet->active = false;
+        for (int i = 0; i < MAX_BULLETS; i++) {
+                if (bulletPool[i].active) {
+                        if (bulletPool[i].owner == BO_PLAYER)
+                                bulletPool[i].pos.y -= bulletPool[i].speed * dt;
+                        else if (bulletPool[i].owner == BO_ENEMY)
+                                bulletPool[i].pos.y += bulletPool[i].speed * dt;
+                }
+
+                if (bulletPool[i].pos.y < 0)
+                        bulletPool[i].active = false;
+        }
 }

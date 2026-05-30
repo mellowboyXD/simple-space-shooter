@@ -1,15 +1,10 @@
-#include <stdio.h>
-
 #include "bullet.h"
-#include "constants.h"
+#include "types.h"
 #include "player.h"
-#include "raylib.h"
 
 void InitGameState(GameState *gameState);
-void MainDraw(GameState gameState);
+void MainDraw(GameState *gameState);
 void MainUpdate(GameState *gameState, float dt);
-
-Bullet bulletPool[MAX_BULLETS];
 
 int main(void)
 {
@@ -22,7 +17,7 @@ int main(void)
 
         while (!WindowShouldClose()) {
                 float dt = GetFrameTime();
-                MainDraw(gameState);
+                MainDraw(&gameState);
                 MainUpdate(&gameState, dt);
         }
 
@@ -34,28 +29,24 @@ void InitGameState(GameState *gameState)
 {
         gameState->currentState = STATE_PLAY;
         InitPlayer(&gameState->player);
-        for (int i = 0; i < MAX_BULLETS; i++)
-                InitBullet(bulletPool + i);
+        InitBullets(gameState->bulletPool);
 }
 
-void MainDraw(GameState gameState) 
+void MainDraw(GameState *gameState) 
 {
         BeginDrawing();
+
         ClearBackground(BLACK);
         DrawFPS(0, 0);
-        DrawPlayer(gameState.player);
-        
-        for (int i = 0; i < MAX_BULLETS; i++)
-                DrawBullet(bulletPool[i]);
+        DrawBullets(gameState->bulletPool);
+        DrawPlayer(gameState->player);
 
         EndDrawing();
 }
 
 void MainUpdate(GameState *gameState, float dt)
 {
-        UpdatePlayer(&gameState->player, dt);
-        
-        for (int i = 0; i < MAX_BULLETS; i++)
-                UpdateBullet(bulletPool + i, dt);
+        UpdatePlayer(gameState, dt);
+        UpdateBullets(gameState, dt);
 }
 

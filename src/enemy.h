@@ -11,21 +11,15 @@
  *              - final phase before beginning next level
  */
 
-#ifndef _ENEMY_H
-#define _ENEMY_H
+#ifndef ENEMY_H
+#define ENEMY_H
 
-typedef enum {EC_FIGHTER, EC_MOTHERSHIP} EnemyClass;
+#include "types.h"
 
-typedef enum {PHASE_REG, PHASE_BOSS, PHASE_RAGE} EnemyPhase;
+void InitEnemies(Enemy *enemyPool[MAX_ENEMIES]);
+void DrawEnemies(Enemy *enemyPool[MAX_ENEMIES]);
+void UpdateEnemies(GameState *gameState, float dt);
 
-typedef struct {
-        EnemyClass class;
-        float hp;
-        float attack;
-        float shield;
-        void (*specialAttack) (Player *player); // a special boost attack
-} Enemy;
+extern Enemy enemyPool[MAX_ENEMIES]; // Regular enemies + 1 boss
 
-extern Enemy enemyPool[MAX_REGULAR_ENEMY + 1]; // Regular enemies + 1 boss
-
-#endif // _ENEMY_H
+#endif // ENEMY_H

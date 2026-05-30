@@ -1,13 +1,7 @@
-#include <stdlib.h>
-#include <stdio.h>
-
-#include "bullet.h"
-#include "constants.h"
 #include "player.h"
-#include "raylib.h"
 #include "utils.h"
 
-static void Shoot(Player *player);
+static void Shoot(Bullet bulletPool[MAX_BULLETS], Player *player);
 
 static float shootTimer = 0.0f;
 
@@ -30,8 +24,9 @@ void DrawPlayer(Player player)
         DrawRectangle(x, y, player.width, player.height, player.color);
 }
 
-void UpdatePlayer(Player *player, float dt)
+void UpdatePlayer(GameState *gameState, float dt)
 {
+        Player *player = &gameState->player;
         shootTimer += dt;
         float newPos = 0;
 
@@ -58,7 +53,7 @@ void UpdatePlayer(Player *player, float dt)
         }
 
         if (IsKeyDown(KEY_SPACE) && shootTimer >= player->fireRate) {
-                Shoot(player);
+                Shoot(gameState->bulletPool, player);
                 shootTimer = 0.0f;
         }
 }
@@ -66,7 +61,7 @@ void UpdatePlayer(Player *player, float dt)
 /**
  * Spawns a bullet at the player's location and set it to active.
  */
-static void Shoot(Player *player)
+static void Shoot(Bullet bulletPool[MAX_BULLETS], Player *player)
 {
         for (int i = 0; i < MAX_BULLETS; i++) {
                 if(!bulletPool[i].active) {
@@ -75,6 +70,7 @@ static void Shoot(Player *player)
                                 - bulletPool[i].width / 2;
                         bulletPool[i].pos.y = player->pos.y;
                         bulletPool[i].active = true;
+                        bulletPool[i].owner = BO_PLAYER;
                         break;
                 }
         }
