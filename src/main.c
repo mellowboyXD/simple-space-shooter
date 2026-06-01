@@ -1,4 +1,6 @@
 #include "bullet.h"
+#include "debug.h"
+#include "enemy.h"
 #include "types.h"
 #include "player.h"
 
@@ -8,6 +10,7 @@ void MainUpdate(GameState *gameState, float dt);
 
 int main(void)
 {
+        LOG(L_INFO, "Hello brave new world!");
         InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Space Shooter");
         SetTargetFPS(FPS);
 
@@ -30,6 +33,7 @@ void InitGameState(GameState *gameState)
         gameState->currentState = STATE_PLAY;
         InitPlayer(&gameState->player);
         InitBullets(gameState->bulletPool);
+        InitEnemies(gameState->enemyPool);
 }
 
 void MainDraw(GameState *gameState) 
@@ -40,6 +44,7 @@ void MainDraw(GameState *gameState)
         DrawFPS(0, 0);
         DrawBullets(gameState->bulletPool);
         DrawPlayer(gameState->player);
+        DrawEnemies(gameState->enemyPool);
 
         EndDrawing();
 }
@@ -48,5 +53,6 @@ void MainUpdate(GameState *gameState, float dt)
 {
         UpdatePlayer(gameState, dt);
         UpdateBullets(gameState, dt);
+        UpdateEnemies(gameState, dt);
 }
 

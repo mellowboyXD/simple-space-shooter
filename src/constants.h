@@ -20,7 +20,22 @@
 #define MAX_BULLETS 50
 #define DEFAULT_FIRE_RATE 0.3f
 
-/* -- Enemy -- */
+/* -- Enemies -- */
 #define MAX_ENEMIES 6 /* 5 enemies and 1 boss */
+
+#define EC_FIGHTER_WIDTH 20
+#define EC_FIGHTER_HEIGHT 40
+#define EC_FIGHTER_HP 100
+#define EC_FIGHTER_ATK 120
+#define EC_FIGHTER_SHIELD 200
+
+#define EC_MOTHERSHIP_WIDTH 60
+#define EC_MOTHERSHIP_HEIGHT 80
+#define EC_MOTHERSHIP_HP 200
+#define EC_MOTHERSHIP_ATK 150
+#define EC_MOTHERSHIP_SHIELD 250
+
+/* -- Utility Fallbacks -- */
+#define FALLBACK_GAP 5
 
 #endif /* CONSTANTS_H */

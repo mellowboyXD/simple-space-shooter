@@ -16,10 +16,8 @@
 
 #include "types.h"
 
-void InitEnemies(Enemy *enemyPool[MAX_ENEMIES]);
-void DrawEnemies(Enemy *enemyPool[MAX_ENEMIES]);
+void InitEnemies(Enemy enemyPool[MAX_ENEMIES]);
+void DrawEnemies(Enemy enemyPool[MAX_ENEMIES]);
 void UpdateEnemies(GameState *gameState, float dt);
-
-extern Enemy enemyPool[MAX_ENEMIES]; // Regular enemies + 1 boss
 
 #endif // ENEMY_H

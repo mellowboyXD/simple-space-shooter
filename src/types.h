@@ -40,6 +40,7 @@ typedef struct {
         float hp;
         float attack;
         float shield;
+        bool isAlive;
         void (*specialAttack) (Player *player); // a special boost attack
 } Enemy;
 
@@ -51,7 +52,9 @@ typedef struct {
 typedef struct {
         Player player;
         Bullet bulletPool[MAX_BULLETS];
+        Enemy enemyPool[MAX_ENEMIES];
         State currentState;
+        EnemyPhase enemyPhase;
 } GameState;
 
 #endif // TYPES_H
