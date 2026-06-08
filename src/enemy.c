@@ -12,11 +12,13 @@ void InitEnemies(Enemy enemyPool[MAX_ENEMIES])
                 gap = FALLBACK_GAP;
         }
 
+        LOG(L_INFO, "Gap: %d", gap);
+
         int i;
         for (i = 0; i < MAX_ENEMIES - 1; i++) {
                 enemyPool[i].width = EC_FIGHTER_WIDTH;
                 enemyPool[i].height = EC_FIGHTER_HEIGHT;
-                enemyPool[i].pos.x = 10 + i * gap;
+                enemyPool[i].pos.x = gap + i * (EC_FIGHTER_WIDTH + gap);
                 enemyPool[i].pos.y = 10;
                 enemyPool[i].color = YELLOW;
                 enemyPool[i].class = EC_FIGHTER;
