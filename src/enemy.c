@@ -1,4 +1,5 @@
 #include "enemy.h"
+#include "collision.h"
 #include "constants.h"
 #include "debug.h"
 #include "utils.h"
@@ -57,4 +58,22 @@ void DrawEnemies(Enemy enemyPool[MAX_ENEMIES])
 void UpdateEnemies(GameState *gameState, float dt)
 {
         // TODO: implement enemy AI
+
+        Bullet *bulletPool = gameState->bulletPool;
+        Enemy *enemyPool = gameState->enemyPool;
+        for (int i = 0; i < MAX_ENEMIES; i++) {
+                if (!enemyPool[i].isAlive)
+                        continue;
+
+                for (int j = 0; j < MAX_BULLETS; j++) {
+                        if (!bulletPool[j].active)
+                                continue;
+
+                        Enemy *enemy = &enemyPool[i];
+                        Bullet *bullet = &bulletPool[i];
+                        if (isCollision(enemy, bullet))
+                                LOG(L_INFO, 
+                                        "Collision between enemy and bullet.");
+                }
+        }
 }

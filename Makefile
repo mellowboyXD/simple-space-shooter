@@ -14,13 +14,13 @@ COMMON=src/constants.h src/types.h
 
 OBJDIR=build/obj
 OBJS=$(OBJDIR)/main.o $(OBJDIR)/player.o $(OBJDIR)/bullet.o $(OBJDIR)/enemy.o \
-     $(OBJDIR)/utils.o $(OBJDIR)/debug.o
+     $(OBJDIR)/utils.o $(OBJDIR)/debug.o $(OBJDIR)/collision.o
 GAME=build/bin/space
 
 
 all: build
 
-build: main.o player.o bullet.o enemy.o utils.o debug.o
+build: main.o player.o bullet.o enemy.o utils.o debug.o collision.o
 	$(CC) $(CFLAGS) -o $(GAME) $(OBJS) $(LIBS)
 
 run: build
@@ -43,6 +43,9 @@ utils.o: src/utils.c src/utils.h $(COMMON) build_dir
 
 debug.o: src/debug.c src/debug.h build_dir
 	$(CC) $(CFLAGS) $(INCLUDES) -c src/debug.c -o $(OBJDIR)/debug.o
+
+collision.o: src/collision.c src/collision.h $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/collision.c -o $(OBJDIR)/collision.o
 
 build_dir:
 	mkdir -p build/obj build/bin
