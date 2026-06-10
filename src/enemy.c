@@ -69,11 +69,12 @@ void UpdateEnemies(GameState *gameState, float dt)
                         if (!bulletPool[j].active)
                                 continue;
 
-                        Enemy *enemy = &enemyPool[i];
-                        Bullet *bullet = &bulletPool[i];
-                        if (isCollision(enemy, bullet))
-                                LOG(L_INFO, 
-                                        "Collision between enemy and bullet.");
+                        Enemy *enemy = enemyPool + i;
+                        Bullet *bullet = bulletPool + j;
+                        if (isCollision(enemy, bullet)) {
+                                enemy->isAlive = false;
+                                bullet->active = false;
+                        }
                 }
         }
 }
