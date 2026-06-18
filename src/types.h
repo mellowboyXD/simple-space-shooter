@@ -32,6 +32,12 @@ typedef struct {
 } Bullet;
 
 typedef struct {
+        int id;
+        float velY;
+        float phase;
+        float freq;
+        float amp;
+        float baseX;
         Vector2 pos;
         int width;
         int height;
