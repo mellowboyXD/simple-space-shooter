@@ -13,6 +13,7 @@ int main(void)
         LOG(L_INFO, "Hello brave new world!");
         InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Space Shooter");
         SetTargetFPS(FPS);
+        ToggleFullscreen();
 
         GameState gameState = { 0 };
 

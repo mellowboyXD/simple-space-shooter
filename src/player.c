@@ -9,8 +9,8 @@ void InitPlayer(Player *player)
 {
         player->width = PLAYER_WIDTH;
         player->height = PLAYER_HEIGHT;
-        player->pos.x = SCREEN_WIDTH / 2 - PLAYER_WIDTH / 2;
-        player->pos.y = SCREEN_HEIGHT - PLAYER_HEIGHT - 20;
+        player->pos.x = GetScreenWidth() / 2 - PLAYER_WIDTH / 2;
+        player->pos.y = GetScreenHeight() - PLAYER_HEIGHT - 20;
         player->speed = PLAYER_SPEED;
         player->color = BLUE;
         player->fireRate = DEFAULT_FIRE_RATE;
@@ -32,7 +32,7 @@ void UpdatePlayer(GameState *gameState, float dt)
 
         if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
                 newPos = player->pos.x + player->speed * dt;
-                if (newPos + player->width < SCREEN_WIDTH)
+                if (newPos + player->width < GetScreenWidth())
                         player->pos.x = newPos;
         }
 
@@ -48,7 +48,7 @@ void UpdatePlayer(GameState *gameState, float dt)
 
         if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
                 newPos = player->pos.y + player->speed * dt;
-                if (newPos + player->height < SCREEN_HEIGHT)
+                if (newPos + player->height < GetScreenHeight())
                         player->pos.y = newPos;
         }
 

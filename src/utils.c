@@ -10,7 +10,7 @@ int GetScreenMiddleX(int width)
 int Gap(int width, int n)
 {
         int total = width * n;
-        if (total > SCREEN_WIDTH)
+        if (total > GetScreenWidth())
                 return -1; // no enough space to fit n widths
         return (GetScreenWidth() - total) / (n + 1);
 }
