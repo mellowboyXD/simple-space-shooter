@@ -23,8 +23,6 @@ void InitEnemies(Enemy enemyPool[MAX_ENEMIES])
                 gap = FALLBACK_GAP;
         }
 
-        LOG(L_INFO, "Gap: %d", gap);
-
         int i;
         for (i = 0; i < MAX_ENEMIES - 1; i++) {
                 enemyPool[i].id = i;
@@ -44,7 +42,7 @@ void InitEnemies(Enemy enemyPool[MAX_ENEMIES])
         // boss
         SpawnSineEnemy(enemyPool + i, enemyPool[i].pos.x, 10);
         enemyPool[i].id = i;
-        enemyPool[i].pos.x = GetScreenMiddleX(enemyPool[i].width);
+        enemyPool[i].pos.x = GamePanelMiddleX(enemyPool[i].width);
         enemyPool[i].pos.y = 10;
         enemyPool[i].width = EC_MOTHERSHIP_WIDTH;
         enemyPool[i].height = EC_MOTHERSHIP_HEIGHT;
@@ -97,7 +95,7 @@ void UpdateEnemies(GameState *gameState, float dt)
 
 void MoveEnemy(Enemy *e, float dt)
 {
-        if (e->pos.y > GetScreenHeight() / 2.0f)
+        if (e->pos.y > GamePanelHeight() / 2.0f)
                 e->velY *= -1;
         else if (e->pos.y < 0)
                 e->velY *= -1;

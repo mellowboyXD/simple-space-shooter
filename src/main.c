@@ -13,7 +13,8 @@ int main(void)
         LOG(L_INFO, "Hello brave new world!");
         InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Space Shooter");
         SetTargetFPS(FPS);
-
+        ToggleFullscreen();
+        
         GameState gameState = { 0 };
 
         InitGameState(&gameState);
@@ -31,6 +32,12 @@ int main(void)
 void InitGameState(GameState *gameState)
 {
         gameState->currentState = STATE_PLAY;
+        gameState->uiPanel = (Rectangle) {
+                .x = (1 - UI_PANEL_RATIO) * GetScreenWidth(), 
+                .y = 0, 
+                .width = UI_PANEL_RATIO * GetScreenWidth(), 
+                .height = GetScreenHeight()
+        };
         InitPlayer(&gameState->player);
         InitBullets(gameState->bulletPool);
         InitEnemies(gameState->enemyPool);
@@ -39,6 +46,9 @@ void InitGameState(GameState *gameState)
 void MainDraw(GameState *gameState) 
 {
         BeginDrawing();
+        DrawRectangleRec(gameState->uiPanel, BLACK);
+        DrawRectangle(gameState->uiPanel.x, gameState->uiPanel.y, 2, 
+                        gameState->uiPanel.height, RAYWHITE);
 
         ClearBackground(BLACK);
         DrawFPS(0, 0);

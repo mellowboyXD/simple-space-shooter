@@ -6,7 +6,8 @@
 /* -- Screen & FPS -- */
 #define SCREEN_WIDTH 480        /* Screen width */
 #define SCREEN_HEIGHT 640       /* Screen height */
-#define FPS 150                 /* Target FPS */
+#define FPS 60                  /* Target FPS */
+#define UI_PANEL_RATIO 0.25     /* Ratio of the UI panel to the screen width */
 
 /* -- Player -- */
 #define PLAYER_WIDTH 40         /* Player width */
@@ -21,7 +22,7 @@
 #define DEFAULT_FIRE_RATE 0.3f
 
 /* -- Enemies -- */
-#define MAX_ENEMIES 6 /* 5 enemies and 1 boss */
+#define MAX_ENEMIES 6           /* 5 enemies and 1 boss */
 
 #define EC_FIGHTER_WIDTH 20
 #define EC_FIGHTER_HEIGHT 40

@@ -61,6 +61,7 @@ typedef struct {
         Enemy enemyPool[MAX_ENEMIES];
         State currentState;
         EnemyPhase enemyPhase;
+        Rectangle uiPanel;
 } GameState;
 
 #endif // TYPES_H
