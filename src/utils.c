@@ -10,7 +10,22 @@ int GetScreenMiddleX(int width)
 int Gap(int width, int n)
 {
         int total = width * n;
-        if (total > GetScreenWidth())
+        if (total > GamePanelWidth())
                 return -1; // no enough space to fit n widths
-        return (GetScreenWidth() - total) / (n + 1);
+        return (GamePanelWidth() - total) / (n + 1);
+}
+
+int GamePanelMiddleX(int width)
+{
+        return GamePanelWidth() / 2 + width / 2;
+}
+
+int GamePanelWidth()
+{
+        return (1 - UI_PANEL_RATIO) * GetScreenWidth();
+}
+
+int GamePanelHeight()
+{
+        return GetScreenHeight();
 }
