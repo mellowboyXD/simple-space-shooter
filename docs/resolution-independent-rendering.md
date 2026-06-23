@@ -22,3 +22,8 @@ Take the completed offscreen render target and draw it as a full-screen quad or 
 
 Render user interface (UI) elements, like text and HUDs, separately from the main game world. Draw the UI elements directly onto the native monitor's backbuffer (at the full fullscreen resolution) after the scaled game world texture has been drawn. This prevents UI text and health bars from becoming blurry or pixelated when stretched across large screens.
 
+---
+
+> **References**:
+> raylib - https://www.raylib.com/cheatsheet/cheatsheet.html
+
