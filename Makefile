@@ -1,4 +1,5 @@
 DEBUG ?= 0
+PLATFORM ?= windows
 
 ifeq ($(DEBUG), 1)
 	CFLAGS := -Wall -Wextra -Wpedantic -std=c23 -g -DDEBUG
@@ -7,8 +8,15 @@ else
 endif
 
 CC=gcc
-LIBS=-L./lib -lraylib -lgdi32 -lwinmm
 INCLUDES=-I./include -Isrc
+
+ifeq ($(PLATFORM), windows)
+    LIBS=-L./lib/win -lraylib -lgdi32 -lwinmm
+else ifeq ($(PLATFORM), linux)
+    LIBS=-L./lib/linux -lraylib -lm -lX11
+else
+    $(error Unknown platform: $(PLATFORM))
+endif
 
 COMMON=src/constants.h src/types.h
 
@@ -16,7 +24,6 @@ OBJDIR=build/obj
 OBJS=$(OBJDIR)/main.o $(OBJDIR)/player.o $(OBJDIR)/bullet.o $(OBJDIR)/enemy.o \
      $(OBJDIR)/utils.o $(OBJDIR)/debug.o $(OBJDIR)/collision.o
 GAME=build/bin/space
-
 
 all: build
 
