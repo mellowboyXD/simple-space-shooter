@@ -1,3 +1,5 @@
 *.o
 *.exe
 todo
+build/
+.clangd
