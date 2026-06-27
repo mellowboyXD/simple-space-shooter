@@ -5,9 +5,9 @@ typedef enum {L_INFO, L_WARN, L_ERROR} LogLevel;
 
 #ifdef DEBUG
 
-void __log(LogLevel logLevel, const char *file, int line, const char *fmt, ...);
+void ___log(LogLevel logLevel, const char *file, int line, const char *fmt, ...);
 
-#define LOG(logLevel, fmt, ...) __log(logLevel, __FILE__, __LINE__, \
+#define LOG(logLevel, fmt, ...) ___log(logLevel, __FILE__, __LINE__, \
                 fmt __VA_OPT__(,) __VA_ARGS__)
 
 #else

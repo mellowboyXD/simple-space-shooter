@@ -13,6 +13,19 @@
 #define COMPONENTS_H
 
 #include "raylib.h"
+#include <stdint.h>
+
+typedef uint16_t ComponentType;
+
+constexpr ComponentType MAX_COMPONENTS = 10;
+
+typedef enum {
+	COMPONENT_NONE = 0,
+	COMPONENT_POSITION = 1 << 0,
+	COMPONENT_VELOCITY = 1 << 1,
+	COMPONENT_HITBOX = 1 << 2,
+    COMPONENT_RENDER = 1 << 3
+} ComponentMask;
 
 typedef struct {
 	float x;
@@ -29,6 +42,8 @@ typedef struct {
 	float height;
 } Hitbox;
 
+typedef enum { RENDER_COLOR, RENDER_SPRITE } RenderMode;
+
 /* Texture2D's should be loaded into a cache and the id is passed between 
  * entities.
  *
@@ -41,9 +56,10 @@ typedef struct {
  * ```
  */
 typedef struct {
-	Color renderColor;  // used this in mode RENDER_COLOR
-	int textureId;      // use this in mode RENDER_SPRITE
-	Rectangle frame;    // use this in mode RENDER_SPRITE
+    RenderMode renderMode;
+	Color renderColor; // used this in mode RENDER_COLOR
+	int textureId; // use this in mode RENDER_SPRITE
+	Rectangle frame; // use this in mode RENDER_SPRITE
 } Render;
 
 #endif /* COMPONENTS_H */
