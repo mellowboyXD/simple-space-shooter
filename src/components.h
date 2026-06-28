@@ -15,7 +15,7 @@
 #include "raylib.h"
 #include <stdint.h>
 
-typedef uint16_t ComponentType;
+typedef uint8_t ComponentType;
 
 constexpr ComponentType MAX_COMPONENTS = 10;
 
