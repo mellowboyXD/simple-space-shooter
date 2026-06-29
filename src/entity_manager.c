@@ -1,3 +1,9 @@
+/**
+ * The entity manager is responsible to controlling the creation of entities
+ * and giving signatures to entities.
+ * As explained multiple times by now, a signature represents the components
+ * associated with an entity where each bit represents a component.
+ */
 #include "entity_manager.h"
 #include "components.h"
 

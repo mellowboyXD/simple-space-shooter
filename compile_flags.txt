@@ -1,2 +1,4 @@
--I./include/
+-I.
+-I./src
+-I./include
 -std=c23
