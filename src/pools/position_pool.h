@@ -17,14 +17,15 @@
 #include <stddef.h>
 
 typedef struct {
-    Position pool[MAX_ENTITIES];
+    Position data[MAX_ENTITIES];
     Entity indexToEntityMap[MAX_ENTITIES]; /* array index to entity */
     size_t entityToIndexMap[MAX_ENTITIES]; /* entity to array index in pool */
     size_t size; /* number of valid entries */
 } PositionPool;
 
-bool hasPosition(Entity entity);
-Position *AddPosition(Entity entity, Position position);
-void RemovePosition(Entity entity);
+void PositionPoolInit(PositionPool *pool);
+bool PositionPoolHas(PositionPool *pool, Entity entity);
+Position *PositionPoolAdd(PositionPool *pool, Entity entity, Position position);
+void PositionPoolRemove(PositionPool *pool, Entity entity);
 
 #endif /* POSITION_POOL_H */

@@ -7,6 +7,7 @@
 typedef uint32_t Entity;
 
 constexpr Entity MAX_ENTITIES = 100;
+constexpr Entity INVALID_ENTITY = MAX_ENTITIES + 1;
 
 // each bit represents a component as defined by ComponentMask
 typedef uint16_t Signature;
