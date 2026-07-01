@@ -1,18 +1,20 @@
 DEBUG ?= 0
-PLATFORM ?= windows
+PLATFORM := $(shell uname)
 
 ifeq ($(DEBUG), 1)
 	CFLAGS := -Wall -Wextra -Wpedantic -std=c23 -g -DDEBUG
+	GAME := build/bin/space_d
 else
 	CFLAGS := -Wall -Wextra -Wpedantic -std=c23
+	GAME := build/bin/space
 endif
 
 CC=gcc
 INCLUDES=-I./include -I./src
 
-ifeq ($(PLATFORM), windows)
+ifeq ($(PLATFORM), Windows)
     LIBS=-L./lib/win -lraylib -lgdi32 -lwinmm
-else ifeq ($(PLATFORM), linux)
+else ifeq ($(PLATFORM), Linux)
     LIBS=-L./lib/linux -lraylib -lm -lX11
 else
     $(error Unknown platform: $(PLATFORM))
@@ -22,13 +24,12 @@ COMMON=src/constants.h src/types.h src/components.h
 
 OBJDIR=build/obj
 OBJS=$(OBJDIR)/main.o $(OBJDIR)/utils.o $(OBJDIR)/debug.o \
-	 $(OBJDIR)/entity_manager.o
-
-GAME=build/bin/space
+	 $(OBJDIR)/entity_manager.o $(OBJDIR)/component_pool.o \
+	 $(OBJDIR)/component_manager.o
 
 all: build
 
-build: main.o utils.o debug.o entity_manager.o
+build: main.o utils.o debug.o entity_manager.o component_pool.o component_manager.o
 	$(CC) $(CFLAGS) -o $(GAME) $(OBJS) $(LIBS)
 
 run: build
@@ -44,8 +45,13 @@ debug.o: src/debug.c src/debug.h build_dir
 	$(CC) $(CFLAGS) $(INCLUDES) -c src/debug.c -o $(OBJDIR)/debug.o
 
 entity_manager.o: src/entity_manager.h src/entity_manager.c $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/entity_manager.c -o \ 
-	$(OBJDIR)/entity_manager.o
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/entity_manager.c -o $(OBJDIR)/entity_manager.o
+
+component_pool.o: src/component_pool.h src/component_pool.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/component_pool.c -o $(OBJDIR)/component_pool.o
+
+component_manager.o: src/component_manager.h src/component_manager.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/component_manager.c -o $(OBJDIR)/component_manager.o
 
 build_dir:
 	mkdir -p build/obj build/bin

@@ -5,6 +5,7 @@
 
 #include <stddef.h>
 
+#define POOL_INIT(pool, T) ((T *) ComponentPoolInit((pool), sizeof(T)))
 #define POOL_GET(pool, entity, T) ((T *)ComponentPoolGet((pool), (entity)))
 #define POOL_ADD(pool, entity, component, T) \
 	((T *)ComponentPoolAdd((pool), (entity), &(component)))
@@ -17,10 +18,12 @@ typedef struct {
 	size_t count; /* current count */
 } ComponentPool;
 
-void ComponentPoolInit(ComponentPool *pool);
+constexpr size_t INVALID_INDEX = (size_t) INVALID_ENTITY;
+
+void ComponentPoolInit(ComponentPool *pool, size_t size);
 bool ComponentPoolHas(ComponentPool *pool, Entity entity);
-void *ComponentPoolAdd(ComponentPool *pool, Entity entity, void *component);
 void *ComponentPoolGet(ComponentPool *pool, Entity entity);
+void *ComponentPoolAdd(ComponentPool *pool, Entity entity, void *component);
 void ComponentPoolRemove(ComponentPool *pool, Entity entity);
 
 #endif /* COMPONENT_POOL_H */
