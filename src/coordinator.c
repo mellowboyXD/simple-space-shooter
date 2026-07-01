@@ -4,8 +4,6 @@
  */
 #include "coordinator.h"
 #include "component_manager.h"
-#include "components.h"
-#include "entity_manager.h"
 #include "systems/system_manager.h"
 #include <assert.h>
 #include <string.h>
