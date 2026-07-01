@@ -5,6 +5,7 @@
 
 typedef enum {
     MOVEMENT_SYSTEM_TYPE,
+    RENDER_SYSTEM_TYPE,
     MAX_SYSTEMS_TYPE,
     INVALID_SYSTEM_TYPE,
 } SystemType;

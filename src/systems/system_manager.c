@@ -1,4 +1,5 @@
 #include "system_manager.h"
+#include "debug.h"
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
@@ -6,6 +7,9 @@
 void SystemManagerInit(SystemManager *manager)
 {
 	memset(manager, 0, sizeof(*manager));
+    for (SystemType t = 0; t < MAX_SYSTEMS_TYPE; t++) {
+        SystemInit(manager->systemPool + t);
+    }
 }
 
 /**
@@ -66,6 +70,7 @@ void SystemManagerEntitySignatureChanged(SystemManager *manager, Entity entity, 
         if ((entitySignature & systemSignature) == systemSignature) {
             SystemAddEntity(system, entity);
         } else {
+            // entity signature does not match system, remove from set
             SystemRemoveEntity(system, entity);
         }
     }

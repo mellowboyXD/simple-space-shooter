@@ -3,17 +3,13 @@
 #include "component_pool.h"
 #include <assert.h>
 
-/**
- * Initializes the system
- */
 void SystemInit(System *self)
 {
-	for (size_t i = 0; i < MAX_ENTITIES; i++) {
-		self->entities[i] = INVALID_ENTITY;
-		self->entityToIndexMap[i] = INVALID_INDEX;
-	}
-	self->update = NULL;
-	self->count = 0;
+    for (Entity i = 0; i < MAX_ENTITIES; i++) {
+        self->entityToIndexMap[i] = INVALID_INDEX;
+        self->update = NULL;
+        self->count = 0;
+    }
 }
 
 /**

@@ -1,4 +1,5 @@
 #include "component_manager.h"
+#include "debug.h"
 #include <assert.h>
 
 /**

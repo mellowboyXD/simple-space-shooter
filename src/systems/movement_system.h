@@ -5,6 +5,7 @@
 
 typedef System MovementSystem;
 
+MovementSystem *MovementSystemCreate();
 void MovementSystemUpdate(MovementSystem *self, float dt);
 
 #endif /* MOVEMENT_SYSTEM_H */

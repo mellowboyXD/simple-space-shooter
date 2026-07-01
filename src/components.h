@@ -29,14 +29,17 @@ typedef enum {
 	MAX_COMPONENTS
 } ComponentType;
 
+#define POSITION(x, y) ((Position){ .pos = { (x), (y) } })
 typedef struct {
 	Vector2 pos;
 } Position;
 
+#define VELOCITY(x, y) ((Velocity){ .vel = { (x), (y) } })
 typedef struct {
 	Vector2 vel;
 } Velocity;
 
+#define HITBOX(width, height) ((Hitbox){ (width), (height) })
 typedef struct {
 	float width;
 	float height;

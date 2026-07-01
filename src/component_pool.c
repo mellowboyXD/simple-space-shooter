@@ -2,6 +2,7 @@
 #include "components.h"
 #include "debug.h"
 #include <assert.h>
+#include <stdlib.h>
 #include <string.h>
 
 /**
@@ -16,6 +17,9 @@ void ComponentPoolInit(ComponentPool *pool, size_t size)
 		pool->entityToIndexMap[i] = INVALID_INDEX;
 		pool->indexToEntityMap[i] = INVALID_ENTITY;
 	}
+
+    pool->data = malloc(size * MAX_ENTITIES);
+    assert(pool->data && "Could not allocate pool->data");
 }
 
 /**
@@ -48,6 +52,7 @@ void *ComponentPoolGet(ComponentPool *pool, Entity entity)
 void *ComponentPoolAdd(ComponentPool *pool, Entity entity, void *component)
 {
 	assert(entity < MAX_ENTITIES && "Invalid entity. Out of range");
+    assert(pool->data && "Component pool data hasn't been initialized");
 
 	if (ComponentPoolHas(pool, entity)) {
 		LOG(L_INFO, "Entity `%d` already has component.", entity);
@@ -57,12 +62,14 @@ void *ComponentPoolAdd(ComponentPool *pool, Entity entity, void *component)
 
 	assert(pool->count < MAX_COMPONENTS && "Max components reached");
 	size_t index = pool->count++;
+	assert(pool->data != NULL && "pool data is null");
 
 	memcpy((char *)pool->data + index * pool->sizeOfComponent, component,
 	       pool->sizeOfComponent);
 
 	pool->entityToIndexMap[entity] = index;
 	pool->indexToEntityMap[index] = entity;
+
 	return (char *)pool->data + index * pool->sizeOfComponent;
 }
 

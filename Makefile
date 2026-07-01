@@ -26,10 +26,12 @@ OBJDIR := build/obj
 OBJS := $(OBJDIR)/main.o $(OBJDIR)/utils.o $(OBJDIR)/debug.o 		\
 	 $(OBJDIR)/entity_manager.o $(OBJDIR)/component_pool.o 			\
 	 $(OBJDIR)/component_manager.o $(OBJDIR)/systems/system.o 		\
-	 $(OBJDIR)/systems/system_manager.o $(OBJDIR)/coordinator.o
+	 $(OBJDIR)/systems/system_manager.o $(OBJDIR)/coordinator.o		\
+	 $(OBJDIR)/systems/movement_system.o $(OBJDIR)/systems/render_system.o
 
-TARGETS := main.o utils.o debug.o entity_manager.o component_pool.o \
-		  component_manager.o system.o system_manager.o coordinator.o
+TARGETS := main.o utils.o debug.o entity_manager.o component_pool.o 	\
+		  component_manager.o system.o system_manager.o coordinator.o 	\
+		  movement_system.o render_system.o
 
 all: build
 
@@ -65,6 +67,12 @@ system_manager.o: src/systems/system_manager.h src/systems/system_manager.c $(CO
 
 coordinator.o: src/coordinator.h src/coordinator.c $(COMMON) build_dir
 	$(CC) $(CFLAGS) $(INCLUDES) -c src/coordinator.c -o $(OBJDIR)/coordinator.o
+
+movement_system.o: src/systems/movement_system.h src/systems/movement_system.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/movement_system.c -o $(OBJDIR)/systems/movement_system.o
+
+render_system.o: src/systems/render_system.h src/systems/render_system.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/render_system.c -o $(OBJDIR)/systems/render_system.o
 
 build_dir:
 	mkdir -p build/obj/systems build/bin

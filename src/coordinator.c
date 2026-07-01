@@ -11,6 +11,7 @@
 static ComponentManager componentManager = { 0 };
 static EntityManager entityManager = { 0 };
 static SystemManager systemManager = { 0 };
+static bool initCalled = false;
 
 /**
  * Initializes all the managers
@@ -24,6 +25,7 @@ void CoordinatorInit()
 	ComponentManagerInit(&componentManager);
 	EntityManagerInit(&entityManager);
 	SystemManagerInit(&systemManager);
+    initCalled = true;
 }
 
 /**
@@ -32,6 +34,7 @@ void CoordinatorInit()
  */
 Entity CoordinatorCreateEntity()
 {
+    assert(initCalled && "CoordinatorInit was not called before use");
 	return EntityManagerCreate(&entityManager);
 }
 
@@ -40,6 +43,7 @@ Entity CoordinatorCreateEntity()
  */
 void CoordinatorDestroyEntity(Entity entity)
 {
+    assert(initCalled && "CoordinatorInit was not called before use");
 	EntityManagerDestroy(&entityManager, entity);
 	ComponentManagerEntityDestroyed(&componentManager, entity);
 	SystemManagerEntityDestroyed(&systemManager, entity);
@@ -50,18 +54,8 @@ void CoordinatorDestroyEntity(Entity entity)
  */
 Signature CoordinatorGetEntitySignature(Entity entity)
 {
+    assert(initCalled && "CoordinatorInit was not called before use");
 	return EntityManagerGetSignature(&entityManager, entity);
-}
-
-bool CoordinatorHasComponent(Entity entity, ComponentType componentType)
-{
-	assert(entity < MAX_ENTITIES && "Invalid entity. Out of range");
-	ASSERT_COMPONENT_TYPE(componentType);
-
-	Signature componentSignature = COMPONENT_BIT(componentType);
-	Signature entitySignature =
-		EntityManagerGetSignature(&entityManager, entity);
-	return entitySignature & componentSignature;
 }
 
 /**
@@ -70,6 +64,7 @@ bool CoordinatorHasComponent(Entity entity, ComponentType componentType)
  */
 void CoordinatorRegisterComponent(ComponentType type, size_t sizeOfComponent)
 {
+    assert(initCalled && "CoordinatorInit was not called before use");
 	ComponentManagerRegister(&componentManager, type, sizeOfComponent);
 }
 
@@ -78,6 +73,7 @@ void CoordinatorRegisterComponent(ComponentType type, size_t sizeOfComponent)
  */
 void CoordinatorAddComponent(Entity entity, ComponentType type, void *component)
 {
+    assert(initCalled && "CoordinatorInit was not called before use");
 	ASSERT_COMPONENT_TYPE(type);
 
 	ComponentManagerAdd(&componentManager, type, entity, component);
@@ -93,6 +89,7 @@ void CoordinatorAddComponent(Entity entity, ComponentType type, void *component)
  */
 void CoordinatorRemoveComponent(Entity entity, ComponentType type)
 {
+    assert(initCalled && "CoordinatorInit was not called before use");
 	ASSERT_COMPONENT_TYPE(type);
 
 	ComponentManagerRemove(&componentManager, type, entity);
@@ -109,6 +106,7 @@ void CoordinatorRemoveComponent(Entity entity, ComponentType type)
  */
 void *CoordinatorGetComponent(Entity entity, ComponentType type)
 {
+    assert(initCalled && "CoordinatorInit was not called before use");
 	return ComponentManagerGet(&componentManager, type, entity);
 }
 
@@ -119,6 +117,7 @@ void *CoordinatorGetComponent(Entity entity, ComponentType type)
 System *CoordinatorRegisterSystem(SystemType type,
 				  void (*update)(System *self, float dt))
 {
+    assert(initCalled && "CoordinatorInit was not called before use");
 	return SystemManagerRegister(&systemManager, type, update);
 }
 
@@ -127,6 +126,7 @@ System *CoordinatorRegisterSystem(SystemType type,
  */
 void CoordinatorSetSystemSignature(SystemType type, Signature signature)
 {
+    assert(initCalled && "CoordinatorInit was not called before use");
 	SystemManagerSetSignature(&systemManager, type, signature);
 }
 
@@ -135,5 +135,6 @@ void CoordinatorSetSystemSignature(SystemType type, Signature signature)
  */
 System *CoordinatorGetSystem(SystemType type)
 {
+    assert(initCalled && "CoordinatorInit was not called before use");
 	return SystemManagerGetSystem(&systemManager, type);
 }

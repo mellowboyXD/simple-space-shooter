@@ -6,14 +6,13 @@
 #include "systems/system.h"
 
 #define REGISTER_COMPONENT(T, type) \
-	(CoordinatorRegisterComponent((type), sizeof((T))))
+	(CoordinatorRegisterComponent((type), sizeof(T)))
 #define GET_COMPONENT(T, entity, type) \
 	((T *)CoordinatorGetComponent((entity), (type)))
 
 void CoordinatorInit();
 Entity CoordinatorCreateEntity();
 void CoordinatorDestroyEntity(Entity entity);
-bool CoordinatorHasComponent(Entity entity, ComponentType componentType);
 
 void CoordinatorRegisterComponent(ComponentType type, size_t sizeOfComponent);
 void CoordinatorAddComponent(Entity entity, ComponentType type,
