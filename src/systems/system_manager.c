@@ -11,7 +11,7 @@ void SystemManagerInit(SystemManager *manager)
 /**
  * Register a new system's update method to the system registry
  */
-void SystemManagerRegister(SystemManager *manager, SystemType systemType,
+System *SystemManagerRegister(SystemManager *manager, SystemType systemType,
 			   void (*SystemUpdate)(System *self, float dt))
 {
 	assert(systemType < MAX_SYSTEMS_TYPE && "Invalid system type.");
@@ -19,6 +19,7 @@ void SystemManagerRegister(SystemManager *manager, SystemType systemType,
 	       "System is already registered.");
 
 	manager->systemPool[systemType].update = SystemUpdate;
+    return manager->systemPool + systemType;
 }
 
 /**
@@ -56,6 +57,8 @@ void SystemManagerEntityDestroyed(SystemManager *manager, Entity entity)
  */
 void SystemManagerEntitySignatureChanged(SystemManager *manager, Entity entity, Signature entitySignature)
 {
+    assert(entity < MAX_ENTITIES && "Invalid entity. Out of range.");
+
     for (SystemType t = 0; t < MAX_SYSTEMS_TYPE; t++) {
         System *system = manager->systemPool + t;
         Signature systemSignature = manager->signatures[t];
@@ -66,4 +69,14 @@ void SystemManagerEntitySignatureChanged(SystemManager *manager, Entity entity, 
             SystemRemoveEntity(system, entity);
         }
     }
+}
+
+/**
+ * Returns a pointer to the requested system.
+ */
+System *SystemManagerGetSystem(SystemManager *manager, SystemType systemType)
+{
+	assert(systemType < MAX_SYSTEMS_TYPE && "Invalid system type.");
+
+    return manager->systemPool + systemType;
 }

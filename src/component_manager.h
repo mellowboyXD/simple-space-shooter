@@ -4,11 +4,6 @@
 #include "component_pool.h"
 #include "components.h"
 
-#define REGISTER_COMPONENT(manager, T) \
-	(ComponentManagerRegister((manager), sizeof((T))))
-#define GET_COMPONENT(manager, type, entity, T) \
-	((T *)ComponentManagerGet((manager), (type), (entity)))
-
 typedef struct {
 	ComponentPool pools[MAX_COMPONENTS];
 	bool activePools[MAX_COMPONENTS];

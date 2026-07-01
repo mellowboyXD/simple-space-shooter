@@ -5,11 +5,6 @@
 
 #include <stddef.h>
 
-#define POOL_INIT(pool, T) ((T *) ComponentPoolInit((pool), sizeof(T)))
-#define POOL_GET(pool, entity, T) ((T *)ComponentPoolGet((pool), (entity)))
-#define POOL_ADD(pool, entity, component, T) \
-	((T *)ComponentPoolAdd((pool), (entity), &(component)))
-
 typedef struct {
 	void *data;
 	size_t sizeOfComponent;

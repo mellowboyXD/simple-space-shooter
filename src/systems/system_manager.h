@@ -11,12 +11,13 @@ typedef struct {
 } SystemManager;
 
 void SystemManagerInit(SystemManager *manager);
-void SystemManagerRegister(SystemManager *manager, SystemType systemType,
+System *SystemManagerRegister(SystemManager *manager, SystemType systemType,
 			   void (*systemUpdate)(System *self, float dt));
 void SystemManagerSetSignature(SystemManager *manager, SystemType systemType,
 			       Signature signature);
 void SystemManagerEntityDestroyed(SystemManager *manager, Entity entity);
 void SystemManagerEntitySignatureChanged(SystemManager *manager, Entity entity,
 					 Signature entitySignature);
+System *SystemManagerGetSystem(SystemManager *manager, SystemType systemType);
 
 #endif /* SYSTEM_MANAGER_H */

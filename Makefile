@@ -9,27 +9,27 @@ else
 	GAME := build/bin/space
 endif
 
-CC=gcc
-INCLUDES=-I./include -I./src
+CC := gcc
+INCLUDES := -I./include -I./src
 
 ifeq ($(PLATFORM), Windows)
-    LIBS=-L./lib/win -lraylib -lgdi32 -lwinmm
+	LIBS := -L./lib/win -lraylib -lgdi32 -lwinmm
 else ifeq ($(PLATFORM), Linux)
-    LIBS=-L./lib/linux -lraylib -lm -lX11
+	LIBS := -L./lib/linux -lraylib -lm -lX11
 else
     $(error Unknown platform: $(PLATFORM))
 endif
 
-COMMON=src/constants.h src/types.h src/components.h
+COMMON := src/constants.h src/types.h src/components.h
 
-OBJDIR=build/obj
-OBJS=$(OBJDIR)/main.o $(OBJDIR)/utils.o $(OBJDIR)/debug.o \
-	 $(OBJDIR)/entity_manager.o $(OBJDIR)/component_pool.o \
-	 $(OBJDIR)/component_manager.o $(OBJDIR)/systems/system.o \
-	 $(OBJDIR)/systems/system_manager.o
+OBJDIR := build/obj
+OBJS := $(OBJDIR)/main.o $(OBJDIR)/utils.o $(OBJDIR)/debug.o 		\
+	 $(OBJDIR)/entity_manager.o $(OBJDIR)/component_pool.o 			\
+	 $(OBJDIR)/component_manager.o $(OBJDIR)/systems/system.o 		\
+	 $(OBJDIR)/systems/system_manager.o $(OBJDIR)/coordinator.o
 
-TARGETS :=main.o utils.o debug.o entity_manager.o component_pool.o \
-		  component_manager.o system.o system_manager.o
+TARGETS := main.o utils.o debug.o entity_manager.o component_pool.o \
+		  component_manager.o system.o system_manager.o coordinator.o
 
 all: build
 
@@ -62,6 +62,9 @@ system.o: src/systems/system.h src/systems/system.c $(COMMON) build_dir
 
 system_manager.o: src/systems/system_manager.h src/systems/system_manager.c $(COMMON) build_dir
 	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/system_manager.c -o $(OBJDIR)/systems/system_manager.o
+
+coordinator.o: src/coordinator.h src/coordinator.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/coordinator.c -o $(OBJDIR)/coordinator.o
 
 build_dir:
 	mkdir -p build/obj/systems build/bin
