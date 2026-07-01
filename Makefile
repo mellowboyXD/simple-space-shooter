@@ -25,11 +25,15 @@ COMMON=src/constants.h src/types.h src/components.h
 OBJDIR=build/obj
 OBJS=$(OBJDIR)/main.o $(OBJDIR)/utils.o $(OBJDIR)/debug.o \
 	 $(OBJDIR)/entity_manager.o $(OBJDIR)/component_pool.o \
-	 $(OBJDIR)/component_manager.o
+	 $(OBJDIR)/component_manager.o $(OBJDIR)/systems/system.o \
+	 $(OBJDIR)/systems/system_manager.o
+
+TARGETS :=main.o utils.o debug.o entity_manager.o component_pool.o \
+		  component_manager.o system.o system_manager.o
 
 all: build
 
-build: main.o utils.o debug.o entity_manager.o component_pool.o component_manager.o
+build: $(TARGETS)
 	$(CC) $(CFLAGS) -o $(GAME) $(OBJS) $(LIBS)
 
 run: build
@@ -53,8 +57,14 @@ component_pool.o: src/component_pool.h src/component_pool.c $(COMMON) build_dir
 component_manager.o: src/component_manager.h src/component_manager.c $(COMMON) build_dir
 	$(CC) $(CFLAGS) $(INCLUDES) -c src/component_manager.c -o $(OBJDIR)/component_manager.o
 
+system.o: src/systems/system.h src/systems/system.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/system.c -o $(OBJDIR)/systems/system.o
+
+system_manager.o: src/systems/system_manager.h src/systems/system_manager.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/system_manager.c -o $(OBJDIR)/systems/system_manager.o
+
 build_dir:
-	mkdir -p build/obj build/bin
+	mkdir -p build/obj/systems build/bin
 
 clean:
 	rm -rf build/
