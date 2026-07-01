@@ -5,34 +5,22 @@
  * associated with an entity where each bit represents a component.
  */
 #include "entity_manager.h"
+
 #include "components.h"
-
 #include <assert.h>
-
-// Queue holding the entities. Index represents the entityID and the entityMasks
-// at that index describes which components are associated with that entity.
-// Possibly a circular queue?
-static Entity entityQueue[MAX_ENTITIES] = { 0 };
-
-// Total number of free entities
-static uint32_t entityCount = 0;
-
-static uint32_t qFront = 0; // Front of queue. Points to the first element of the queue
-static uint32_t qRear = MAX_ENTITIES - 1; // Back of queue. Points to the last element of the queue
-
-// Stores the component associated with each entity
-static Signature signatures[MAX_ENTITIES] = { 0 };
 
 /**
  * Initializes the entity queue and populate it with ids.
  * Also resets the associated components.
  */
-void InitEntityManager() 
+void EntityManagerInit(EntityManager *manager)
 {
-    for (Entity i = 0; i < MAX_ENTITIES; i++) {
-        entityQueue[i] = i;
-        signatures[i] = COMPONENT_NONE;
-    }
+	manager->qFront = 0;
+	manager->qRear = MAX_ENTITIES - 1;
+	for (Entity i = 0; i < MAX_ENTITIES; i++) {
+		manager->entityQueue[i] = i;
+		manager->signatures[i] = COMPONENT_NONE;
+	}
 }
 
 /**
@@ -40,48 +28,49 @@ void InitEntityManager()
  * Returns an entity which is just an id or index to where that entity is in the
  * entityQueue.
  */
-Entity CreateEntity()
+Entity EntityManagerCreate(EntityManager *manager)
 {
-	assert(entityCount < MAX_ENTITIES && "Too many entities");
+	assert(manager->entityCount < MAX_ENTITIES && "Too many entities");
 
-    // How to create an entity?
-    // Consume the front of the queue
-    Entity id = entityQueue[qFront];
-    qFront = (qFront + 1) % MAX_ENTITIES;
-    entityCount++;
+	// How to create an entity?
+	// Consume the front of the queue
+	Entity id = manager->entityQueue[manager->qFront];
+	manager->qFront = (manager->qFront + 1) % MAX_ENTITIES;
+	manager->entityCount++;
 
-    return id;
+	return id;
 }
 
-void DestroyEntity(Entity entity)
+void EntityManagerDestroy(EntityManager *manager, Entity entity)
 {
-    assert(entityCount > 0 && "Not enough entities");
+	assert(manager->entityCount > 0 && "Not enough entities");
 
-    // To destroy an entity, we have to set its index in the queue to be invalid
-    // invalidate the entity's component mask
-    signatures[entity] = COMPONENT_NONE;
+	// To destroy an entity, we have to set its index in the queue to be invalid
+	// invalidate the entity's component mask
+	manager->signatures[entity] = COMPONENT_NONE;
 
-    qRear = (qRear + 1) % MAX_ENTITIES;
-    entityQueue[qRear] = entity;
-    entityCount--;
+	manager->qRear = (manager->qRear + 1) % MAX_ENTITIES;
+	manager->entityQueue[manager->qRear] = entity;
+	manager->entityCount--;
 }
 
 /**
  * Associates a component to an entity.
  */
-void SetSignature(Entity entity, Signature signature)
+void EntityManagerSetSignature(EntityManager *manager, Entity entity,
+			       Signature signature)
 {
-    assert(entity < MAX_ENTITIES && "Invalid entity. Out of range");
+	assert(entity < MAX_ENTITIES && "Invalid entity. Out of range");
 
-    signatures[entity] = signature;
+	manager->signatures[entity] = signature;
 }
 
 /**
  * Returns a mask representing the components associated with that entity.
  */
-Signature GetSignature(Entity entity)
+Signature EntityManagerGetSignature(EntityManager *manager, Entity entity)
 {
-    assert(entity < MAX_ENTITIES && "Invalid entity. Out of range");
+	assert(entity < MAX_ENTITIES && "Invalid entity. Out of range");
 
-    return signatures[entity];
+	return manager->signatures[entity];
 }
