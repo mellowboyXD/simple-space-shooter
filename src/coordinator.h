@@ -13,6 +13,7 @@
 void CoordinatorInit();
 Entity CoordinatorCreateEntity();
 void CoordinatorDestroyEntity(Entity entity);
+bool CoordinatorHasComponent(Entity entity, ComponentType componentType);
 
 void CoordinatorRegisterComponent(ComponentType type, size_t sizeOfComponent);
 void CoordinatorAddComponent(Entity entity, ComponentType type,

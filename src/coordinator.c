@@ -4,6 +4,8 @@
  */
 #include "coordinator.h"
 #include "component_manager.h"
+#include "components.h"
+#include "entity_manager.h"
 #include "systems/system_manager.h"
 #include <assert.h>
 #include <string.h>
@@ -17,9 +19,9 @@ static SystemManager systemManager = { 0 };
  */
 void CoordinatorInit()
 {
-    memset(&componentManager, 0, sizeof(componentManager));
-    memset(&entityManager, 0, sizeof(entityManager));
-    memset(&systemManager, 0, sizeof(systemManager));
+	memset(&componentManager, 0, sizeof(componentManager));
+	memset(&entityManager, 0, sizeof(entityManager));
+	memset(&systemManager, 0, sizeof(systemManager));
 
 	ComponentManagerInit(&componentManager);
 	EntityManagerInit(&entityManager);
@@ -45,6 +47,25 @@ void CoordinatorDestroyEntity(Entity entity)
 	SystemManagerEntityDestroyed(&systemManager, entity);
 }
 
+/** 
+ * Returns the entity signature
+ */
+Signature CoordinatorGetEntitySignature(Entity entity)
+{
+	return EntityManagerGetSignature(&entityManager, entity);
+}
+
+bool CoordinatorHasComponent(Entity entity, ComponentType componentType)
+{
+	assert(entity < MAX_ENTITIES && "Invalid entity. Out of range");
+	ASSERT_COMPONENT_TYPE(componentType);
+
+	Signature componentSignature = COMPONENT_BIT(componentType);
+	Signature entitySignature =
+		EntityManagerGetSignature(&entityManager, entity);
+	return entitySignature & componentSignature;
+}
+
 /**
  * Delegates component registration to the component manager.
  * Prefer using the REGISTER_COMPONENT macro.
@@ -59,7 +80,7 @@ void CoordinatorRegisterComponent(ComponentType type, size_t sizeOfComponent)
  */
 void CoordinatorAddComponent(Entity entity, ComponentType type, void *component)
 {
-    ASSERT_COMPONENT_TYPE(type);
+	ASSERT_COMPONENT_TYPE(type);
 
 	ComponentManagerAdd(&componentManager, type, entity, component);
 	Signature sig = EntityManagerGetSignature(&entityManager, entity);
@@ -74,7 +95,7 @@ void CoordinatorAddComponent(Entity entity, ComponentType type, void *component)
  */
 void CoordinatorRemoveComponent(Entity entity, ComponentType type)
 {
-    ASSERT_COMPONENT_TYPE(type);
+	ASSERT_COMPONENT_TYPE(type);
 
 	ComponentManagerRemove(&componentManager, type, entity);
 	Signature sig = EntityManagerGetSignature(&entityManager, entity);
