@@ -15,26 +15,26 @@
 #include "raylib.h"
 #include <stdint.h>
 
-typedef uint8_t ComponentType;
-
-constexpr ComponentType MAX_COMPONENTS = 10;
+#define COMPONENT_BIT(type) (1u << (type))
+#define ASSERT_COMPONENT_TYPE(type)                                   \
+	(assert((type) > COMPONENT_NONE && (type) < MAX_COMPONENTS && \
+		"Invalid component type"))
 
 typedef enum {
-	COMPONENT_NONE = 0,
-	COMPONENT_POSITION = 1 << 0,
-	COMPONENT_VELOCITY = 1 << 1,
-	COMPONENT_HITBOX = 1 << 2,
-    COMPONENT_RENDER = 1 << 3
-} ComponentMask;
+	COMPONENT_NONE,
+	COMPONENT_POSITION,
+	COMPONENT_VELOCITY,
+	COMPONENT_HITBOX,
+	COMPONENT_RENDER,
+	MAX_COMPONENTS
+} ComponentType;
 
 typedef struct {
-	float x;
-	float y;
+	Vector2 pos;
 } Position;
 
 typedef struct {
-	float velX;
-	float velY;
+	Vector2 vel;
 } Velocity;
 
 typedef struct {
@@ -56,7 +56,7 @@ typedef enum { RENDER_COLOR, RENDER_SPRITE } RenderMode;
  * ```
  */
 typedef struct {
-    RenderMode renderMode;
+	RenderMode renderMode;
 	Color renderColor; // used this in mode RENDER_COLOR
 	int textureId; // use this in mode RENDER_SPRITE
 	Rectangle frame; // use this in mode RENDER_SPRITE

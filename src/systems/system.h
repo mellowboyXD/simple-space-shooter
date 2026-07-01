@@ -4,9 +4,7 @@
 #include "entity_manager.h"
 
 typedef enum {
-    POSITION_SYSTEM_TYPE,
-    VELOCITY_SYSTEM_TYPE,
-    RENDER_SYSTEM_TYPE,
+    MOVEMENT_SYSTEM_TYPE,
     MAX_SYSTEMS_TYPE,
     INVALID_SYSTEM_TYPE,
 } SystemType;

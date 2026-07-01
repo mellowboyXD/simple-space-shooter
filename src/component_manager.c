@@ -16,16 +16,16 @@ void ComponentManagerInit(ComponentManager *manager)
 /**
  * Registers a new component for use and returns its unique id(ComponentType).
  */
-ComponentType ComponentManagerRegister(ComponentManager *manager,
-				       size_t sizeOfComponent)
+void ComponentManagerRegister(ComponentManager *manager,
+			      ComponentType componentType,
+			      size_t sizeOfComponent)
 {
 	assert(manager->count < MAX_COMPONENTS && "Max components reached.");
 
-	size_t componentType = manager->count++;
 	ComponentPool *pool = manager->pools + componentType;
 	ComponentPoolInit(pool, sizeOfComponent);
 	manager->activePools[componentType] = true;
-	return (ComponentType)componentType;
+	manager->count++;
 }
 
 /**
@@ -35,8 +35,7 @@ void *ComponentManagerAdd(ComponentManager *manager,
 			  ComponentType componentType, Entity entity,
 			  void *component)
 {
-	assert(componentType < MAX_COMPONENTS &&
-	       "Invalid component type. Out of range");
+	ASSERT_COMPONENT_TYPE(componentType);
 	assert(manager->activePools[componentType] == true &&
 	       "Invalid component type. Inactive");
 
@@ -51,8 +50,7 @@ void *ComponentManagerAdd(ComponentManager *manager,
 void ComponentManagerRemove(ComponentManager *manager,
 			    ComponentType componentType, Entity entity)
 {
-	assert(componentType < MAX_COMPONENTS &&
-	       "Invalid component type. Out of range");
+	ASSERT_COMPONENT_TYPE(componentType);
 	assert(manager->activePools[componentType] == true &&
 	       "Invalid component type. Inactive");
 
@@ -66,8 +64,7 @@ void ComponentManagerRemove(ComponentManager *manager,
 bool ComponentManagerHas(const ComponentManager *manager,
 			 ComponentType componentType, Entity entity)
 {
-	assert(componentType < MAX_COMPONENTS &&
-	       "Invalid component type. Out of range");
+    ASSERT_COMPONENT_TYPE(componentType);
 	assert(manager->activePools[componentType] == true &&
 	       "Invalid component type. Inactive");
 
@@ -81,8 +78,7 @@ bool ComponentManagerHas(const ComponentManager *manager,
 void *ComponentManagerGet(const ComponentManager *manager,
 			  ComponentType componentType, Entity entity)
 {
-	assert(componentType < MAX_COMPONENTS &&
-	       "Invalid component type. Out of range");
+    ASSERT_COMPONENT_TYPE(componentType);
 	assert(manager->activePools[componentType] == true &&
 	       "Invalid component type. Inactive");
 

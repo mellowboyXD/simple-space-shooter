@@ -4,7 +4,11 @@
  */
 #include "coordinator.h"
 #include "component_manager.h"
+#include "components.h"
+#include "entity_manager.h"
 #include "systems/system_manager.h"
+#include <assert.h>
+#include <string.h>
 
 static ComponentManager componentManager = { 0 };
 static EntityManager entityManager = { 0 };
@@ -15,6 +19,10 @@ static SystemManager systemManager = { 0 };
  */
 void CoordinatorInit()
 {
+    memset(&componentManager, 0, sizeof(componentManager));
+    memset(&entityManager, 0, sizeof(entityManager));
+    memset(&systemManager, 0, sizeof(systemManager));
+
 	ComponentManagerInit(&componentManager);
 	EntityManagerInit(&entityManager);
 	SystemManagerInit(&systemManager);
@@ -30,36 +38,52 @@ Entity CoordinatorCreateEntity()
 }
 
 /**
- * Destroy an entity. Delegates entity destruction logic to the entity manager.
+ * Destroy an entity. 
  */
 void CoordinatorDestroyEntity(Entity entity)
 {
 	EntityManagerDestroy(&entityManager, entity);
+	ComponentManagerEntityDestroyed(&componentManager, entity);
+	SystemManagerEntityDestroyed(&systemManager, entity);
 }
 
 /**
  * Delegates component registration to the component manager.
  * Prefer using the REGISTER_COMPONENT macro.
  */
-ComponentType CoordinatorRegisterComponent(size_t sizeOfComponent)
+void CoordinatorRegisterComponent(ComponentType type, size_t sizeOfComponent)
 {
-	return ComponentManagerRegister(&componentManager, sizeOfComponent);
+	ComponentManagerRegister(&componentManager, type, sizeOfComponent);
 }
 
 /**
- * Delegates component addition to the component manager
+ * Adds a component to an entity.
  */
 void CoordinatorAddComponent(Entity entity, ComponentType type, void *component)
 {
+    ASSERT_COMPONENT_TYPE(type);
+
 	ComponentManagerAdd(&componentManager, type, entity, component);
+	Signature sig = EntityManagerGetSignature(&entityManager, entity);
+	sig |= COMPONENT_BIT(type);
+	EntityManagerSetSignature(&entityManager, entity, sig);
+
+	SystemManagerEntitySignatureChanged(&systemManager, entity, sig);
 }
 
 /**
- * Delegates component removal to component manager
+ * Removes a component from an entity.
  */
 void CoordinatorRemoveComponent(Entity entity, ComponentType type)
 {
+    ASSERT_COMPONENT_TYPE(type);
+
 	ComponentManagerRemove(&componentManager, type, entity);
+	Signature sig = EntityManagerGetSignature(&entityManager, entity);
+	sig &= ~COMPONENT_BIT(type);
+	EntityManagerSetSignature(&entityManager, entity, sig);
+
+	SystemManagerEntitySignatureChanged(&systemManager, entity, sig);
 }
 
 /**
