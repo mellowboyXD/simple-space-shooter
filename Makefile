@@ -1,26 +1,41 @@
 DEBUG ?= 0
+PLATFORM := $(shell uname)
 
 ifeq ($(DEBUG), 1)
 	CFLAGS := -Wall -Wextra -Wpedantic -std=c23 -g -DDEBUG
+	GAME := build/bin/space_d
 else
 	CFLAGS := -Wall -Wextra -Wpedantic -std=c23
+	GAME := build/bin/space
 endif
 
-CC=gcc
-LIBS=-L./lib -lraylib -lgdi32 -lwinmm
-INCLUDES=-I./include -Isrc
+CC := gcc
+INCLUDES := -I./include -I./src
 
-COMMON=src/constants.h src/types.h
+ifeq ($(PLATFORM), Windows)
+	LIBS := -L./lib/win -lraylib -lgdi32 -lwinmm
+else ifeq ($(PLATFORM), Linux)
+	LIBS := -L./lib/linux -lraylib -lm -lX11
+else
+    $(error Unknown platform: $(PLATFORM))
+endif
 
-OBJDIR=build/obj
-OBJS=$(OBJDIR)/main.o $(OBJDIR)/player.o $(OBJDIR)/bullet.o $(OBJDIR)/enemy.o \
-     $(OBJDIR)/utils.o $(OBJDIR)/debug.o $(OBJDIR)/collision.o
-GAME=build/bin/space
+COMMON := src/constants.h src/types.h src/components.h
 
+OBJDIR := build/obj
+OBJS := $(OBJDIR)/main.o $(OBJDIR)/utils.o $(OBJDIR)/debug.o 		\
+	 $(OBJDIR)/entity_manager.o $(OBJDIR)/component_pool.o 			\
+	 $(OBJDIR)/component_manager.o $(OBJDIR)/systems/system.o 		\
+	 $(OBJDIR)/systems/system_manager.o $(OBJDIR)/coordinator.o		\
+	 $(OBJDIR)/systems/movement_system.o $(OBJDIR)/systems/render_system.o
+
+TARGETS := main.o utils.o debug.o entity_manager.o component_pool.o 	\
+		  component_manager.o system.o system_manager.o coordinator.o 	\
+		  movement_system.o render_system.o
 
 all: build
 
-build: main.o player.o bullet.o enemy.o utils.o debug.o collision.o
+build: $(TARGETS)
 	$(CC) $(CFLAGS) -o $(GAME) $(OBJS) $(LIBS)
 
 run: build
@@ -29,26 +44,38 @@ run: build
 main.o: src/main.c $(COMMON) build_dir
 	$(CC) $(CFLAGS) $(INCLUDES) -c src/main.c -o $(OBJDIR)/main.o
 
-player.o: src/player.c src/player.h $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/player.c -o $(OBJDIR)/player.o
-
-bullet.o: src/bullet.c src/bullet.h $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/bullet.c -o $(OBJDIR)/bullet.o
-
-enemy.o: src/enemy.c src/enemy.h $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/enemy.c -o $(OBJDIR)/enemy.o
-
 utils.o: src/utils.c src/utils.h $(COMMON) build_dir
 	$(CC) $(CFLAGS) $(INCLUDES) -c src/utils.c -o $(OBJDIR)/utils.o
 
 debug.o: src/debug.c src/debug.h build_dir
 	$(CC) $(CFLAGS) $(INCLUDES) -c src/debug.c -o $(OBJDIR)/debug.o
 
-collision.o: src/collision.c src/collision.h $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/collision.c -o $(OBJDIR)/collision.o
+entity_manager.o: src/entity_manager.h src/entity_manager.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/entity_manager.c -o $(OBJDIR)/entity_manager.o
+
+component_pool.o: src/component_pool.h src/component_pool.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/component_pool.c -o $(OBJDIR)/component_pool.o
+
+component_manager.o: src/component_manager.h src/component_manager.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/component_manager.c -o $(OBJDIR)/component_manager.o
+
+system.o: src/systems/system.h src/systems/system.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/system.c -o $(OBJDIR)/systems/system.o
+
+system_manager.o: src/systems/system_manager.h src/systems/system_manager.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/system_manager.c -o $(OBJDIR)/systems/system_manager.o
+
+coordinator.o: src/coordinator.h src/coordinator.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/coordinator.c -o $(OBJDIR)/coordinator.o
+
+movement_system.o: src/systems/movement_system.h src/systems/movement_system.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/movement_system.c -o $(OBJDIR)/systems/movement_system.o
+
+render_system.o: src/systems/render_system.h src/systems/render_system.c $(COMMON) build_dir
+	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/render_system.c -o $(OBJDIR)/systems/render_system.o
 
 build_dir:
-	mkdir -p build/obj build/bin
+	mkdir -p build/obj/systems build/bin
 
 clean:
 	rm -rf build/

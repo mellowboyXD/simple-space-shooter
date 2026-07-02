@@ -1,68 +1,48 @@
-#include "bullet.h"
+#include "components.h"
+#include "constants.h"
+#include "coordinator.h"
 #include "debug.h"
-#include "enemy.h"
-#include "types.h"
-#include "player.h"
-
-void InitGameState(GameState *gameState);
-void MainDraw(GameState *gameState);
-void MainUpdate(GameState *gameState, float dt);
+#include "raylib.h"
+#include "systems/movement_system.h"
+#include "systems/render_system.h"
 
 int main(void)
 {
-        LOG(L_INFO, "Hello brave new world!");
-        InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Space Shooter");
-        SetTargetFPS(FPS);
-        ToggleFullscreen();
-        
-        GameState gameState = { 0 };
+	LOG(L_INFO, "Hello brave new world!");
+	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Space Shooter");
+	SetTargetFPS(FPS);
 
-        InitGameState(&gameState);
+    CoordinatorInit();
 
-        while (!WindowShouldClose()) {
-                float dt = GetFrameTime();
-                MainDraw(&gameState);
-                MainUpdate(&gameState, dt);
-        }
+	REGISTER_COMPONENT(Position, COMPONENT_POSITION);
+	REGISTER_COMPONENT(Velocity, COMPONENT_VELOCITY);
+	REGISTER_COMPONENT(Hitbox, COMPONENT_HITBOX);
+	REGISTER_COMPONENT(Render, COMPONENT_RENDER);
 
-        CloseWindow();
-        return 0;
+	MovementSystem *movementSystem = MovementSystemCreate();
+	RenderSystem *renderSystem = RenderSystemCreate();
+
+	Entity player = CoordinatorCreateEntity();
+
+	CoordinatorAddComponent(player, COMPONENT_POSITION,
+				&POSITION(10, 10));
+	CoordinatorAddComponent(player, COMPONENT_VELOCITY,
+				&VELOCITY(100, 20));
+	CoordinatorAddComponent(player, COMPONENT_HITBOX,
+				&HITBOX(30, 30));
+	CoordinatorAddComponent(
+		player, COMPONENT_RENDER,
+		&((Render){ .renderColor = BLUE, .renderMode = RENDER_COLOR }));
+
+	while (!WindowShouldClose()) {
+		float dt = GetFrameTime();
+		BeginDrawing();
+		ClearBackground(RAYWHITE);
+		movementSystem->update(movementSystem, dt);
+		renderSystem->update(renderSystem, dt);
+		EndDrawing();
+	}
+
+	CloseWindow();
+	return 0;
 }
-
-void InitGameState(GameState *gameState)
-{
-        gameState->currentState = STATE_PLAY;
-        gameState->uiPanel = (Rectangle) {
-                .x = (1 - UI_PANEL_RATIO) * GetScreenWidth(), 
-                .y = 0, 
-                .width = UI_PANEL_RATIO * GetScreenWidth(), 
-                .height = GetScreenHeight()
-        };
-        InitPlayer(&gameState->player);
-        InitBullets(gameState->bulletPool);
-        InitEnemies(gameState->enemyPool);
-}
-
-void MainDraw(GameState *gameState) 
-{
-        BeginDrawing();
-        DrawRectangleRec(gameState->uiPanel, BLACK);
-        DrawRectangle(gameState->uiPanel.x, gameState->uiPanel.y, 2, 
-                        gameState->uiPanel.height, RAYWHITE);
-
-        ClearBackground(BLACK);
-        DrawFPS(0, 0);
-        DrawBullets(gameState->bulletPool);
-        DrawPlayer(gameState->player);
-        DrawEnemies(gameState->enemyPool);
-
-        EndDrawing();
-}
-
-void MainUpdate(GameState *gameState, float dt)
-{
-        UpdatePlayer(gameState, dt);
-        UpdateBullets(gameState, dt);
-        UpdateEnemies(gameState, dt);
-}
-
