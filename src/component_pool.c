@@ -1,5 +1,4 @@
 #include "component_pool.h"
-#include "components.h"
 #include "debug.h"
 #include <assert.h>
 #include <stdlib.h>
@@ -25,7 +24,7 @@ void ComponentPoolInit(ComponentPool *pool, size_t size)
 /**
  * Checks if a entity  already has the component
  */
-bool ComponentPoolHas(ComponentPool *pool, Entity entity)
+bool ComponentPoolHas(const ComponentPool *pool, Entity entity)
 {
 	ASSERT_ENTITY(entity);
 
@@ -35,7 +34,7 @@ bool ComponentPoolHas(ComponentPool *pool, Entity entity)
 /**
  * Returns the component data for an entity
  */
-void *ComponentPoolGet(ComponentPool *pool, Entity entity)
+void *ComponentPoolGet(const ComponentPool *pool, Entity entity)
 {
 	ASSERT_ENTITY(entity);
 
@@ -61,7 +60,7 @@ void *ComponentPoolAdd(ComponentPool *pool, Entity entity, void *component)
 		return (char *)pool->data + index * pool->sizeOfComponent;
 	}
 
-	assert(pool->count < MAX_COMPONENTS && "Max components reached.");
+	assert(pool->count < MAX_ENTITIES && "Max components reached.");
 	size_t index = pool->count++;
 
 	memcpy((char *)pool->data + index * pool->sizeOfComponent, component,

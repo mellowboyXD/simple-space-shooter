@@ -1,10 +1,12 @@
-#include "debug.h"
-
 #include <stdarg.h>
 
 #ifdef DEBUG
+
+#include "debug.h"
 #include <stdio.h>
-void ___log(LogLevel logLevel, const char *file, int line, const char *fmt, ...)
+
+void debug_log(LogLevel logLevel, const char *file, int line, const char *fmt,
+	       ...)
 {
 	switch (logLevel) {
 	case L_INFO:

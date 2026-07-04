@@ -5,11 +5,12 @@
 
 void SystemInit(System *self)
 {
-    for (Entity i = 0; i < MAX_ENTITIES; i++) {
-        self->entityToIndexMap[i] = INVALID_INDEX;
-        self->update = NULL;
-        self->count = 0;
-    }
+	self->update = NULL;
+	self->count = 0;
+
+	for (Entity i = 0; i < MAX_ENTITIES; i++) {
+		self->entityToIndexMap[i] = INVALID_INDEX;
+	}
 }
 
 /**

@@ -7,23 +7,23 @@
 void SystemManagerInit(SystemManager *manager)
 {
 	memset(manager, 0, sizeof(*manager));
-    for (SystemType t = 0; t < MAX_SYSTEMS_TYPE; t++) {
-        SystemInit(manager->systemPool + t);
-    }
+	for (SystemType t = 0; t < MAX_SYSTEMS_TYPE; t++) {
+		SystemInit(manager->systemPool + t);
+	}
 }
 
 /**
  * Register a new system's update method to the system registry
  */
 System *SystemManagerRegister(SystemManager *manager, SystemType systemType,
-			   void (*SystemUpdate)(System *self, float dt))
+			      void (*SystemUpdate)(System *self, float dt))
 {
 	assert(systemType < MAX_SYSTEMS_TYPE && "Invalid system type.");
 	assert(manager->systemPool[systemType].update == NULL &&
 	       "System is already registered.");
 
 	manager->systemPool[systemType].update = SystemUpdate;
-    return manager->systemPool + systemType;
+	return manager->systemPool + systemType;
 }
 
 /**
@@ -41,17 +41,11 @@ void SystemManagerSetSignature(SystemManager *manager, SystemType systemType,
  */
 void SystemManagerEntityDestroyed(SystemManager *manager, Entity entity)
 {
-    assert(entity < MAX_ENTITIES && "Invalid entity. Out of range.");
+	assert(entity < MAX_ENTITIES && "Invalid entity. Out of range.");
 
 	for (SystemType t = 0; t < MAX_SYSTEMS_TYPE; t++) {
-		System *system = manager->systemPool + t;
-		for (size_t i = 0; i < system->count; i++) {
-			if (system->entities[i] == entity) {
-				// swap with last to maintain packed array
-				system->entities[i] = system->entities[system->count--];
-				break; // move to next system
-			}
-		}
+		// swap with last to maintain packed array
+		SystemRemoveEntity(manager->systemPool + t, entity);
 	}
 }
 
@@ -59,21 +53,22 @@ void SystemManagerEntityDestroyed(SystemManager *manager, Entity entity)
  * Adds entities or remove entities if it belongs to a system, otherwise remove
  * it.
  */
-void SystemManagerEntitySignatureChanged(SystemManager *manager, Entity entity, Signature entitySignature)
+void SystemManagerEntitySignatureChanged(SystemManager *manager, Entity entity,
+					 Signature entitySignature)
 {
-    assert(entity < MAX_ENTITIES && "Invalid entity. Out of range.");
+	assert(entity < MAX_ENTITIES && "Invalid entity. Out of range.");
 
-    for (SystemType t = 0; t < MAX_SYSTEMS_TYPE; t++) {
-        System *system = manager->systemPool + t;
-        Signature systemSignature = manager->signatures[t];
+	for (SystemType t = 0; t < MAX_SYSTEMS_TYPE; t++) {
+		System *system = manager->systemPool + t;
+		Signature systemSignature = manager->signatures[t];
 
-        if ((entitySignature & systemSignature) == systemSignature) {
-            SystemAddEntity(system, entity);
-        } else {
-            // entity signature does not match system, remove from set
-            SystemRemoveEntity(system, entity);
-        }
-    }
+		if ((entitySignature & systemSignature) == systemSignature) {
+			SystemAddEntity(system, entity);
+		} else {
+			// entity signature does not match system, remove from set
+			SystemRemoveEntity(system, entity);
+		}
+	}
 }
 
 /**
@@ -83,5 +78,5 @@ System *SystemManagerGetSystem(SystemManager *manager, SystemType systemType)
 {
 	assert(systemType < MAX_SYSTEMS_TYPE && "Invalid system type.");
 
-    return manager->systemPool + systemType;
+	return manager->systemPool + systemType;
 }

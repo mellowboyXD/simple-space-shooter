@@ -25,6 +25,8 @@ void ComponentManagerRegister(ComponentManager *manager,
 			      size_t sizeOfComponent)
 {
 	assert(manager->count < MAX_COMPONENTS && "Max components reached.");
+	assert(manager->activePools[componentType] == false &&
+	       "Component has alredy been registered.");
 
 	ComponentPool *pool = manager->pools + componentType;
 	ComponentPoolInit(pool, sizeOfComponent);
@@ -69,7 +71,7 @@ bool ComponentManagerHas(const ComponentManager *manager,
 	ASSERT_COMPONENT_TYPE(componentType);
 	ASSERT_ACTIVE_TYPE(componentType);
 
-	ComponentPool *pool = (ComponentPool *)manager->pools + componentType;
+	const ComponentPool *pool = manager->pools + componentType;
 	return ComponentPoolHas(pool, entity);
 }
 
@@ -82,7 +84,7 @@ void *ComponentManagerGet(const ComponentManager *manager,
 	ASSERT_COMPONENT_TYPE(componentType);
 	ASSERT_ACTIVE_TYPE(componentType);
 
-	ComponentPool *pool = (ComponentPool *)manager->pools + componentType;
+	const ComponentPool *pool = manager->pools + componentType;
 	return ComponentPoolGet(pool, entity);
 }
 
@@ -92,7 +94,7 @@ void *ComponentManagerGet(const ComponentManager *manager,
  */
 void ComponentManagerEntityDestroyed(ComponentManager *manager, Entity entity)
 {
-	for (size_t i = 0; i < manager->count; i++) {
+	for (size_t i = 0; i < MAX_COMPONENTS; i++) {
 		ComponentPool *pool = manager->pools + i;
 		if (manager->activePools[i] && ComponentPoolHas(pool, entity)) {
 			ComponentPoolRemove(pool, entity);
