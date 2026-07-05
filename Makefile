@@ -1,81 +1,64 @@
+# reference: https://makefiletutorial.com/#makefile-cookbook
 DEBUG ?= 0
 PLATFORM := $(shell uname)
+TARGET_EXEC := space_game
+CC := gcc
+CFLAGS := -Wall -Wextra -Wpedantic -std=c23 -I./include
+LIBS :=
+BUILD_DIR := ./build
+SRC_DIRS := ./src
+INCLUDE := ./include
 
 ifeq ($(DEBUG), 1)
-	CFLAGS := -Wall -Wextra -Wpedantic -std=c23 -g -DDEBUG
-	GAME := build/bin/space_d
-else
-	CFLAGS := -Wall -Wextra -Wpedantic -std=c23
-	GAME := build/bin/space
+	CFLAGS += -g -DDEBUG
+	TARGET_EXEC := space_game_d
 endif
 
-CC := gcc
-INCLUDES := -I./include -I./src
-
 ifeq ($(PLATFORM), Windows_NT)
-	LIBS := -L./lib/win -lraylib -lgdi32 -lwinmm
+	LIBS += -L./lib/win -lraylib -lgdi32 -lwinmm
 else ifeq ($(PLATFORM), Linux)
-	LIBS := -L./lib/linux -lraylib -lm -lX11
+	LIBS += -L./lib/linux -lraylib -lm -lX11
 else
 	$(error Unknown platform: $(PLATFORM))
 endif
 
-COMMON := src/constants.h src/components.h
+# Find all the C files we want to compile
+# Note the single quotes around the * expressions. The shell will incorrectly expand these otherwise, but we want to send the * directly to the find command.
+SRCS := $(shell find $(SRC_DIRS) -name '*.c')
 
-OBJDIR := build/obj
-OBJS := $(OBJDIR)/main.o $(OBJDIR)/utils.o $(OBJDIR)/debug.o 		\
-		$(OBJDIR)/entity_manager.o $(OBJDIR)/component_pool.o 			\
-		$(OBJDIR)/component_manager.o $(OBJDIR)/systems/system.o 		\
-		$(OBJDIR)/systems/system_manager.o $(OBJDIR)/coordinator.o		\
-		$(OBJDIR)/systems/movement_system.o $(OBJDIR)/systems/render_system.o
+# Prepends BUILD_DIR and appends .o to every src file
+# As an example, ./your_dir/hello.cpp turns into ./build/./your_dir/hello.cpp.o
+OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
 
-TARGETS := main.o utils.o debug.o entity_manager.o component_pool.o 	\
-		   component_manager.o system.o system_manager.o coordinator.o 	\
-		   movement_system.o render_system.o
+# String substitution (suffix version without %).
+# As an example, ./build/hello.cpp.o turns into ./build/hello.cpp.d
+DEPS := $(OBJS:.o=.d)
 
-all: build
+# Every folder in ./src will need to be passed to GCC so that it can find header files
+INC_DIRS := $(shell find $(SRC_DIRS) -type d)
+# Add a prefix to INC_DIRS. So moduleA would become -ImoduleA. GCC understands this -I flag
+INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 
-build: $(TARGETS)
-	$(CC) $(CFLAGS) -o $(GAME) $(OBJS) $(LIBS)
+# The -MMD and -MP flags together generate Makefiles for us!
+# These files will have .d instead of .o as the output.
+CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
-run: build
-	./$(GAME)
+# The final build step.
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS) $(LIBS)
 
-main.o: src/main.c $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/main.c -o $(OBJDIR)/main.o
+# Build step for C source
+$(BUILD_DIR)/%.c.o: %.c
+	mkdir -p $(dir $@)
+	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-utils.o: src/utils.c src/utils.h $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/utils.c -o $(OBJDIR)/utils.o
-
-debug.o: src/debug.c src/debug.h build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/debug.c -o $(OBJDIR)/debug.o
-
-entity_manager.o: src/entity_manager.h src/entity_manager.c $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/entity_manager.c -o $(OBJDIR)/entity_manager.o
-
-component_pool.o: src/component_pool.h src/component_pool.c $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/component_pool.c -o $(OBJDIR)/component_pool.o
-
-component_manager.o: src/component_manager.h src/component_manager.c $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/component_manager.c -o $(OBJDIR)/component_manager.o
-
-system.o: src/systems/system.h src/systems/system.c $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/system.c -o $(OBJDIR)/systems/system.o
-
-system_manager.o: src/systems/system_manager.h src/systems/system_manager.c $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/system_manager.c -o $(OBJDIR)/systems/system_manager.o
-
-coordinator.o: src/coordinator.h src/coordinator.c $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/coordinator.c -o $(OBJDIR)/coordinator.o
-
-movement_system.o: src/systems/movement_system.h src/systems/movement_system.c $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/movement_system.c -o $(OBJDIR)/systems/movement_system.o
-
-render_system.o: src/systems/render_system.h src/systems/render_system.c $(COMMON) build_dir
-	$(CC) $(CFLAGS) $(INCLUDES) -c src/systems/render_system.c -o $(OBJDIR)/systems/render_system.o
-
-build_dir:
-	mkdir -p build/obj/systems build/bin
-
+.PHONY: clean run
 clean:
-	rm -rf build/
+	rm -r $(BUILD_DIR)
+run: $(BUILD_DIR)/$(TARGET_EXEC)
+	$(BUILD_DIR)/$(TARGET_EXEC)
+
+# Include the .d makefiles. The - at the front suppresses the errors of missing
+# Makefiles. Initially, all the .d files will be missing, and we don't want those
+# errors to show up.
+-include $(DEPS)
