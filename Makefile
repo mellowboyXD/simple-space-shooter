@@ -4,10 +4,9 @@ PLATFORM := $(shell uname)
 TARGET_EXEC := space_game
 CC := gcc
 CFLAGS := -Wall -Wextra -Wpedantic -std=c23 -I./include
-LIBS :=
+LDFLAGS :=
 BUILD_DIR := ./build
 SRC_DIRS := ./src
-INCLUDE := ./include
 
 ifeq ($(DEBUG), 1)
 	CFLAGS += -g -DDEBUG
@@ -15,9 +14,9 @@ ifeq ($(DEBUG), 1)
 endif
 
 ifeq ($(PLATFORM), Windows_NT)
-	LIBS += -L./lib/win -lraylib -lgdi32 -lwinmm
+	LDFLAGS += -L./lib/win -lraylib -lgdi32 -lwinmm
 else ifeq ($(PLATFORM), Linux)
-	LIBS += -L./lib/linux -lraylib -lm -lX11
+	LDFLAGS += -L./lib/linux -lraylib -lm -lX11
 else
 	$(error Unknown platform: $(PLATFORM))
 endif
@@ -45,7 +44,7 @@ CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
 # The final build step.
 $(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS) $(LIBS)
+	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 # Build step for C source
 $(BUILD_DIR)/%.c.o: %.c
@@ -55,8 +54,9 @@ $(BUILD_DIR)/%.c.o: %.c
 .PHONY: clean run
 clean:
 	rm -r $(BUILD_DIR)
+
 run: $(BUILD_DIR)/$(TARGET_EXEC)
-	$(BUILD_DIR)/$(TARGET_EXEC)
+	./$(BUILD_DIR)/$(TARGET_EXEC)
 
 # Include the .d makefiles. The - at the front suppresses the errors of missing
 # Makefiles. Initially, all the .d files will be missing, and we don't want those
