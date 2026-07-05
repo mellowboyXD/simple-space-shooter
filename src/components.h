@@ -57,8 +57,9 @@ typedef enum { RENDER_COLOR, RENDER_SPRITE } RenderMode;
  * } TextureCache;
  * ```
  */
-#define RENDER(mode, color, textureId, frame) \
-	((Render){ (mode), (color), (textureId), (frame) })
+#define RENDER_C(color) ((Render){ RENDER_COLOR, (color), -1, { 0, 0, 0, 0 } })
+#define RENDER_S(textureId, frame) \
+	((Render){ RENDER_SPRITE, WHITE, (textureId), (frame) })
 typedef struct {
 	RenderMode renderMode;
 	Color renderColor; // used this in mode RENDER_COLOR

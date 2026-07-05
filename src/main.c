@@ -27,8 +27,7 @@ int main(void)
 	CoordinatorAddComponent(player, COMPONENT_POSITION, &POSITION(10, 10));
 	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(100, 20));
 	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(30, 30));
-	CoordinatorAddComponent(player, COMPONENT_RENDER,
-				&RENDER(RENDER_COLOR, BLUE, 0, 0));
+	CoordinatorAddComponent(player, COMPONENT_RENDER, &RENDER_C(BLUE));
 
 	while (!WindowShouldClose()) {
 		float dt = GetFrameTime();
