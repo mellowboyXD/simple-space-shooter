@@ -1,17 +1,19 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-typedef enum {L_INFO, L_WARN, L_ERROR} LogLevel;
-
-#define LOG(logLevel, fmt, ...) __log(logLevel, __FILE__, __LINE__, \
-                fmt __VA_OPT__(,) __VA_ARGS__)
+typedef enum { L_INFO, L_WARN, L_ERROR } LogLevel;
 
 #ifdef DEBUG
 
-void __log(LogLevel logLevel, const char *file, int line, const char *fmt, ...);
+void debug_log(LogLevel logLevel, const char *file, int line, const char *fmt,
+	       ...);
+
+#define LOG(logLevel, fmt, ...) \
+	debug_log(logLevel, __FILE__, __LINE__, fmt __VA_OPT__(, ) __VA_ARGS__)
 
 #else
-        #define __log(...) ((void) 0)
-#endif // DEBUG
 
+#define LOG(logLevel, ...) ((void)0)
+
+#endif // DEBUG
 #endif // DEBUG_H
