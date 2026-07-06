@@ -1,8 +1,8 @@
+#include "debug.h"
 #include <stdarg.h>
 
 #ifdef DEBUG
 
-#include "debug.h"
 #include <stdio.h>
 
 void debug_log(LogLevel logLevel, const char *file, int line, const char *fmt,
