@@ -26,6 +26,7 @@ void GameInit(GameData *gameData)
 	CoordinatorAddComponent(player, COMPONENT_RENDER, &RENDER_C(BLUE));
 
 	gameData->screen = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+	gameData->devPanel = (Rectangle){ 0, 0, 350, 300 };
 }
 
 void GameCreateSystems(GameData *gameData)

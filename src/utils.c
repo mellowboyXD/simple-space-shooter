@@ -29,3 +29,13 @@ int GamePanelHeight()
 {
 	return GetScreenHeight();
 }
+
+float SimpleClamp(float f, int min, int max)
+{
+    if (f < min)
+        return min;
+    else if (f > max)
+        return max;
+
+    return f;
+}

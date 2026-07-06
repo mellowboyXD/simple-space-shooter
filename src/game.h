@@ -8,6 +8,7 @@ typedef struct {
     System *systems[MAX_SYSTEMS_TYPE];
     Entity player;
     RenderTexture2D screen;
+    Rectangle devPanel;
 } GameData;
 
 void GameInit(GameData *gameData);
