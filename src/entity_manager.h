@@ -34,6 +34,7 @@ typedef struct {
 } EntityManager;
 
 void EntityManagerInit(EntityManager *manager);
+void EntityManagerDeinit(EntityManager *manager);
 Entity EntityManagerCreate(EntityManager *manager);
 void EntityManagerDestroy(EntityManager *manager, Entity entity);
 void EntityManagerSetSignature(EntityManager *manager, Entity entity,

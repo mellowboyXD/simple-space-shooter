@@ -5,6 +5,7 @@
 
 #include "coordinator.h"
 #include "component_manager.h"
+#include "debug.h"
 #include "systems/system_manager.h"
 #include <assert.h>
 #include <string.h>
@@ -31,6 +32,19 @@ void CoordinatorInit()
 	EntityManagerInit(&entityManager);
 	SystemManagerInit(&systemManager);
 	initCalled = true;
+    LOG(L_INFO, "Coordinator successfully initialized.");
+}
+
+/**
+ * Deinitializes all managers
+ */
+void CoordinatorDeinit()
+{
+    assert(initCalled && "Coordinator init was never called");
+    ComponentManagerDeinit(&componentManager);
+    EntityManagerDeinit(&entityManager);
+    SystemManagerDeinit(&systemManager);
+    LOG(L_INFO, "Coordinator successfully deinitialized.");
 }
 
 /**

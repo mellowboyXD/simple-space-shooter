@@ -6,6 +6,7 @@
 typedef enum {
     MOVEMENT_SYSTEM_TYPE,
     RENDER_SYSTEM_TYPE,
+    INPUT_SYSTEM_TYPE,
     MAX_SYSTEMS_TYPE,
     INVALID_SYSTEM_TYPE,
 } SystemType;
@@ -20,6 +21,7 @@ struct System {
 };
 
 void SystemInit(System *self);
+void SystemDeinit(System *self);
 void SystemAddEntity(System *self, Entity entity);
 void SystemRemoveEntity(System *self, Entity entity);
 

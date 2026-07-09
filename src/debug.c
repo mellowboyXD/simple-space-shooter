@@ -1,7 +1,5 @@
 #include "debug.h"
 
-#define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
 #include <stdio.h>
 #include <stdarg.h>
 
@@ -29,10 +27,5 @@ void debug_log(LogLevel logLevel, const char *file, int line, const char *fmt,
 	va_end(args);
 
 	fprintf(stream, "\n");
-}
-
-void debug_window(Rectangle panel)
-{
-    GuiPanel(panel, "Debug Window");
 }
 

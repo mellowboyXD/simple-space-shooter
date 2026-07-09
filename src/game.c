@@ -2,20 +2,40 @@
 #include "constants.h"
 #include "coordinator.h"
 #include "raylib.h"
+#include "systems_pool.h"
+#include "ui_components.h"
 #include "systems/movement_system.h"
 #include "systems/render_system.h"
-#include "systems/system.h"
+#include "systems/ui_callback_system.h"
+#include <assert.h>
 #include <math.h>
 #include <stddef.h>
+
+static void _RegisterComponents(GameData *gameData)
+{
+	REGISTER_COMPONENT(Position, COMPONENT_POSITION);
+	REGISTER_COMPONENT(Velocity, COMPONENT_VELOCITY);
+	REGISTER_COMPONENT(Hitbox, COMPONENT_HITBOX);
+	REGISTER_COMPONENT(Render, COMPONENT_RENDER);
+	REGISTER_COMPONENT(UIMouseInputState, COMPONENT_UI_MOUSE_INPUT_STATE);
+	REGISTER_COMPONENT(UICallback, COMPONENT_UI_CALLBACK);
+}
+
+static void _CreateSystems(GameData *gameData)
+{
+    SystemsPoolInit(&gameData->systemsPool);
+	SystemsPoolAddSystem(&gameData->systemsPool, MovementSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool, RenderSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool, UICallbackSystemCreate());
+}
+
 
 void GameInit(GameData *gameData)
 {
 	CoordinatorInit();
 
-	REGISTER_COMPONENT(Position, COMPONENT_POSITION);
-	REGISTER_COMPONENT(Velocity, COMPONENT_VELOCITY);
-	REGISTER_COMPONENT(Hitbox, COMPONENT_HITBOX);
-	REGISTER_COMPONENT(Render, COMPONENT_RENDER);
+	_RegisterComponents(gameData);
+    _CreateSystems(gameData);
 
 	Entity player = CoordinatorCreateEntity();
 	gameData->player = player;
@@ -26,19 +46,19 @@ void GameInit(GameData *gameData)
 	CoordinatorAddComponent(player, COMPONENT_RENDER, &RENDER_C(BLUE));
 
 	gameData->screen = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
-	gameData->devPanel = (Rectangle){ 0, 0, 350, 300 };
 }
 
-void GameCreateSystems(GameData *gameData)
+void GameDeinit(GameData *gameData)
 {
-	gameData->systems[0] = MovementSystemCreate();
-	gameData->systems[1] = RenderSystemCreate();
+    CoordinatorDeinit();
+    UnloadRenderTexture(gameData->screen);
 }
 
 void GameUpdateSystems(GameData *gameData, float dt)
 {
-	for (size_t i = 0; i < MAX_SYSTEMS_TYPE; i++) {
-		System *sys = gameData->systems[i];
+	for (size_t i = 0; i < gameData->systemsPool.count; i++) {
+		System *sys = SystemsPoolGetSystem(&gameData->systemsPool, i);
+		assert(sys != NULL && "System is null");
 		sys->update(sys, dt);
 	}
 }

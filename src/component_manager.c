@@ -1,4 +1,6 @@
 #include "component_manager.h"
+#include "components.h"
+#include "debug.h"
 #include <assert.h>
 
 #define ASSERT_ACTIVE_TYPE(componentType)                        \
@@ -15,6 +17,22 @@ void ComponentManagerInit(ComponentManager *manager)
 		manager->pools[i] = (ComponentPool){ 0 };
 		manager->activePools[i] = false;
 	}
+    LOG(L_INFO, "ComponentManager successfully initialized.");
+}
+
+/**
+ * Deinitializes the manager and frees up memory.
+ */
+void ComponentManagerDeinit(ComponentManager *manager)
+{
+    assert(manager->pools != NULL && "Component pools is null");
+    for (size_t i = 0; i < MAX_COMPONENTS; i++)
+    {
+        if (manager->activePools[i])
+            ComponentPoolDeinit(manager->pools + i);
+    }
+
+    LOG(L_INFO, "ComponentManager successfully deinitialized.");
 }
 
 /**

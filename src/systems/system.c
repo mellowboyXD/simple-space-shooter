@@ -1,8 +1,12 @@
 #include "system.h"
 
 #include "component_pool.h"
+#include "debug.h"
 #include <assert.h>
 
+/**
+ * Initializes the system.
+ */
 void SystemInit(System *self)
 {
 	self->update = NULL;
@@ -11,6 +15,20 @@ void SystemInit(System *self)
 	for (Entity i = 0; i < MAX_ENTITIES; i++) {
 		self->entityToIndexMap[i] = INVALID_INDEX;
 	}
+    LOG(L_INFO, "System successfully initialize system: %zu", self);
+}
+
+/**
+ * Deinitializes the system.
+ */
+void SystemDeinit(System *self)
+{
+    self->update = NULL;
+    self->count = 0;
+	for (Entity i = 0; i < MAX_ENTITIES; i++) {
+		self->entityToIndexMap[i] = INVALID_INDEX;
+	}
+    LOG(L_INFO, "System successfully deinitialize system: %zu", self);
 }
 
 /**

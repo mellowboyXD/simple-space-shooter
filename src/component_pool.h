@@ -16,6 +16,7 @@ typedef struct {
 constexpr size_t INVALID_INDEX = (size_t)INVALID_ENTITY;
 
 void ComponentPoolInit(ComponentPool *pool, size_t size);
+void ComponentPoolDeinit(ComponentPool *pool);
 bool ComponentPoolHas(const ComponentPool *pool, Entity entity);
 void *ComponentPoolGet(const ComponentPool *pool, Entity entity);
 void *ComponentPoolAdd(ComponentPool *pool, Entity entity, void *component);
