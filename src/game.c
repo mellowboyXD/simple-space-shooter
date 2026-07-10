@@ -1,7 +1,6 @@
 #include "game.h"
 #include "constants.h"
 #include "coordinator.h"
-#include "debug.h"
 #include "systems_pool.h"
 #include "ui_components.h"
 #include "systems/movement_system.h"
@@ -68,14 +67,6 @@ void GameUpdateSystems(GameData *gameData, float dt)
 		System *sys = SystemsPoolGetSystem(&gameData->systemsPool, i);
 		assert(sys != NULL && "System is null");
 		sys->update(sys, dt);
-	}
-
-	UIMouseInputState *mouseState =
-		GET_COMPONENT(UIMouseInputState, gameData->global,
-			      COMPONENT_UI_MOUSE_INPUT_STATE);
-	if (mouseState->isPressed) {
-        Vector2 mousePos = GetVirtualMousePosition(gameData);
-		LOG(L_INFO, "left mouse was pressed: (%f, %f)", mousePos.x, mousePos.y);
 	}
 }
 

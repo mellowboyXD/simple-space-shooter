@@ -21,8 +21,7 @@ void SystemsPoolAddSystem(SystemsPool *systemsPool, System *system)
 
 System *SystemsPoolGetSystem(SystemsPool *systemsPool, size_t index)
 {
-	assert(index >= 0 && index < systemsPool->size &&
-	       "Invalid system pool index");
+	assert(index < systemsPool->size && "Invalid system pool index");
 
-    return systemsPool->systems[index];
+	return systemsPool->systems[index];
 }

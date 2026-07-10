@@ -15,7 +15,7 @@ void SystemInit(System *self)
 	for (Entity i = 0; i < MAX_ENTITIES; i++) {
 		self->entityToIndexMap[i] = INVALID_INDEX;
 	}
-    LOG(L_INFO, "System successfully initialize system: %zu", self);
+	LOG(L_INFO, "System successfully initialize system: %p", (void *)self);
 }
 
 /**
@@ -23,12 +23,12 @@ void SystemInit(System *self)
  */
 void SystemDeinit(System *self)
 {
-    self->update = NULL;
-    self->count = 0;
+	self->update = NULL;
+	self->count = 0;
 	for (Entity i = 0; i < MAX_ENTITIES; i++) {
 		self->entityToIndexMap[i] = INVALID_INDEX;
 	}
-    LOG(L_INFO, "System successfully deinitialize system: %zu", self);
+	LOG(L_INFO, "System successfully deinitialize system: %p", (void *)self);
 }
 
 /**

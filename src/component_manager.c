@@ -25,11 +25,12 @@ void ComponentManagerInit(ComponentManager *manager)
  */
 void ComponentManagerDeinit(ComponentManager *manager)
 {
-    assert(manager->pools != NULL && "Component pools is null");
     for (size_t i = 0; i < MAX_COMPONENTS; i++)
     {
-        if (manager->activePools[i])
+        if (manager->activePools[i]) {
             ComponentPoolDeinit(manager->pools + i);
+            manager->activePools[i] = false;
+        }
     }
 
     LOG(L_INFO, "ComponentManager successfully deinitialized.");

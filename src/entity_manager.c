@@ -33,8 +33,8 @@ void EntityManagerDeinit(EntityManager *manager)
 {
     // explicitly set to invalid to catch any potential use after free
     manager->entityCount = MAX_ENTITIES;
-    manager->qFront = -1;
-    manager->qRear = -1;
+    manager->qFront = MAX_ENTITIES + 1;
+    manager->qRear = MAX_ENTITIES + 1;
     LOG(L_INFO, "EntityManager successfully deinitialized.");
 }
 

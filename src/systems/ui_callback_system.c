@@ -14,11 +14,11 @@
 UICallbackSystem *UICallbackSystemCreate()
 {
 	UICallbackSystem *system = CoordinatorRegisterSystem(
-		INPUT_SYSTEM_TYPE, UICallbackSystemUpdate);
+		UI_SYSTEM_TYPE, UICallbackSystemUpdate);
 
 	Signature signature = COMPONENT_BIT(COMPONENT_UI_MOUSE_INPUT_STATE) |
 			      COMPONENT_BIT(COMPONENT_UI_CALLBACK);
-	CoordinatorSetSystemSignature(INPUT_SYSTEM_TYPE, signature);
+	CoordinatorSetSystemSignature(UI_SYSTEM_TYPE, signature);
 
 	return system;
 }
