@@ -11,6 +11,7 @@ typedef struct {
 } ComponentManager;
 
 void ComponentManagerInit(ComponentManager *manager);
+void ComponentManagerDeinit(ComponentManager *manager);
 void ComponentManagerRegister(ComponentManager *manager,
 			      ComponentType componentType,
 			      size_t sizeOfComponent);

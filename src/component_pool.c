@@ -19,6 +19,21 @@ void ComponentPoolInit(ComponentPool *pool, size_t size)
 
 	pool->data = malloc(size * MAX_ENTITIES);
 	assert(pool->data != NULL && "Could not allocate pool->data.");
+	LOG(L_INFO, "ComponentPool successfully initialize pool: %p",
+	    (void *)pool);
+}
+
+/**
+ * Frees up previously allocated memory.
+ */
+void ComponentPoolDeinit(ComponentPool *pool)
+{
+	assert(pool != NULL &&
+	       "Pool was previously NULL & attempting to free it");
+	free(pool->data);
+
+	LOG(L_INFO, "ComponentPool successfully deinitialize pool: %p",
+	    (void *)pool);
 }
 
 /**

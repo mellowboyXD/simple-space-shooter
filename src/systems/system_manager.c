@@ -1,15 +1,29 @@
 #include "system_manager.h"
 #include "debug.h"
 #include <assert.h>
-#include <stdlib.h>
 #include <string.h>
 
+/**
+ * Initializes the system manager
+ */
 void SystemManagerInit(SystemManager *manager)
 {
 	memset(manager, 0, sizeof(*manager));
 	for (SystemType t = 0; t < MAX_SYSTEMS_TYPE; t++) {
 		SystemInit(manager->systemPool + t);
 	}
+	LOG(L_INFO, "SystemManager successfully initialized.");
+}
+
+/** 
+ * Deinitializes the manager.
+ */
+void SystemManagerDeinit(SystemManager *manager)
+{
+	for (SystemType t = 0; t < MAX_SYSTEMS_TYPE; t++) {
+		SystemDeinit(manager->systemPool + t);
+	}
+	LOG(L_INFO, "SystemManager successfully deinitialized.");
 }
 
 /**

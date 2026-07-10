@@ -11,6 +11,7 @@
 	((T *)CoordinatorGetComponent((entity), (type)))
 
 void CoordinatorInit();
+void CoordinatorDeinit();
 Entity CoordinatorCreateEntity();
 void CoordinatorDestroyEntity(Entity entity);
 

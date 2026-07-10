@@ -2,17 +2,19 @@
 #define GAME_H
 
 #include "raylib.h"
-#include "systems/system.h"
+#include "systems_pool.h"
 
 typedef struct {
-    System *systems[MAX_SYSTEMS_TYPE];
+    SystemsPool systemsPool;
     Entity player;
+    Entity global;
     RenderTexture2D screen;
-    Rectangle devPanel;
+    float renderWidth;
+    float renderHeight;
 } GameData;
 
 void GameInit(GameData *gameData);
-void GameCreateSystems(GameData *gameData);
+void GameDeinit(GameData *gameData);
 void GameUpdateSystems(GameData *gameData, float dt);
 void GameDrawScreen(RenderTexture2D *screen);
 
