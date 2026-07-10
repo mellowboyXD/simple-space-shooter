@@ -1,3 +1,8 @@
+// TODO: this system needs serious make-over
+// need to model it after ui widgets and interactions
+// possibly implement the Command Design Pattern for input handling
+// should also have the rendering of ui components occur on a separate texture
+// this is totally not required for completing ticket #16
 #include "systems/ui_callback_system.h"
 #include "components.h"
 #include "coordinator.h"
@@ -27,18 +32,18 @@ void UICallbackSystemUpdate(UICallbackSystem *self, float dt)
 			GET_COMPONENT(UIMouseInputState, entity,
 				      COMPONENT_UI_MOUSE_INPUT_STATE);
 
-        if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-            mouseInputState->isPressed = true;
-        } else {
-            mouseInputState->isPressed = false;
-        }
+		if (IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
+			mouseInputState->isPressed = true;
+		} else {
+			mouseInputState->isPressed = false;
+		}
 	}
 }
 
 Vector2 GetVirtualMousePosition(GameData *gameData)
 {
 	float scale = fminf((float)GetRenderWidth() / gameData->renderWidth,
-			     (float)GetRenderHeight() / gameData->renderHeight);
+			    (float)GetRenderHeight() / gameData->renderHeight);
 
 	float destWidth = gameData->renderWidth * scale;
 	float destHeight = gameData->renderHeight * scale;
