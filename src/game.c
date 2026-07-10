@@ -1,7 +1,7 @@
 #include "game.h"
 #include "constants.h"
 #include "coordinator.h"
-#include "raylib.h"
+#include "debug.h"
 #include "systems_pool.h"
 #include "ui_components.h"
 #include "systems/movement_system.h"
@@ -23,35 +23,43 @@ static void _RegisterComponents(GameData *gameData)
 
 static void _CreateSystems(GameData *gameData)
 {
-    SystemsPoolInit(&gameData->systemsPool);
+	SystemsPoolInit(&gameData->systemsPool);
 	SystemsPoolAddSystem(&gameData->systemsPool, MovementSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, RenderSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, UICallbackSystemCreate());
 }
-
 
 void GameInit(GameData *gameData)
 {
 	CoordinatorInit();
 
 	_RegisterComponents(gameData);
-    _CreateSystems(gameData);
+	_CreateSystems(gameData);
 
+	Entity global = CoordinatorCreateEntity();
 	Entity player = CoordinatorCreateEntity();
 	gameData->player = player;
+	gameData->global = global;
 
 	CoordinatorAddComponent(player, COMPONENT_POSITION, &POSITION(10, 10));
 	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(100, 20));
 	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(30, 30));
 	CoordinatorAddComponent(player, COMPONENT_RENDER, &RENDER_C(BLUE));
 
+	CoordinatorAddComponent(global, COMPONENT_UI_MOUSE_INPUT_STATE,
+				&UI_MOUSE_INPUT_STATE(false));
+	CoordinatorAddComponent(global, COMPONENT_UI_CALLBACK,
+				&UICALLBACK(NULL));
+
 	gameData->screen = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
+    gameData->renderHeight = SCREEN_HEIGHT;
+    gameData->renderWidth = SCREEN_WIDTH;
 }
 
 void GameDeinit(GameData *gameData)
 {
-    CoordinatorDeinit();
-    UnloadRenderTexture(gameData->screen);
+	CoordinatorDeinit();
+	UnloadRenderTexture(gameData->screen);
 }
 
 void GameUpdateSystems(GameData *gameData, float dt)
@@ -60,6 +68,14 @@ void GameUpdateSystems(GameData *gameData, float dt)
 		System *sys = SystemsPoolGetSystem(&gameData->systemsPool, i);
 		assert(sys != NULL && "System is null");
 		sys->update(sys, dt);
+	}
+
+	UIMouseInputState *mouseState =
+		GET_COMPONENT(UIMouseInputState, gameData->global,
+			      COMPONENT_UI_MOUSE_INPUT_STATE);
+	if (mouseState->isPressed) {
+        Vector2 mousePos = GetVirtualMousePosition(gameData);
+		LOG(L_INFO, "left mouse was pressed: (%f, %f)", mousePos.x, mousePos.y);
 	}
 }
 

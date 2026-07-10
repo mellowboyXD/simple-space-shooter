@@ -7,7 +7,10 @@
 typedef struct {
     SystemsPool systemsPool;
     Entity player;
+    Entity global;
     RenderTexture2D screen;
+    float renderWidth;
+    float renderHeight;
 } GameData;
 
 void GameInit(GameData *gameData);

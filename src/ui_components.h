@@ -3,15 +3,12 @@
 
 #include "game.h"
 
-#define UIMOUSE_INPUT_STATE(pressed, hovered, focused, clicked) \
-	((UIMouseInputState){ (pressed), (hovered), (focused), (clicked) })
+#define UI_MOUSE_INPUT_STATE(pressed) ((UIMouseInputState){ (pressed) })
 typedef struct {
 	bool isPressed;
-	bool isHovered;
-	bool isFocused;
-	bool isClickedThisFrame;
 } UIMouseInputState;
 
+#define UICALLBACK(onClick) ((UICallback){ (onClick) })
 typedef struct {
 	void (*onClick)(GameData *gameData, Entity self);
 } UICallback;
