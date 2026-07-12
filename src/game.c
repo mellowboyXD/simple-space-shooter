@@ -1,16 +1,27 @@
+/**
+ * This is the game manager, is responsible for controlling the flow of data
+ * and orchestrating other managers like screen manager (screen.h) to update its
+ * state.
+ *
+ * It is also responsible for updating all the systems that have been registered
+ * as well as registering both systems and components. It is thought of as the 
+ * user of the Entity-Component-System.
+ */
 #include "game.h"
 #include "constants.h"
 #include "coordinator.h"
+#include "screen.h"
 #include "systems_pool.h"
 #include "ui_components.h"
 #include "systems/movement_system.h"
 #include "systems/render_system.h"
 #include "systems/ui_callback_system.h"
+
 #include <assert.h>
 #include <math.h>
 #include <stddef.h>
 
-static void _RegisterComponents(GameData *gameData)
+static void _RegisterComponents()
 {
 	REGISTER_COMPONENT(Position, COMPONENT_POSITION);
 	REGISTER_COMPONENT(Velocity, COMPONENT_VELOCITY);
@@ -28,11 +39,20 @@ static void _CreateSystems(GameData *gameData)
 	SystemsPoolAddSystem(&gameData->systemsPool, UICallbackSystemCreate());
 }
 
+void _UpdateSystems(GameData *gameData, float dt)
+{
+	for (size_t i = 0; i < gameData->systemsPool.count; i++) {
+		System *sys = SystemsPoolGetSystem(&gameData->systemsPool, i);
+		assert(sys != NULL && "System is null");
+		sys->update(sys, dt);
+	}
+}
+
 void GameInit(GameData *gameData)
 {
 	CoordinatorInit();
 
-	_RegisterComponents(gameData);
+	_RegisterComponents();
 	_CreateSystems(gameData);
 
 	Entity global = CoordinatorCreateEntity();
@@ -50,40 +70,38 @@ void GameInit(GameData *gameData)
 	CoordinatorAddComponent(global, COMPONENT_UI_CALLBACK,
 				&UICALLBACK(NULL));
 
-	gameData->screen = LoadRenderTexture(SCREEN_WIDTH, SCREEN_HEIGHT);
-    gameData->renderHeight = SCREEN_HEIGHT;
-    gameData->renderWidth = SCREEN_WIDTH;
+	// Initialize the screen
+	ScreenInit(&gameData->screen, SCREEN_WIDTH, SCREEN_HEIGHT);
 }
 
 void GameDeinit(GameData *gameData)
 {
 	CoordinatorDeinit();
-	UnloadRenderTexture(gameData->screen);
+	ScreenDeinit(&gameData->screen);
 }
 
-void GameUpdateSystems(GameData *gameData, float dt)
+/**
+ * Main update function that updates the available systems.
+ */
+void GameUpdate(GameData *gameData, float dt)
 {
-	for (size_t i = 0; i < gameData->systemsPool.count; i++) {
-		System *sys = SystemsPoolGetSystem(&gameData->systemsPool, i);
-		assert(sys != NULL && "System is null");
-		sys->update(sys, dt);
-	}
+	// draws to a separate virtual game screen.
+	BeginTextureMode(ScreenGetRenderTexture(&gameData->screen));
+	ClearBackground(RAYWHITE);
+	_UpdateSystems(gameData, dt);
+	EndTextureMode();
 }
 
-void GameDrawScreen(RenderTexture2D *screen)
+/**
+ * Main draw function that gets called repeatedly inside the main loop.
+ */
+void GameDraw(GameData *gameData)
 {
-	float scale = fminf((float)GetScreenWidth() / SCREEN_WIDTH,
-			    (float)GetScreenHeight() / SCREEN_HEIGHT);
-
-	float destWidth = SCREEN_WIDTH * scale;
-	float destHeight = SCREEN_HEIGHT * scale;
-
-	Rectangle src = { 0, 0, SCREEN_WIDTH, -SCREEN_HEIGHT }; // y-flip
-	Rectangle dest = { (GetScreenWidth() - destWidth) * 0.5f,
-			   (GetScreenHeight() - destHeight) * 0.5f, destWidth,
-			   destHeight };
-	Vector2 origin = { 0, 0 };
-
-	ClearBackground(BLACK); // paint the letterbox bars
-	DrawTexturePro(screen->texture, src, dest, origin, 0.0f, WHITE);
+	// draws to screen directly
+	BeginDrawing();
+	ScreenDraw(&gameData->screen);
+#ifdef DEBUG
+	DrawFPS(0, 0);
+#endif
+	EndDrawing();
 }

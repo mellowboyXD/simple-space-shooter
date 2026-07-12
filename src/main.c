@@ -5,9 +5,12 @@
 int main(void)
 {
 	LOG(L_INFO, "Hello brave new world!");
+
+    // enable vsync and fullscreen
+    SetConfigFlags(FLAG_FULLSCREEN_MODE | FLAG_VSYNC_HINT );
+
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Space Shooter");
 	SetTargetFPS(TARGET_FPS);
-	ToggleFullscreen();
 
 	GameData gameData = { 0 };
 	GameInit(&gameData);
@@ -15,15 +18,11 @@ int main(void)
 	while (!WindowShouldClose()) {
 		float dt = GetFrameTime();
 
-		BeginTextureMode(gameData.screen);
-		ClearBackground(RAYWHITE);
-		GameUpdateSystems(&gameData, dt);
-		EndTextureMode();
+        // update game
+        GameUpdate(&gameData, dt);
 
-	    BeginDrawing();
-		GameDrawScreen(&gameData.screen);
-        DrawFPS(0, 0);
-        EndDrawing();
+        // draw
+        GameDraw(&gameData);
 	}
 
     GameDeinit(&gameData);

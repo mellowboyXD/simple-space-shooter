@@ -10,8 +10,10 @@ typedef struct {
 } ScreenData;
 
 void ScreenInit(ScreenData *screen, int width, int height);
+void ScreenDeinit(ScreenData *screen);
 void ScreenDraw(ScreenData *screen);
 int ScreenGetVirtualWidth(ScreenData *screen);
 int ScreenGetVirtualHeight(ScreenData *screen);
+RenderTexture2D ScreenGetRenderTexture(ScreenData *screen);
 
 #endif /* SCREEN_H */

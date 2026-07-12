@@ -4,7 +4,6 @@
 typedef enum { L_INFO, L_WARN, L_ERROR } LogLevel;
 
 #ifdef DEBUG
-#include "raylib.h"
 
 void debug_log(LogLevel logLevel, const char *file, int line, const char *fmt,
 	       ...);
