@@ -2,3 +2,4 @@
 -I./src
 -I./include
 -std=c23
+-DDEBUG
