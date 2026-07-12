@@ -40,19 +40,3 @@ void UICallbackSystemUpdate(UICallbackSystem *self, float dt)
 	}
 }
 
-Vector2 GetVirtualMousePosition(GameData *gameData)
-{
-	float scale = fminf((float)GetRenderWidth() / gameData->renderWidth,
-			    (float)GetRenderHeight() / gameData->renderHeight);
-
-	float destWidth = gameData->renderWidth * scale;
-	float destHeight = gameData->renderHeight * scale;
-	float offsetX = (GetRenderWidth() - destWidth) * 0.5f;
-	float offsetY = (GetRenderHeight() - destHeight) * 0.5f;
-
-	Vector2 mouse = GetMousePosition();
-	return (Vector2){
-		(mouse.x - offsetX) / scale,
-		(mouse.y - offsetY) / scale,
-	};
-}
