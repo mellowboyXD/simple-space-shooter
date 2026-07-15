@@ -10,6 +10,8 @@
 #include "game.h"
 #include "constants.h"
 #include "coordinator.h"
+#include "debug.h"
+#include "raylib.h"
 #include "screen.h"
 #include "systems_pool.h"
 #include "ui_components.h"
@@ -48,6 +50,22 @@ void _UpdateSystems(GameData *gameData, float dt)
 	}
 }
 
+void _AssociateComponents(GameData *gameData)
+{
+	Entity player = gameData->player;
+	Entity global = gameData->global;
+
+	CoordinatorAddComponent(player, COMPONENT_POSITION, &POSITION(10, 10));
+	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(100, 20));
+	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(30, 30));
+	CoordinatorAddComponent(player, COMPONENT_RENDER, &RENDER_C(BLUE));
+
+	CoordinatorAddComponent(global, COMPONENT_UI_MOUSE_INPUT_STATE,
+				&UI_MOUSE_INPUT_STATE(false));
+	CoordinatorAddComponent(global, COMPONENT_UI_CALLBACK,
+				&UICALLBACK(NULL));
+}
+
 void GameInit(GameData *gameData)
 {
 	CoordinatorInit();
@@ -60,24 +78,20 @@ void GameInit(GameData *gameData)
 	gameData->player = player;
 	gameData->global = global;
 
-	CoordinatorAddComponent(player, COMPONENT_POSITION, &POSITION(10, 10));
-	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(100, 20));
-	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(30, 30));
-	CoordinatorAddComponent(player, COMPONENT_RENDER, &RENDER_C(BLUE));
-
-	CoordinatorAddComponent(global, COMPONENT_UI_MOUSE_INPUT_STATE,
-				&UI_MOUSE_INPUT_STATE(false));
-	CoordinatorAddComponent(global, COMPONENT_UI_CALLBACK,
-				&UICALLBACK(NULL));
+	_AssociateComponents(gameData);
 
 	// Initialize the screen
-	ScreenInit(&gameData->screen, SCREEN_WIDTH, SCREEN_HEIGHT);
+	ScreenInit(&gameData->gameTarget, DEFAULT_GAME_TARGET_WIDTH,
+		   DEFAULT_GAME_TARGET_HEIGHT);
+	ScreenInit(&gameData->uiTarget, DEFAULT_UI_TARGET_WIDTH,
+		   DEFAULT_UI_TARGET_HEIGHT);
 }
 
 void GameDeinit(GameData *gameData)
 {
 	CoordinatorDeinit();
-	ScreenDeinit(&gameData->screen);
+	ScreenDeinit(&gameData->gameTarget);
+	ScreenDeinit(&gameData->uiTarget);
 }
 
 /**
@@ -85,10 +99,32 @@ void GameDeinit(GameData *gameData)
  */
 void GameUpdate(GameData *gameData, float dt)
 {
+	Position *playerPos =
+		GET_COMPONENT(Position, gameData->player, COMPONENT_POSITION);
+	if (playerPos->x >
+	    (float)ScreenGetVirtualWidth(&gameData->gameTarget)) {
+		LOG(L_INFO, "player out of bounds: %f", playerPos->x);
+		LOG(L_INFO, "width: %d",
+		    ScreenGetVirtualWidth(&gameData->gameTarget));
+	}
+
+
 	// draws to a separate virtual game screen.
-	BeginTextureMode(ScreenGetRenderTexture(&gameData->screen));
+	BeginTextureMode(ScreenGetRenderTexture(&gameData->gameTarget));
 	ClearBackground(RAYWHITE);
 	_UpdateSystems(gameData, dt);
+#ifdef DEBUG
+#endif
+	EndTextureMode();
+
+	// draws to the ui screen; reserve specifically for text and widgets
+	BeginTextureMode(ScreenGetRenderTexture(&gameData->uiTarget));
+	ClearBackground(BLANK);
+#ifdef DEBUG
+	int w = ScreenGetWidth(&gameData->uiTarget);
+	int h = ScreenGetHeight(&gameData->uiTarget);
+	DrawFPS(w - 100, h - 88);
+#endif
 	EndTextureMode();
 }
 
@@ -99,9 +135,8 @@ void GameDraw(GameData *gameData)
 {
 	// draws to screen directly
 	BeginDrawing();
-	ScreenDraw(&gameData->screen);
-#ifdef DEBUG
-	DrawFPS(0, 0);
-#endif
+    ClearBackground(BLACK);
+	ScreenDrawTarget(&gameData->gameTarget);
+	ScreenDrawTarget(&gameData->uiTarget);
 	EndDrawing();
 }

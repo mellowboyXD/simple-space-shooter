@@ -8,7 +8,8 @@ typedef struct {
     SystemsPool systemsPool;
     Entity player;
     Entity global;
-    ScreenData screen;
+    ScreenData gameTarget;
+    ScreenData uiTarget;
 } GameData;
 
 void GameInit(GameData *gameData);

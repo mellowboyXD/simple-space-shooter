@@ -6,8 +6,12 @@ int main(void)
 {
 	LOG(L_INFO, "Hello brave new world!");
 
-    // enable vsync and fullscreen
-    SetConfigFlags(FLAG_FULLSCREEN_MODE | FLAG_VSYNC_HINT );
+    int configFlags = FLAG_VSYNC_HINT;
+#ifndef DEBUG 
+    configFlags |= FLAG_FULLSCREEN_MODE;
+#endif
+
+    SetConfigFlags(configFlags);
 
 	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Space Shooter");
 	SetTargetFPS(TARGET_FPS);
