@@ -10,6 +10,14 @@ void SystemsPoolInit(SystemsPool *systemsPool)
 	systemsPool->count = 0;
 }
 
+void SystemsPoolDeinit(SystemsPool *systemsPool)
+{
+	for (size_t i = 0; i < systemsPool->size; i++) {
+		systemsPool->systems[i] = NULL;
+	}
+    systemsPool->count = 0;
+}
+
 void SystemsPoolAddSystem(SystemsPool *systemsPool, System *system)
 {
 	assert(systemsPool->count < systemsPool->size &&

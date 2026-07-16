@@ -13,6 +13,7 @@ typedef struct {
 } SystemsPool;
 
 void SystemsPoolInit(SystemsPool *systemsPool);
+void SystemsPoolDeinit(SystemsPool *systemsPool);
 void SystemsPoolAddSystem(SystemsPool *systemsPool, System *system);
 System *SystemsPoolGetSystem(SystemsPool *systemsPool, size_t index);
 

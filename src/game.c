@@ -20,7 +20,6 @@
 #include "systems/ui_callback_system.h"
 
 #include <assert.h>
-#include <math.h>
 #include <stddef.h>
 
 static void _RegisterComponents()
@@ -92,6 +91,7 @@ void GameDeinit(GameData *gameData)
 	CoordinatorDeinit();
 	ScreenDeinit(&gameData->gameTarget);
 	ScreenDeinit(&gameData->uiTarget);
+    SystemsPoolDeinit(&gameData->systemsPool);
 }
 
 /**
@@ -108,7 +108,6 @@ void GameUpdate(GameData *gameData, float dt)
 		    ScreenGetVirtualWidth(&gameData->gameTarget));
 	}
 
-
 	// draws to a separate virtual game screen.
 	BeginTextureMode(ScreenGetRenderTexture(&gameData->gameTarget));
 	ClearBackground(RAYWHITE);
@@ -121,8 +120,8 @@ void GameUpdate(GameData *gameData, float dt)
 	BeginTextureMode(ScreenGetRenderTexture(&gameData->uiTarget));
 	ClearBackground(BLANK);
 #ifdef DEBUG
-	int w = ScreenGetWidth(&gameData->uiTarget);
-	int h = ScreenGetHeight(&gameData->uiTarget);
+	int w = ScreenGetVirtualWidth(&gameData->uiTarget);
+	int h = ScreenGetVirtualHeight(&gameData->uiTarget);
 	DrawFPS(w - 100, h - 88);
 #endif
 	EndTextureMode();
@@ -135,7 +134,7 @@ void GameDraw(GameData *gameData)
 {
 	// draws to screen directly
 	BeginDrawing();
-    ClearBackground(BLACK);
+	ClearBackground(BLACK);
 	ScreenDrawTarget(&gameData->gameTarget);
 	ScreenDrawTarget(&gameData->uiTarget);
 	EndDrawing();

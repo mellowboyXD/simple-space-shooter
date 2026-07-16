@@ -5,11 +5,11 @@
 #include "systems_pool.h"
 
 typedef struct {
-    SystemsPool systemsPool;
-    Entity player;
-    Entity global;
-    ScreenData gameTarget;
-    ScreenData uiTarget;
+	SystemsPool systemsPool;
+	Entity player;
+	Entity global;
+	ScreenData gameTarget;
+	ScreenData uiTarget;
 } GameData;
 
 void GameInit(GameData *gameData);

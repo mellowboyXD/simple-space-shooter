@@ -3,14 +3,12 @@
 #include <assert.h>
 #include <math.h>
 
-#define ASSERT_INITLIALIZED \
-	(assert(initCalled && "Screen was not initialized."))
-
-static bool initCalled = false;
+#define ASSERT_INITLIALIZED(screen) \
+	(assert(screen->initCalled && "Screen was not initialized."))
 
 float _GetTargetScale(ScreenData *screen)
 {
-	ASSERT_INITLIALIZED;
+	ASSERT_INITLIALIZED(screen);
 	float scaleX = (float)GetRenderWidth() / screen->renderWidth;
 	float scaleY = (float)GetRenderHeight() / screen->renderHeight;
 
@@ -24,19 +22,20 @@ void ScreenInit(ScreenData *screen, int width, int height)
 	screen->target = LoadRenderTexture(width, height);
 
 	SetTextureFilter(screen->target.texture, TEXTURE_FILTER_POINT);
-    SetTextureWrap(screen->target.texture, TEXTURE_WRAP_CLAMP);
-	initCalled = true;
+	SetTextureWrap(screen->target.texture, TEXTURE_WRAP_CLAMP);
+	screen->initCalled = true;
 }
 
 void ScreenDeinit(ScreenData *screen)
 {
+	ASSERT_INITLIALIZED(screen);
 	UnloadRenderTexture(screen->target);
-	initCalled = false;
+	screen->initCalled = false;
 }
 
 void ScreenDrawTarget(ScreenData *screen)
 {
-	ASSERT_INITLIALIZED;
+	ASSERT_INITLIALIZED(screen);
 
 	float scale = _GetTargetScale(screen);
 	float destWidth = screen->renderWidth * scale;
@@ -54,28 +53,18 @@ void ScreenDrawTarget(ScreenData *screen)
 
 RenderTexture2D ScreenGetRenderTexture(ScreenData *screen)
 {
-	ASSERT_INITLIALIZED;
+	ASSERT_INITLIALIZED(screen);
 	return screen->target;
 }
 
 int ScreenGetVirtualWidth(ScreenData *screen)
 {
-	float scale = _GetTargetScale(screen);
-	return (int)(screen->renderWidth * scale);
+	ASSERT_INITLIALIZED(screen);
+	return screen->renderWidth;
 }
 
 int ScreenGetVirtualHeight(ScreenData *screen)
 {
-	float scale = _GetTargetScale(screen);
-	return (int)(screen->renderHeight * scale);
-}
-
-int ScreenGetWidth(ScreenData *screen)
-{
-    return screen->renderWidth;
-}
-
-int ScreenGetHeight(ScreenData *screen)
-{
-    return screen->renderHeight;
+	ASSERT_INITLIALIZED(screen);
+	return screen->renderHeight;
 }

@@ -7,6 +7,7 @@ typedef struct {
 	int renderWidth;
 	int renderHeight;
 	RenderTexture2D target;
+	bool initCalled;
 } ScreenData;
 
 void ScreenInit(ScreenData *screen, int width, int height);
@@ -15,7 +16,5 @@ void ScreenDrawTarget(ScreenData *screen);
 RenderTexture2D ScreenGetRenderTexture(ScreenData *screen);
 int ScreenGetVirtualWidth(ScreenData *screen);
 int ScreenGetVirtualHeight(ScreenData *screen);
-int ScreenGetWidth(ScreenData *screen);
-int ScreenGetHeight(ScreenData *screen);
 
 #endif /* SCREEN_H */
