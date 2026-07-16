@@ -8,6 +8,7 @@
 #include "entity_manager.h"
 
 #include "components.h"
+#include "debug.h"
 #include <assert.h>
 
 /**
@@ -22,6 +23,19 @@ void EntityManagerInit(EntityManager *manager)
 		manager->entityQueue[i] = i;
 		manager->signatures[i] = COMPONENT_NONE;
 	}
+    LOG(L_INFO, "EntityManager successfully initialized.");
+}
+
+/**
+ * Deinitializes the manager
+ */
+void EntityManagerDeinit(EntityManager *manager)
+{
+    // explicitly set to invalid to catch any potential use after free
+    manager->entityCount = MAX_ENTITIES;
+    manager->qFront = MAX_ENTITIES + 1;
+    manager->qRear = MAX_ENTITIES + 1;
+    LOG(L_INFO, "EntityManager successfully deinitialized.");
 }
 
 /**

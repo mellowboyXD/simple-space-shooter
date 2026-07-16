@@ -1,9 +1,7 @@
-#include <stdarg.h>
-
-#ifdef DEBUG
-
 #include "debug.h"
+
 #include <stdio.h>
+#include <stdarg.h>
 
 void debug_log(LogLevel logLevel, const char *file, int line, const char *fmt,
 	       ...)
@@ -31,4 +29,3 @@ void debug_log(LogLevel logLevel, const char *file, int line, const char *fmt,
 	fprintf(stream, "\n");
 }
 
-#endif // DEBUG_H

@@ -19,5 +19,7 @@ int GamePanelWidth();
 // Returns the height of the playable game panel. i.e., screen height
 int GamePanelHeight();
 
+float SimpleClamp(float f, int min, int max);
+
 #endif // UTILS_H
 
