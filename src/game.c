@@ -84,6 +84,8 @@ void GameInit(GameData *gameData)
 		   DEFAULT_GAME_TARGET_HEIGHT);
 	ScreenInit(&gameData->uiTarget, DEFAULT_UI_TARGET_WIDTH,
 		   DEFAULT_UI_TARGET_HEIGHT);
+	ScreenSetPadding(&gameData->gameTarget, PADDING_ALL,
+			 DEFAULT_GAME_TARGET_PADDING);
 }
 
 void GameDeinit(GameData *gameData)
@@ -91,7 +93,7 @@ void GameDeinit(GameData *gameData)
 	CoordinatorDeinit();
 	ScreenDeinit(&gameData->gameTarget);
 	ScreenDeinit(&gameData->uiTarget);
-    SystemsPoolDeinit(&gameData->systemsPool);
+	SystemsPoolDeinit(&gameData->systemsPool);
 }
 
 /**
@@ -113,6 +115,10 @@ void GameUpdate(GameData *gameData, float dt)
 	ClearBackground(RAYWHITE);
 	_UpdateSystems(gameData, dt);
 #ifdef DEBUG
+	DrawRectangle(0, 0, 10, 10, BLUE);
+	DrawRectangle(ScreenGetVirtualWidth(&gameData->gameTarget) - 10,
+		      ScreenGetVirtualHeight(&gameData->gameTarget) - 10, 10,
+		      10, BLUE);
 #endif
 	EndTextureMode();
 

@@ -2,7 +2,7 @@
 #define CONSTANTS_H
 
 #include <stdint.h>
-#define MAXLEN 256              /* Max string length */
+#define MAX_STR_LEN 256              /* Max string length */
 
 /* -- Screen & FPS -- */
 #define SCREEN_WIDTH 1600        /* Screen width */
@@ -12,8 +12,9 @@
 constexpr int DEFAULT_UI_TARGET_WIDTH = 960;
 constexpr int DEFAULT_UI_TARGET_HEIGHT = 540;
 
-constexpr int DEFAULT_GAME_TARGET_WIDTH = 480;
-constexpr int DEFAULT_GAME_TARGET_HEIGHT = 640;
+constexpr int DEFAULT_GAME_TARGET_WIDTH = 288;
+constexpr int DEFAULT_GAME_TARGET_HEIGHT = 280;
+constexpr int DEFAULT_GAME_TARGET_PADDING = 16;
 
 constexpr uint8_t TARGET_FPS = 150;
 
