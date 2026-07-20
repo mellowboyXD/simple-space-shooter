@@ -40,16 +40,26 @@ static void _CreateSystems(GameData *gameData)
 	SystemsPoolAddSystem(&gameData->systemsPool, UICallbackSystemCreate());
 }
 
-void _UpdateSystems(GameData *gameData, float dt)
+static bool _shouldSkipSystemUpdate(SystemsPool *pool, size_t index)
+{
+	return SystemsPoolGetIndex(pool, UI_CALLBACK_SYSTEM_TYPE) == index;
+}
+
+static void _UpdateSystems(GameData *gameData, float dt)
 {
 	for (size_t i = 0; i < gameData->systemsPool.count; i++) {
 		System *sys = SystemsPoolGetSystem(&gameData->systemsPool, i);
 		assert(sys != NULL && "System is null");
+		if (_shouldSkipSystemUpdate(&gameData->systemsPool, i)) {
+			// skips the update of certain systems as they will be updated
+			// manually
+			continue;
+		}
 		sys->update(sys, dt);
 	}
 }
 
-void _AssociateComponents(GameData *gameData)
+static void _AssociateComponents(GameData *gameData)
 {
 	Entity player = gameData->player;
 	Entity global = gameData->global;
@@ -64,6 +74,36 @@ void _AssociateComponents(GameData *gameData)
 	CoordinatorAddComponent(global, COMPONENT_UI_CALLBACK,
 				&UICALLBACK(NULL));
 }
+
+static void _UpdateGameTarget(GameData *gameData, float dt)
+{
+	ScreenData target = gameData->gameTarget;
+
+	BeginTextureMode(ScreenGetRenderTexture(&target));
+	ClearBackground(RAYWHITE);
+	_UpdateSystems(gameData, dt);
+#ifdef DEBUG
+	DrawRectangle(0, 0, 10, 10, BLUE);
+	DrawRectangle(ScreenGetVirtualWidth(&target) - 10,
+		      ScreenGetVirtualHeight(&target) - 10, 10, 10, BLUE);
+#endif
+	EndTextureMode();
+}
+
+static void _UpdateUITarget(GameData *gameData, float dt)
+{
+	ScreenData target = gameData->uiTarget;
+
+	BeginTextureMode(ScreenGetRenderTexture(&target));
+	ClearBackground(BLANK);
+#ifdef DEBUG
+	DrawFPS(ScreenGetVirtualWidth(&target) - 80,
+		ScreenGetVirtualHeight(&target) - 20);
+#endif
+	EndTextureMode();
+}
+
+/* Public Functions */
 
 void GameInit(GameData *gameData)
 {
@@ -110,27 +150,11 @@ void GameUpdate(GameData *gameData, float dt)
 		    ScreenGetVirtualWidth(&gameData->gameTarget));
 	}
 
-	// draws to a separate virtual game screen.
-	BeginTextureMode(ScreenGetRenderTexture(&gameData->gameTarget));
-	ClearBackground(RAYWHITE);
-	_UpdateSystems(gameData, dt);
-#ifdef DEBUG
-	DrawRectangle(0, 0, 10, 10, BLUE);
-	DrawRectangle(ScreenGetVirtualWidth(&gameData->gameTarget) - 10,
-		      ScreenGetVirtualHeight(&gameData->gameTarget) - 10, 10,
-		      10, BLUE);
-#endif
-	EndTextureMode();
+	// updates to a separate virtual game screen.
+	_UpdateGameTarget(gameData, dt);
 
-	// draws to the ui screen; reserve specifically for text and widgets
-	BeginTextureMode(ScreenGetRenderTexture(&gameData->uiTarget));
-	ClearBackground(BLANK);
-#ifdef DEBUG
-	int w = ScreenGetVirtualWidth(&gameData->uiTarget);
-	int h = ScreenGetVirtualHeight(&gameData->uiTarget);
-	DrawFPS(w - 100, h - 88);
-#endif
-	EndTextureMode();
+	// updates to the ui screen; reserve specifically for text and widgets
+	_UpdateUITarget(gameData, dt);
 }
 
 /**

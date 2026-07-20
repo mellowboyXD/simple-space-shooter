@@ -7,7 +7,7 @@
 /**
  * Initializes the system.
  */
-void SystemInit(System *self)
+void SystemInit(System *self, SystemType type)
 {
 	self->update = NULL;
 	self->count = 0;
@@ -15,6 +15,7 @@ void SystemInit(System *self)
 	for (Entity i = 0; i < MAX_ENTITIES; i++) {
 		self->entityToIndexMap[i] = INVALID_INDEX;
 	}
+    self->type = type;
 	LOG(L_INFO, "System successfully initialize system: %p", (void *)self);
 }
 
@@ -28,6 +29,7 @@ void SystemDeinit(System *self)
 	for (Entity i = 0; i < MAX_ENTITIES; i++) {
 		self->entityToIndexMap[i] = INVALID_INDEX;
 	}
+    self->type = INVALID_SYSTEM_TYPE;
 	LOG(L_INFO, "System successfully deinitialize system: %p", (void *)self);
 }
 
