@@ -8,13 +8,12 @@ typedef struct {
 	SystemsPool systemsPool;
 	Entity player;
 	Entity global;
-	ScreenData gameTarget;
-	ScreenData uiTarget;
+	ScreenData screen;
 } GameData;
 
 void GameInit(GameData *gameData);
 void GameDeinit(GameData *gameData);
 void GameUpdate(GameData *gameData, float dt);
-void GameDraw(GameData *screen);
+void GameDraw(GameData *gameData);
 
 #endif /* GAME_H */

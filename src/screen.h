@@ -12,9 +12,11 @@ typedef struct {
 
 void ScreenInit(ScreenData *screen, int width, int height);
 void ScreenDeinit(ScreenData *screen);
-void ScreenDrawTarget(ScreenData *screen);
 RenderTexture2D ScreenGetRenderTexture(ScreenData *screen);
-int ScreenGetVirtualWidth(ScreenData *screen);
-int ScreenGetVirtualHeight(ScreenData *screen);
+
+/**
+ * Draws the texture to the actual window, scaling to fit.
+ */
+void ScreenDrawToWindow(ScreenData *screen);
 
 #endif /* SCREEN_H */

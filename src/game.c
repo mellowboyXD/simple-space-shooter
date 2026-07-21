@@ -22,6 +22,8 @@
 #include <assert.h>
 #include <stddef.h>
 
+const Vector2 gameCameraOffset = { GAME_VIEW_X, GAME_VIEW_Y };
+
 static void _RegisterComponents()
 {
 	REGISTER_COMPONENT(Position, COMPONENT_POSITION);
@@ -40,16 +42,28 @@ static void _CreateSystems(GameData *gameData)
 	SystemsPoolAddSystem(&gameData->systemsPool, UICallbackSystemCreate());
 }
 
-void _UpdateSystems(GameData *gameData, float dt)
+static bool _shouldSkipSystemUpdate(SystemsPool *pool, size_t index)
+{
+	return SystemsPoolGetIndex(pool, UI_CALLBACK_SYSTEM_TYPE) == index ||
+	       SystemsPoolGetIndex(pool, RENDER_SYSTEM_TYPE) == index;
+}
+
+static void _UpdateSystems(GameData *gameData, float dt)
 {
 	for (size_t i = 0; i < gameData->systemsPool.count; i++) {
-		System *sys = SystemsPoolGetSystem(&gameData->systemsPool, i);
+		System *sys =
+			SystemsPoolGetSystemByIndex(&gameData->systemsPool, i);
 		assert(sys != NULL && "System is null");
+		if (_shouldSkipSystemUpdate(&gameData->systemsPool, i)) {
+			// skips the update of certain systems as they will be updated
+			// manually
+			continue;
+		}
 		sys->update(sys, dt);
 	}
 }
 
-void _AssociateComponents(GameData *gameData)
+static void _AssociateComponents(GameData *gameData)
 {
 	Entity player = gameData->player;
 	Entity global = gameData->global;
@@ -65,6 +79,42 @@ void _AssociateComponents(GameData *gameData)
 				&UICALLBACK(NULL));
 }
 
+static void _RenderGameSystems(GameData *gameData)
+{
+	RenderSystem *renderSystem = SystemsPoolGetSystem(
+		&gameData->systemsPool, RENDER_SYSTEM_TYPE);
+	assert(renderSystem &&
+	       "RenderSystem not available. Possibly unregistered.");
+	renderSystem->update(renderSystem, 0);
+}
+
+static void _DrawGameViewport(GameData *gameData)
+{
+	DrawRectangle(gameCameraOffset.x, gameCameraOffset.y, GAME_VIEW_WIDTH,
+		      GAME_VIEW_HEIGHT, RAYWHITE);
+
+#ifdef DEBUG
+	DrawRectangle(gameCameraOffset.x, gameCameraOffset.y, 10, 10, BLUE);
+	DrawRectangle(gameCameraOffset.x + GAME_VIEW_WIDTH - 10,
+		      gameCameraOffset.y + GAME_VIEW_HEIGHT - 10, 10, 10, RED);
+#endif
+
+	/* Set clipping mode so systems can't draw outside the viewport. */
+	BeginScissorMode(gameCameraOffset.x, gameCameraOffset.y,
+			 GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
+	_RenderGameSystems(gameData);
+	EndScissorMode();
+}
+
+static void _DrawHUD(GameData *gameData)
+{
+#ifdef DEBUG
+	DrawFPS(VIRTUAL_WIDTH - 80, VIRTUAL_HEIGHT - 20);
+#endif
+}
+
+/* Public Functions */
+
 void GameInit(GameData *gameData)
 {
 	CoordinatorInit();
@@ -79,19 +129,15 @@ void GameInit(GameData *gameData)
 
 	_AssociateComponents(gameData);
 
-	// Initialize the screen
-	ScreenInit(&gameData->gameTarget, DEFAULT_GAME_TARGET_WIDTH,
-		   DEFAULT_GAME_TARGET_HEIGHT);
-	ScreenInit(&gameData->uiTarget, DEFAULT_UI_TARGET_WIDTH,
-		   DEFAULT_UI_TARGET_HEIGHT);
+	// Initialize the virtual screen
+	ScreenInit(&gameData->screen, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
 }
 
 void GameDeinit(GameData *gameData)
 {
 	CoordinatorDeinit();
-	ScreenDeinit(&gameData->gameTarget);
-	ScreenDeinit(&gameData->uiTarget);
-    SystemsPoolDeinit(&gameData->systemsPool);
+	ScreenDeinit(&gameData->screen);
+	SystemsPoolDeinit(&gameData->systemsPool);
 }
 
 /**
@@ -99,32 +145,14 @@ void GameDeinit(GameData *gameData)
  */
 void GameUpdate(GameData *gameData, float dt)
 {
+	/* Handle Input */
+
 	Position *playerPos =
 		GET_COMPONENT(Position, gameData->player, COMPONENT_POSITION);
-	if (playerPos->x >
-	    (float)ScreenGetVirtualWidth(&gameData->gameTarget)) {
+	if (playerPos->x + gameCameraOffset.x > (float)GAME_VIEW_WIDTH) {
 		LOG(L_INFO, "player out of bounds: %f", playerPos->x);
-		LOG(L_INFO, "width: %d",
-		    ScreenGetVirtualWidth(&gameData->gameTarget));
 	}
-
-	// draws to a separate virtual game screen.
-	BeginTextureMode(ScreenGetRenderTexture(&gameData->gameTarget));
-	ClearBackground(RAYWHITE);
 	_UpdateSystems(gameData, dt);
-#ifdef DEBUG
-#endif
-	EndTextureMode();
-
-	// draws to the ui screen; reserve specifically for text and widgets
-	BeginTextureMode(ScreenGetRenderTexture(&gameData->uiTarget));
-	ClearBackground(BLANK);
-#ifdef DEBUG
-	int w = ScreenGetVirtualWidth(&gameData->uiTarget);
-	int h = ScreenGetVirtualHeight(&gameData->uiTarget);
-	DrawFPS(w - 100, h - 88);
-#endif
-	EndTextureMode();
 }
 
 /**
@@ -132,10 +160,15 @@ void GameUpdate(GameData *gameData, float dt)
  */
 void GameDraw(GameData *gameData)
 {
+	BeginTextureMode(ScreenGetRenderTexture(&gameData->screen));
+	ClearBackground(BLACK);
+	_DrawGameViewport(gameData);
+	_DrawHUD(gameData);
+	EndTextureMode();
+
 	// draws to screen directly
 	BeginDrawing();
 	ClearBackground(BLACK);
-	ScreenDrawTarget(&gameData->gameTarget);
-	ScreenDrawTarget(&gameData->uiTarget);
+	ScreenDrawToWindow(&gameData->screen);
 	EndDrawing();
 }

@@ -6,15 +6,6 @@
 #define ASSERT_INITLIALIZED(screen) \
 	(assert(screen->initCalled && "Screen was not initialized."))
 
-float _GetTargetScale(ScreenData *screen)
-{
-	ASSERT_INITLIALIZED(screen);
-	float scaleX = (float)GetRenderWidth() / screen->renderWidth;
-	float scaleY = (float)GetRenderHeight() / screen->renderHeight;
-
-	return fminf(scaleX, scaleY);
-}
-
 void ScreenInit(ScreenData *screen, int width, int height)
 {
 	screen->renderWidth = width;
@@ -33,38 +24,27 @@ void ScreenDeinit(ScreenData *screen)
 	screen->initCalled = false;
 }
 
-void ScreenDrawTarget(ScreenData *screen)
-{
-	ASSERT_INITLIALIZED(screen);
-
-	float scale = _GetTargetScale(screen);
-	float destWidth = screen->renderWidth * scale;
-	float destHeight = screen->renderHeight * scale;
-	float destX = 0.0f;
-	float destY = (GetRenderHeight() - destHeight) * 0.5f;
-
-	Vector2 origin = { 0, 0 };
-	Rectangle source = { 0, 0, screen->renderWidth, -screen->renderHeight };
-	Rectangle dest = { destX, destY, destWidth, destHeight };
-
-	DrawTexturePro(screen->target.texture, source, dest, origin, 0.0f,
-		       WHITE);
-}
-
 RenderTexture2D ScreenGetRenderTexture(ScreenData *screen)
 {
 	ASSERT_INITLIALIZED(screen);
 	return screen->target;
 }
 
-int ScreenGetVirtualWidth(ScreenData *screen)
+void ScreenDrawToWindow(ScreenData *screen)
 {
 	ASSERT_INITLIALIZED(screen);
-	return screen->renderWidth;
-}
+	float scale = fminf((float)GetScreenWidth() / screen->renderWidth,
+			    (float)GetScreenHeight() / screen->renderHeight);
 
-int ScreenGetVirtualHeight(ScreenData *screen)
-{
-	ASSERT_INITLIALIZED(screen);
-	return screen->renderHeight;
+	float destW = screen->renderWidth * scale;
+	float destH = screen->renderHeight * scale;
+	float destX = (GetScreenWidth() - destW) * 0.5f;
+	float destY = (GetScreenHeight() - destH) * 0.5f;
+
+	Rectangle source = { 0, 0, screen->renderWidth, -screen->renderHeight };
+	Rectangle dest = { destX, destY, destW, destH };
+	Vector2 origin = { 0, 0 };
+
+	DrawTexturePro(screen->target.texture, source, dest, origin, 0.0f,
+		       WHITE);
 }

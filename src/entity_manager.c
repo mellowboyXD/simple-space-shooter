@@ -23,7 +23,7 @@ void EntityManagerInit(EntityManager *manager)
 		manager->entityQueue[i] = i;
 		manager->signatures[i] = COMPONENT_NONE;
 	}
-    LOG(L_INFO, "EntityManager successfully initialized.");
+	LOG(L_INFO, "EntityManager successfully initialized.");
 }
 
 /**
@@ -31,11 +31,11 @@ void EntityManagerInit(EntityManager *manager)
  */
 void EntityManagerDeinit(EntityManager *manager)
 {
-    // explicitly set to invalid to catch any potential use after free
-    manager->entityCount = MAX_ENTITIES;
-    manager->qFront = MAX_ENTITIES + 1;
-    manager->qRear = MAX_ENTITIES + 1;
-    LOG(L_INFO, "EntityManager successfully deinitialized.");
+	// explicitly set to invalid to catch any potential use after free
+	manager->entityCount = MAX_ENTITIES;
+	manager->qFront = MAX_ENTITIES + 1;
+	manager->qRear = MAX_ENTITIES + 1;
+	LOG(L_INFO, "EntityManager successfully deinitialized.");
 }
 
 /**

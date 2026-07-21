@@ -2,6 +2,8 @@
 #include "coordinator.h"
 #include "raylib.h"
 
+extern const Vector2 gameCameraOffset; // declared by game.c
+
 RenderSystem *RenderSystemCreate()
 {
 	RenderSystem *renderSystem = CoordinatorRegisterSystem(
@@ -26,8 +28,10 @@ void RenderSystemUpdate(RenderSystem *self, [[maybe_unused]] float dt)
 		Render *r = GET_COMPONENT(Render, entity, COMPONENT_RENDER);
 
 		if (r->renderMode == RENDER_COLOR) {
-			DrawRectangle(p->x, p->y, h->width, h->height,
-				      r->renderColor);
+			// apply game offset
+			DrawRectangle(p->x + gameCameraOffset.x,
+				      p->y + gameCameraOffset.y, h->width,
+				      h->height, r->renderColor);
 		}
 	}
 }

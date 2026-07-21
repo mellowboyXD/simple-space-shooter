@@ -6,14 +6,15 @@ int main(void)
 {
 	LOG(L_INFO, "Hello brave new world!");
 
-    int configFlags = FLAG_VSYNC_HINT;
-#ifndef DEBUG 
-    configFlags |= FLAG_FULLSCREEN_MODE;
+	int configFlags = FLAG_VSYNC_HINT;
+#ifndef DEBUG
+	configFlags |= FLAG_FULLSCREEN_MODE;
 #endif
 
-    SetConfigFlags(configFlags);
+	SetConfigFlags(configFlags);
 
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Space Shooter");
+	InitWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT,
+		   "Space Shooter");
 	SetTargetFPS(TARGET_FPS);
 
 	GameData gameData = { 0 };
@@ -22,14 +23,14 @@ int main(void)
 	while (!WindowShouldClose()) {
 		float dt = GetFrameTime();
 
-        // update game
-        GameUpdate(&gameData, dt);
+		// update game
+		GameUpdate(&gameData, dt);
 
-        // draw
-        GameDraw(&gameData);
+		// draw
+		GameDraw(&gameData);
 	}
 
-    GameDeinit(&gameData);
+	GameDeinit(&gameData);
 	CloseWindow();
 	return 0;
 }

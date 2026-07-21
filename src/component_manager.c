@@ -17,7 +17,7 @@ void ComponentManagerInit(ComponentManager *manager)
 		manager->pools[i] = (ComponentPool){ 0 };
 		manager->activePools[i] = false;
 	}
-    LOG(L_INFO, "ComponentManager successfully initialized.");
+	LOG(L_INFO, "ComponentManager successfully initialized.");
 }
 
 /**
@@ -25,15 +25,14 @@ void ComponentManagerInit(ComponentManager *manager)
  */
 void ComponentManagerDeinit(ComponentManager *manager)
 {
-    for (size_t i = 0; i < MAX_COMPONENTS; i++)
-    {
-        if (manager->activePools[i]) {
-            ComponentPoolDeinit(manager->pools + i);
-            manager->activePools[i] = false;
-        }
-    }
+	for (size_t i = 0; i < MAX_COMPONENTS; i++) {
+		if (manager->activePools[i]) {
+			ComponentPoolDeinit(manager->pools + i);
+			manager->activePools[i] = false;
+		}
+	}
 
-    LOG(L_INFO, "ComponentManager successfully deinitialized.");
+	LOG(L_INFO, "ComponentManager successfully deinitialized.");
 }
 
 /**

@@ -10,7 +10,7 @@ void SystemManagerInit(SystemManager *manager)
 {
 	memset(manager, 0, sizeof(*manager));
 	for (SystemType t = 0; t < MAX_SYSTEMS_TYPE; t++) {
-		SystemInit(manager->systemPool + t);
+		SystemInit(manager->systemPool + t, t);
 	}
 	LOG(L_INFO, "SystemManager successfully initialized.");
 }

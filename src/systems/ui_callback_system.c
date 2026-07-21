@@ -14,16 +14,16 @@
 UICallbackSystem *UICallbackSystemCreate()
 {
 	UICallbackSystem *system = CoordinatorRegisterSystem(
-		UI_SYSTEM_TYPE, UICallbackSystemUpdate);
+		UI_CALLBACK_SYSTEM_TYPE, UICallbackSystemUpdate);
 
 	Signature signature = COMPONENT_BIT(COMPONENT_UI_MOUSE_INPUT_STATE) |
 			      COMPONENT_BIT(COMPONENT_UI_CALLBACK);
-	CoordinatorSetSystemSignature(UI_SYSTEM_TYPE, signature);
+	CoordinatorSetSystemSignature(UI_CALLBACK_SYSTEM_TYPE, signature);
 
 	return system;
 }
 
-void UICallbackSystemUpdate(UICallbackSystem *self, float dt)
+void UICallbackSystemUpdate(UICallbackSystem *self, [[maybe_unused]] float dt)
 {
 	for (size_t i = 0; i < self->count; i++) {
 		Entity entity = self->entities[i];
@@ -39,4 +39,3 @@ void UICallbackSystemUpdate(UICallbackSystem *self, float dt)
 		}
 	}
 }
-
