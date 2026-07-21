@@ -13,7 +13,7 @@ typedef struct {
 void SystemManagerInit(SystemManager *manager);
 void SystemManagerDeinit(SystemManager *manager);
 System *SystemManagerRegister(SystemManager *manager, SystemType systemType,
-			   void (*systemUpdate)(System *self, float dt));
+			      void (*systemUpdate)(System *self, float dt));
 void SystemManagerSetSignature(SystemManager *manager, SystemType systemType,
 			       Signature signature);
 void SystemManagerEntityDestroyed(SystemManager *manager, Entity entity);

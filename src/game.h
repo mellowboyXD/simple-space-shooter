@@ -15,6 +15,5 @@ void GameInit(GameData *gameData);
 void GameDeinit(GameData *gameData);
 void GameUpdate(GameData *gameData, float dt);
 void GameDraw(GameData *gameData);
-Vector2 GameCameraOffset();
 
 #endif /* GAME_H */

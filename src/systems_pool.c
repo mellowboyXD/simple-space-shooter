@@ -16,7 +16,7 @@ void SystemsPoolInit(SystemsPool *systemsPool)
 		systemsPool->sysToIndexMap[i] = -1;
 	}
 	systemsPool->count = 0;
-    initCalled = true;
+	initCalled = true;
 }
 
 void SystemsPoolDeinit(SystemsPool *systemsPool)
@@ -26,7 +26,7 @@ void SystemsPoolDeinit(SystemsPool *systemsPool)
 		systemsPool->systems[i] = NULL;
 	}
 	systemsPool->count = 0;
-    initCalled = false;
+	initCalled = false;
 }
 
 void SystemsPoolAddSystem(SystemsPool *systemsPool, System *system)
@@ -57,9 +57,9 @@ System *SystemsPoolGetSystem(SystemsPool *systemsPool, SystemType type)
 
 System *SystemsPoolGetSystemByIndex(SystemsPool *systemsPool, size_t index)
 {
-    ASSERT_INITIALIZED;
-    assert(index < systemsPool->count && "Invalid index. Out of range.");
-    return systemsPool->systems[index];
+	ASSERT_INITIALIZED;
+	assert(index < systemsPool->count && "Invalid index. Out of range.");
+	return systemsPool->systems[index];
 }
 
 /**
@@ -67,7 +67,7 @@ System *SystemsPoolGetSystemByIndex(SystemsPool *systemsPool, size_t index)
  */
 size_t SystemsPoolGetIndex(SystemsPool *systemsPool, SystemType type)
 {
-        ASSERT_INITIALIZED;
+	ASSERT_INITIALIZED;
 	assert(type < MAX_SYSTEMS_TYPE && "Invalid System.");
 	assert(systemsPool->sysToIndexMap[type] > -1 &&
 	       "System is not registered.");

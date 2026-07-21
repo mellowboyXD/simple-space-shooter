@@ -15,7 +15,7 @@ void SystemInit(System *self, SystemType type)
 	for (Entity i = 0; i < MAX_ENTITIES; i++) {
 		self->entityToIndexMap[i] = INVALID_INDEX;
 	}
-    self->type = type;
+	self->type = type;
 	LOG(L_INFO, "System successfully initialize system: %p", (void *)self);
 }
 
@@ -29,8 +29,9 @@ void SystemDeinit(System *self)
 	for (Entity i = 0; i < MAX_ENTITIES; i++) {
 		self->entityToIndexMap[i] = INVALID_INDEX;
 	}
-    self->type = INVALID_SYSTEM_TYPE;
-	LOG(L_INFO, "System successfully deinitialize system: %p", (void *)self);
+	self->type = INVALID_SYSTEM_TYPE;
+	LOG(L_INFO, "System successfully deinitialize system: %p",
+	    (void *)self);
 }
 
 /**

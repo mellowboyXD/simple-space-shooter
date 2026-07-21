@@ -31,7 +31,7 @@ void ComponentPoolDeinit(ComponentPool *pool)
 	assert(pool != NULL &&
 	       "Pool was previously NULL & attempting to free it");
 	free(pool->data);
-    pool->data = NULL;
+	pool->data = NULL;
 
 	LOG(L_INFO, "ComponentPool successfully deinitialize pool: %p",
 	    (void *)pool);

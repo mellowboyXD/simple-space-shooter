@@ -22,7 +22,7 @@
 #include <assert.h>
 #include <stddef.h>
 
-static constexpr Vector2 gameCameraOffset = { GAME_VIEW_X, GAME_VIEW_Y };
+const Vector2 gameCameraOffset = { GAME_VIEW_X, GAME_VIEW_Y };
 
 static void _RegisterComponents()
 {
@@ -83,7 +83,8 @@ static void _RenderGameSystems(GameData *gameData)
 {
 	RenderSystem *renderSystem = SystemsPoolGetSystem(
 		&gameData->systemsPool, RENDER_SYSTEM_TYPE);
-    assert(renderSystem && "RenderSystem not available. Possibly unregistered.");
+	assert(renderSystem &&
+	       "RenderSystem not available. Possibly unregistered.");
 	renderSystem->update(renderSystem, 0);
 }
 
@@ -169,10 +170,5 @@ void GameDraw(GameData *gameData)
 	BeginDrawing();
 	ClearBackground(BLACK);
 	ScreenDrawToWindow(&gameData->screen);
-    EndDrawing();
-}
-
-Vector2 GameCameraOffset()
-{
-	return gameCameraOffset;
+	EndDrawing();
 }

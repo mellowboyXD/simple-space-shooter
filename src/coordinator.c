@@ -32,7 +32,7 @@ void CoordinatorInit()
 	EntityManagerInit(&entityManager);
 	SystemManagerInit(&systemManager);
 	initCalled = true;
-    LOG(L_INFO, "Coordinator successfully initialized.");
+	LOG(L_INFO, "Coordinator successfully initialized.");
 }
 
 /**
@@ -40,11 +40,11 @@ void CoordinatorInit()
  */
 void CoordinatorDeinit()
 {
-    assert(initCalled && "Coordinator init was never called");
-    ComponentManagerDeinit(&componentManager);
-    EntityManagerDeinit(&entityManager);
-    SystemManagerDeinit(&systemManager);
-    LOG(L_INFO, "Coordinator successfully deinitialized.");
+	assert(initCalled && "Coordinator init was never called");
+	ComponentManagerDeinit(&componentManager);
+	EntityManagerDeinit(&entityManager);
+	SystemManagerDeinit(&systemManager);
+	LOG(L_INFO, "Coordinator successfully deinitialized.");
 }
 
 /**
