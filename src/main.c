@@ -26,10 +26,7 @@ int main(void)
         GameUpdate(&gameData, dt);
 
         // draw
-        BeginDrawing();
-        ClearBackground(BLACK);
         GameDraw(&gameData);
-        EndDrawing();
 	}
 
     GameDeinit(&gameData);

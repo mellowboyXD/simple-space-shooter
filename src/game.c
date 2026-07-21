@@ -44,8 +44,8 @@ static void _CreateSystems(GameData *gameData)
 
 static bool _shouldSkipSystemUpdate(SystemsPool *pool, size_t index)
 {
-	return SystemsPoolGetIndex(pool, UI_CALLBACK_SYSTEM_TYPE) == index
-        || SystemsPoolGetIndex(pool, RENDER_SYSTEM_TYPE) == index;
+	return SystemsPoolGetIndex(pool, UI_CALLBACK_SYSTEM_TYPE) == index ||
+	       SystemsPoolGetIndex(pool, RENDER_SYSTEM_TYPE) == index;
 }
 
 static void _UpdateSystems(GameData *gameData, float dt)
@@ -79,13 +79,15 @@ static void _AssociateComponents(GameData *gameData)
 				&UICALLBACK(NULL));
 }
 
-void _RenderGameSystems(GameData *gameData)
+static void _RenderGameSystems(GameData *gameData)
 {
-    RenderSystem *renderSystem = SystemsPoolGetSystem(&gameData->systemsPool, RENDER_SYSTEM_TYPE);
-    renderSystem->update(renderSystem, 0);
+	RenderSystem *renderSystem = SystemsPoolGetSystem(
+		&gameData->systemsPool, RENDER_SYSTEM_TYPE);
+    assert(renderSystem && "RenderSystem not available. Possibly unregistered.");
+	renderSystem->update(renderSystem, 0);
 }
 
-void _DrawGameViewport(GameData *gameData)
+static void _DrawGameViewport(GameData *gameData)
 {
 	DrawRectangle(gameCameraOffset.x, gameCameraOffset.y, GAME_VIEW_WIDTH,
 		      GAME_VIEW_HEIGHT, RAYWHITE);
@@ -99,14 +101,14 @@ void _DrawGameViewport(GameData *gameData)
 	/* Set clipping to systems can't draw outside the viewport. */
 	BeginScissorMode(gameCameraOffset.x, gameCameraOffset.y,
 			 GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
-    _RenderGameSystems(gameData);
-    EndScissorMode();
+	_RenderGameSystems(gameData);
+	EndScissorMode();
 }
 
-void _DrawHUD(GameData *gameData)
+static void _DrawHUD(GameData *gameData)
 {
 #ifdef DEBUG
-    DrawFPS(VIRTUAL_WIDTH - 80, VIRTUAL_HEIGHT - 20);
+	DrawFPS(VIRTUAL_WIDTH - 80, VIRTUAL_HEIGHT - 20);
 #endif
 }
 
@@ -142,14 +144,14 @@ void GameDeinit(GameData *gameData)
  */
 void GameUpdate(GameData *gameData, float dt)
 {
-    /* Handle Input */
+	/* Handle Input */
 
 	Position *playerPos =
 		GET_COMPONENT(Position, gameData->player, COMPONENT_POSITION);
 	if (playerPos->x + gameCameraOffset.x > (float)GAME_VIEW_WIDTH) {
 		LOG(L_INFO, "player out of bounds: %f", playerPos->x);
 	}
-    _UpdateSystems(gameData, dt);
+	_UpdateSystems(gameData, dt);
 }
 
 /**
@@ -157,16 +159,20 @@ void GameUpdate(GameData *gameData, float dt)
  */
 void GameDraw(GameData *gameData)
 {
-    BeginTextureMode(ScreenGetRenderTexture(&gameData->screen));
-    ClearBackground(BLACK);
-    _DrawGameViewport(gameData);
-    _DrawHUD(gameData);
-    EndTextureMode();
+	BeginTextureMode(ScreenGetRenderTexture(&gameData->screen));
+	ClearBackground(BLACK);
+	_DrawGameViewport(gameData);
+	_DrawHUD(gameData);
+	EndTextureMode();
 
 	// draws to screen directly
-    ScreenDrawToWindow(&gameData->screen);
+	BeginDrawing();
+	ClearBackground(BLACK);
+	ScreenDrawToWindow(&gameData->screen);
+    EndDrawing();
 }
 
-Vector2 GameCameraOffset() {
-    return gameCameraOffset;
+Vector2 GameCameraOffset()
+{
+	return gameCameraOffset;
 }

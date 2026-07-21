@@ -32,13 +32,14 @@ RenderTexture2D ScreenGetRenderTexture(ScreenData *screen)
 
 void ScreenDrawToWindow(ScreenData *screen)
 {
-	float scale = fminf((float)GetRenderWidth() / screen->renderWidth,
-			    (float)GetRenderHeight() / screen->renderHeight);
+	ASSERT_INITLIALIZED(screen);
+	float scale = fminf((float)GetScreenWidth() / screen->renderWidth,
+			    (float)GetScreenHeight() / screen->renderHeight);
 
 	float destW = screen->renderWidth * scale;
 	float destH = screen->renderHeight * scale;
-	float destX = (GetRenderWidth() - destW) * 0.5f;
-	float destY = (GetRenderHeight() - destH) * 0.5f;
+	float destX = (GetScreenWidth() - destW) * 0.5f;
+	float destY = (GetScreenHeight() - destH) * 0.5f;
 
 	Rectangle source = { 0, 0, screen->renderWidth, -screen->renderHeight };
 	Rectangle dest = { destX, destY, destW, destH };
