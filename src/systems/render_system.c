@@ -1,5 +1,7 @@
 #include "render_system.h"
+#include "constants.h"
 #include "coordinator.h"
+#include "game.h"
 #include "raylib.h"
 
 RenderSystem *RenderSystemCreate()
@@ -24,10 +26,12 @@ void RenderSystemUpdate(RenderSystem *self, [[maybe_unused]] float dt)
 			GET_COMPONENT(Position, entity, COMPONENT_POSITION);
 		Hitbox *h = GET_COMPONENT(Hitbox, entity, COMPONENT_HITBOX);
 		Render *r = GET_COMPONENT(Render, entity, COMPONENT_RENDER);
+		Vector2 offset = GameCameraOffset();
 
 		if (r->renderMode == RENDER_COLOR) {
-			DrawRectangle(p->x, p->y, h->width, h->height,
-				      r->renderColor);
+			// apply game offset
+			DrawRectangle(p->x + offset.x, p->y + offset.y,
+				      h->width, h->height, r->renderColor);
 		}
 	}
 }

@@ -26,6 +26,7 @@ void SystemsPoolDeinit(SystemsPool *systemsPool)
 		systemsPool->systems[i] = NULL;
 	}
 	systemsPool->count = 0;
+    initCalled = false;
 }
 
 void SystemsPoolAddSystem(SystemsPool *systemsPool, System *system)
@@ -52,6 +53,13 @@ System *SystemsPoolGetSystem(SystemsPool *systemsPool, SystemType type)
 
 	size_t index = systemsPool->sysToIndexMap[type];
 	return systemsPool->systems[index];
+}
+
+System *SystemsPoolGetSystemByIndex(SystemsPool *systemsPool, size_t index)
+{
+    ASSERT_INITIALIZED;
+    assert(index < systemsPool->count && "Invalid index. Out of range.");
+    return systemsPool->systems[index];
 }
 
 /**

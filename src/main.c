@@ -13,7 +13,7 @@ int main(void)
 
     SetConfigFlags(configFlags);
 
-	InitWindow(SCREEN_WIDTH, SCREEN_HEIGHT, "Space Shooter");
+	InitWindow(DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT, "Space Shooter");
 	SetTargetFPS(TARGET_FPS);
 
 	GameData gameData = { 0 };
@@ -26,7 +26,10 @@ int main(void)
         GameUpdate(&gameData, dt);
 
         // draw
+        BeginDrawing();
+        ClearBackground(BLACK);
         GameDraw(&gameData);
+        EndDrawing();
 	}
 
     GameDeinit(&gameData);

@@ -8,13 +8,13 @@ typedef struct {
 	SystemsPool systemsPool;
 	Entity player;
 	Entity global;
-	ScreenData gameTarget;
-	ScreenData uiTarget;
+	ScreenData screen;
 } GameData;
 
 void GameInit(GameData *gameData);
 void GameDeinit(GameData *gameData);
 void GameUpdate(GameData *gameData, float dt);
 void GameDraw(GameData *screen);
+Vector2 GameCameraOffset();
 
 #endif /* GAME_H */

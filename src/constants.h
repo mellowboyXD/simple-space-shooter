@@ -1,21 +1,24 @@
 #ifndef CONSTANTS_H
 #define CONSTANTS_H
 
-#include <stdint.h>
-#define MAX_STR_LEN 256              /* Max string length */
+constexpr int MAX_STR_LEN = 256;
 
-/* -- Screen & FPS -- */
-#define SCREEN_WIDTH 1600        /* Screen width */
-#define SCREEN_HEIGHT 900       /* Screen height */
-#define UI_PANEL_RATIO 0.25     /* Ratio of the UI panel to the screen width */
+constexpr int DEFAULT_WINDOW_WIDTH = 1600;
+constexpr int DEFAULT_WINDOW_HEIGHT = 900;
 
-constexpr int DEFAULT_UI_TARGET_WIDTH = 960;
-constexpr int DEFAULT_UI_TARGET_HEIGHT = 540;
+constexpr int VIRTUAL_WIDTH = 640;
+constexpr int VIRTUAL_HEIGHT = 480;
 
-constexpr int DEFAULT_GAME_TARGET_WIDTH = 288;
-constexpr int DEFAULT_GAME_TARGET_HEIGHT = 280;
-constexpr int DEFAULT_GAME_TARGET_PADDING = 16;
+constexpr int GAME_VIEW_X = 16; /* left margin */
+constexpr int GAME_VIEW_Y = 16; /* top margin */
+constexpr int GAME_VIEW_WIDTH = 384;
+constexpr int GAME_VIEW_HEIGHT = 448;
 
-constexpr uint8_t TARGET_FPS = 150;
+constexpr int HUD_X = GAME_VIEW_X + GAME_VIEW_WIDTH;
+constexpr int HUD_Y = GAME_VIEW_Y;
+constexpr int HUD_WIDTH = VIRTUAL_WIDTH - HUD_X;
+constexpr int HUD_HEIGHT = GAME_VIEW_HEIGHT;
+
+constexpr int TARGET_FPS = 150;
 
 #endif /* CONSTANTS_H */

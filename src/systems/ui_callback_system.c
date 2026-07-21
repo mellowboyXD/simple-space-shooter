@@ -23,7 +23,7 @@ UICallbackSystem *UICallbackSystemCreate()
 	return system;
 }
 
-void UICallbackSystemUpdate(UICallbackSystem *self, float dt)
+void UICallbackSystemUpdate(UICallbackSystem *self, [[maybe_unused]] float dt)
 {
 	for (size_t i = 0; i < self->count; i++) {
 		Entity entity = self->entities[i];

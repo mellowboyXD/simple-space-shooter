@@ -18,6 +18,7 @@ void SystemsPoolInit(SystemsPool *systemsPool);
 void SystemsPoolDeinit(SystemsPool *systemsPool);
 void SystemsPoolAddSystem(SystemsPool *systemsPool, System *system);
 System *SystemsPoolGetSystem(SystemsPool *systemsPool, SystemType type);
+System *SystemsPoolGetSystemByIndex(SystemsPool *systemsPool, size_t index);
 size_t SystemsPoolGetIndex(SystemsPool *systemsPool, SystemType type);
 
 #endif /* SYSTEMS_POOL_H */
