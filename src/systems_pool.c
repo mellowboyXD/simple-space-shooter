@@ -67,6 +67,7 @@ System *SystemsPoolGetSystemByIndex(SystemsPool *systemsPool, size_t index)
  */
 size_t SystemsPoolGetIndex(SystemsPool *systemsPool, SystemType type)
 {
+        ASSERT_INITIALIZED;
 	assert(type < MAX_SYSTEMS_TYPE && "Invalid System.");
 	assert(systemsPool->sysToIndexMap[type] > -1 &&
 	       "System is not registered.");

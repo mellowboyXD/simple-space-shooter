@@ -98,7 +98,7 @@ static void _DrawGameViewport(GameData *gameData)
 		      gameCameraOffset.y + GAME_VIEW_HEIGHT - 10, 10, 10, RED);
 #endif
 
-	/* Set clipping to systems can't draw outside the viewport. */
+	/* Set clipping mode so systems can't draw outside the viewport. */
 	BeginScissorMode(gameCameraOffset.x, gameCameraOffset.y,
 			 GAME_VIEW_WIDTH, GAME_VIEW_HEIGHT);
 	_RenderGameSystems(gameData);
