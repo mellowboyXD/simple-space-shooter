@@ -44,7 +44,7 @@ static void _CreateSystems(GameData *gameData)
 
 static bool _shouldSkipSystemUpdate(SystemsPool *pool, size_t index)
 {
-	return SystemsPoolGetIndex(pool, UI_CALLBACK_SYSTEM_TYPE) == index 
+	return SystemsPoolGetIndex(pool, UI_CALLBACK_SYSTEM_TYPE) == index
         || SystemsPoolGetIndex(pool, RENDER_SYSTEM_TYPE) == index;
 }
 
