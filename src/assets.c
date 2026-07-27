@@ -11,7 +11,7 @@ static size_t _texturesCount = 0;
 
 static bool initCalled = false;
 
-void AssetInit()
+void AssetsInit()
 {
         assert(!initCalled && "Asset pool already initialized.");
         _texturesCount = 0;
@@ -22,7 +22,7 @@ void AssetInit()
         initCalled = true;
 }
 
-void AssetDeinit()
+void AssetsDeinit()
 {
         ASSERT_STATIC_INITIALIZED;
         for (AssetId i = 0; i < _texturesCount; i++) {
@@ -32,7 +32,7 @@ void AssetDeinit()
         LOG(L_INFO, "Assets were deinitialized successfully.");
 }
 
-AssetId AssetLoadTexture(const char *filename)
+AssetId AssetsLoadTexture(const char *filename)
 {
         ASSERT_STATIC_INITIALIZED;
         assert(_texturesCount < MAX_TEXTURES && "Max textures reached.");
@@ -41,7 +41,7 @@ AssetId AssetLoadTexture(const char *filename)
         return id;
 }
 
-Texture2D *AssetGetTexture(AssetId id)
+Texture2D *AssetsGetTexture(AssetId id)
 {
         ASSERT_STATIC_INITIALIZED;
         assert(id < MAX_TEXTURES && "Invalid texture.");

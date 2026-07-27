@@ -1,8 +1,29 @@
 #include "render_system.h"
+#include "assets.h"
 #include "coordinator.h"
 #include "raylib.h"
 
+#include <assert.h>
+
 extern const Vector2 gameCameraOffset; // declared by game.c
+
+static void _RenderInColorMode(Position *p, Hitbox *h, Color color)
+{
+	// apply game offset
+	DrawRectangle(p->x + gameCameraOffset.x, p->y + gameCameraOffset.y,
+		      h->width, h->height, color);
+}
+
+static void _RenderInSpriteMode(Position *p, Hitbox *h, AssetId textureId,
+				Rectangle frame)
+{
+	Texture2D *texture = AssetsGetTexture(textureId);
+	assert(texture && "Could not retrieve the texture.");
+
+	Vector2 screenPos = { p->x + gameCameraOffset.x,
+			      p->y + gameCameraOffset.y };
+	DrawTextureEx(*texture, screenPos, 0.0f, 1.0f, WHITE);
+}
 
 RenderSystem *RenderSystemCreate()
 {
@@ -28,10 +49,12 @@ void RenderSystemUpdate(RenderSystem *self, [[maybe_unused]] float dt)
 		Render *r = GET_COMPONENT(Render, entity, COMPONENT_RENDER);
 
 		if (r->renderMode == RENDER_COLOR) {
-			// apply game offset
-			DrawRectangle(p->x + gameCameraOffset.x,
-				      p->y + gameCameraOffset.y, h->width,
-				      h->height, r->renderColor);
+			_RenderInColorMode(p, h, r->renderColor);
+		} else if (r->renderMode == RENDER_SPRITE) {
+			AssetId textureId = r->textureId;
+			Rectangle frame = r->frame;
+			;
+			_RenderInSpriteMode(p, h, textureId, frame);
 		}
 	}
 }

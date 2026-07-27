@@ -8,6 +8,7 @@
  * user of the Entity-Component-System.
  */
 #include "game.h"
+#include "assets.h"
 #include "constants.h"
 #include "coordinator.h"
 #include "debug.h"
@@ -71,7 +72,9 @@ static void _AssociateComponents(GameData *gameData)
 	CoordinatorAddComponent(player, COMPONENT_POSITION, &POSITION(10, 10));
 	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(100, 20));
 	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(30, 30));
-	CoordinatorAddComponent(player, COMPONENT_RENDER, &RENDER_C(BLUE));
+
+        AssetId id = AssetsLoadTexture("resources/sprites/main_ship/base_full_health.png");
+        CoordinatorAddComponent(player, COMPONENT_RENDER, &RENDER_S(id, 0));
 
 	CoordinatorAddComponent(global, COMPONENT_UI_MOUSE_INPUT_STATE,
 				&UI_MOUSE_INPUT_STATE(false));
@@ -118,6 +121,7 @@ static void _DrawHUD(GameData *gameData)
 void GameInit(GameData *gameData)
 {
 	CoordinatorInit();
+        AssetsInit();
 
 	_RegisterComponents();
 	_CreateSystems(gameData);
@@ -138,6 +142,7 @@ void GameDeinit(GameData *gameData)
 	CoordinatorDeinit();
 	ScreenDeinit(&gameData->screen);
 	SystemsPoolDeinit(&gameData->systemsPool);
+        AssetsDeinit();
 }
 
 /**

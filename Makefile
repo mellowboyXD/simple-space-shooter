@@ -7,6 +7,7 @@ CFLAGS := -Wall -Wextra -Wpedantic -std=c23 -I./include
 LDFLAGS :=
 BUILD_DIR := ./build
 SRC_DIRS := ./src
+RES_DIR := ./resources
 
 ifeq ($(DEBUG), 1)
 	CFLAGS += -g -DDEBUG
@@ -43,7 +44,7 @@ INC_FLAGS := $(addprefix -I,$(INC_DIRS))
 CPPFLAGS := $(INC_FLAGS) -MMD -MP
 
 # The final build step.
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
+$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS) resources
 	$(CC) $(OBJS) -o $@ $(LDFLAGS)
 
 # Build step for C source
@@ -51,9 +52,13 @@ $(BUILD_DIR)/%.c.o: %.c
 	mkdir -p $(dir $@)
 	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
 
-.PHONY: clean run
+.PHONY: clean run resources
 clean:
 	rm -r $(BUILD_DIR)
+
+# copy assets folder into the build folder
+resources:
+	cp -r ./$(RES_DIR) ./$(BUILD_DIR)
 
 run: $(BUILD_DIR)/$(TARGET_EXEC)
 	./$(BUILD_DIR)/$(TARGET_EXEC)

@@ -9,7 +9,7 @@ typedef uint32_t AssetId;
 
 void AssetsInit();
 void AssetsDeinit();
-AssetId AssetLoadTexture(const char *filename);
-Texture2D *AssetGetTexture(AssetId id);
+AssetId AssetsLoadTexture(const char *filename);
+Texture2D *AssetsGetTexture(AssetId id);
 
 #endif /* ASSETS_H */
