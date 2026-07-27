@@ -17,7 +17,7 @@ void AssetInit()
         _texturesCount = 0;
 
         // zero-initialize the pool
-        memset(&_texturesPool, 0, ARRAY_SIZE(_texturesPool));
+        memset(&_texturesPool, 0, sizeof(_texturesPool));
         LOG(L_INFO, "Asset was initialized successfully.");
         initCalled = true;
 }
