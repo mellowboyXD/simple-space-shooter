@@ -22,6 +22,9 @@ void AssetsInit()
         initCalled = true;
 }
 
+/**
+ * Frees up the VRAM by unloading the assets.
+ */
 void AssetsDeinit()
 {
         ASSERT_STATIC_INITIALIZED;
@@ -32,6 +35,9 @@ void AssetsDeinit()
         LOG(L_INFO, "Assets were deinitialized successfully.");
 }
 
+/**
+ * Loads a texture into the texture pool and returns the associated id.
+ */
 AssetId AssetsLoadTexture(const char *filename)
 {
         ASSERT_STATIC_INITIALIZED;
