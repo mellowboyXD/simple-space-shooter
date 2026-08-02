@@ -31,6 +31,9 @@ void CoordinatorInit()
 	ComponentManagerInit(&componentManager);
 	EntityManagerInit(&entityManager);
 	SystemManagerInit(&systemManager);
+
+	AssetsInit();
+
 	initCalled = true;
 	LOG(L_INFO, "Coordinator successfully initialized.");
 }
@@ -44,8 +47,13 @@ void CoordinatorDeinit()
 	ComponentManagerDeinit(&componentManager);
 	EntityManagerDeinit(&entityManager);
 	SystemManagerDeinit(&systemManager);
+
+	AssetsDeinit();
+
 	LOG(L_INFO, "Coordinator successfully deinitialized.");
 }
+
+// ===== Entity related functions =====
 
 /**
  * Create a new entity and return it. Delegates entity creation logic to the
@@ -63,6 +71,9 @@ Entity CoordinatorCreateEntity()
 void CoordinatorDestroyEntity(Entity entity)
 {
 	ASSERT_INITIALIZED(initCalled);
+
+	// TODO: Remove its assets if has render component
+
 	EntityManagerDestroy(&entityManager, entity);
 	ComponentManagerEntityDestroyed(&componentManager, entity);
 	SystemManagerEntityDestroyed(&systemManager, entity);
@@ -76,6 +87,8 @@ Signature CoordinatorGetEntitySignature(Entity entity)
 	ASSERT_INITIALIZED(initCalled);
 	return EntityManagerGetSignature(&entityManager, entity);
 }
+
+// ===== Component related functions =====
 
 /**
  * Delegates component registration to the component manager.
@@ -111,6 +124,8 @@ void CoordinatorRemoveComponent(Entity entity, ComponentType type)
 	ASSERT_INITIALIZED(initCalled);
 	ASSERT_COMPONENT_TYPE(type);
 
+	// TODO: Remove texture assets if has render component
+
 	ComponentManagerRemove(&componentManager, type, entity);
 	Signature sig = EntityManagerGetSignature(&entityManager, entity);
 	sig &= ~COMPONENT_BIT(type);
@@ -128,6 +143,8 @@ void *CoordinatorGetComponent(Entity entity, ComponentType type)
 	ASSERT_INITIALIZED(initCalled);
 	return ComponentManagerGet(&componentManager, type, entity);
 }
+
+// ===== System related functions =====
 
 /**
  * Delegates system registration logic to system manager. You get the system
@@ -156,4 +173,25 @@ System *CoordinatorGetSystem(SystemType type)
 {
 	ASSERT_INITIALIZED(initCalled);
 	return SystemManagerGetSystem(&systemManager, type);
+}
+
+// ===== Asset related functions =====
+
+/**
+ * Loads a texture file and returns its id. Delegates logic to
+ * assets.h
+ */
+AssetId CoordinatorLoadAsset(const char *filename)
+{
+        ASSERT_INITIALIZED(initCalled);
+        return AssetsLoadTexture(filename);
+}
+
+/**
+ * Unloads a particular asset. Delegates logic to assets.h
+ */
+void CoordinatorUnloadAsset(AssetId id)
+{
+        ASSERT_INITIALIZED(initCalled);
+        AssetUnloadTexture(id);
 }

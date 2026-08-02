@@ -17,12 +17,11 @@ static void _RenderInColorMode(Position *p, Hitbox *h, Color color)
 static void _RenderInSpriteMode(Position *p, Hitbox *h, AssetId textureId,
 				Rectangle frame)
 {
-	Texture2D *texture = AssetsGetTexture(textureId);
-	assert(texture && "Could not retrieve the texture.");
+	Texture2D texture = AssetsGetTexture2D(textureId);
 
 	Vector2 screenPos = { p->x + gameCameraOffset.x,
 			      p->y + gameCameraOffset.y };
-	DrawTextureEx(*texture, screenPos, 0.0f, 1.0f, WHITE);
+	DrawTextureEx(texture, screenPos, 0.0f, 1.0f, WHITE);
 }
 
 RenderSystem *RenderSystemCreate()
@@ -53,7 +52,6 @@ void RenderSystemUpdate(RenderSystem *self, [[maybe_unused]] float dt)
 		} else if (r->renderMode == RENDER_SPRITE) {
 			AssetId textureId = r->textureId;
 			Rectangle frame = r->frame;
-			;
 			_RenderInSpriteMode(p, h, textureId, frame);
 		}
 	}

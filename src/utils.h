@@ -8,4 +8,8 @@
 
 #define ASSERT_STATIC_INITIALIZED assert(initCalled && "Init was not called.")
 
+#define RAISE_UNIMPLEMENTED                                 \
+	LOG(L_WARN, "[TODO]: NOT IMPLEMENTED FUNCTION!\n"); \
+	exit(EXIT_FAILURE)
+
 #endif // UTILS_H
