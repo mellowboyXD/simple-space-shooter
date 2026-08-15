@@ -12,6 +12,7 @@
 #ifndef COMPONENTS_H
 #define COMPONENTS_H
 
+#include "assets.h"
 #include "raylib.h"
 #include <stdint.h>
 
@@ -65,7 +66,7 @@ typedef enum { RENDER_COLOR, RENDER_SPRITE } RenderMode;
 typedef struct {
 	RenderMode renderMode;
 	Color renderColor; // used this in mode RENDER_COLOR
-	int textureId; // use this in mode RENDER_SPRITE
+	AssetId textureId; // use this in mode RENDER_SPRITE
 	Rectangle frame; // use this in mode RENDER_SPRITE
 } Render;
 

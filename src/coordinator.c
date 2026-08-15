@@ -5,6 +5,7 @@
 
 #include "coordinator.h"
 #include "component_manager.h"
+#include "components.h"
 #include "debug.h"
 #include "systems/system_manager.h"
 #include <assert.h>
@@ -31,6 +32,9 @@ void CoordinatorInit()
 	ComponentManagerInit(&componentManager);
 	EntityManagerInit(&entityManager);
 	SystemManagerInit(&systemManager);
+
+	AssetsInit();
+
 	initCalled = true;
 	LOG(L_INFO, "Coordinator successfully initialized.");
 }
@@ -41,11 +45,19 @@ void CoordinatorInit()
 void CoordinatorDeinit()
 {
 	assert(initCalled && "Coordinator init was never called");
+
+	// apparently, systems should go first, followed by component, then
+	// entity and finally assets
+	SystemManagerDeinit(&systemManager);
 	ComponentManagerDeinit(&componentManager);
 	EntityManagerDeinit(&entityManager);
-	SystemManagerDeinit(&systemManager);
+
+	AssetsDeinit();
+
 	LOG(L_INFO, "Coordinator successfully deinitialized.");
 }
+
+// ===== Entity related functions =====
 
 /**
  * Create a new entity and return it. Delegates entity creation logic to the
@@ -63,6 +75,11 @@ Entity CoordinatorCreateEntity()
 void CoordinatorDestroyEntity(Entity entity)
 {
 	ASSERT_INITIALIZED(initCalled);
+
+	if (ComponentManagerHas(&componentManager, COMPONENT_RENDER, entity)) {
+		CoordinatorRemoveComponent(entity, COMPONENT_RENDER);
+	}
+
 	EntityManagerDestroy(&entityManager, entity);
 	ComponentManagerEntityDestroyed(&componentManager, entity);
 	SystemManagerEntityDestroyed(&systemManager, entity);
@@ -76,6 +93,8 @@ Signature CoordinatorGetEntitySignature(Entity entity)
 	ASSERT_INITIALIZED(initCalled);
 	return EntityManagerGetSignature(&entityManager, entity);
 }
+
+// ===== Component related functions =====
 
 /**
  * Delegates component registration to the component manager.
@@ -111,6 +130,15 @@ void CoordinatorRemoveComponent(Entity entity, ComponentType type)
 	ASSERT_INITIALIZED(initCalled);
 	ASSERT_COMPONENT_TYPE(type);
 
+	// Remove texture assets if entity has render component
+	if (type == COMPONENT_RENDER &&
+	    ComponentManagerHas(&componentManager, COMPONENT_RENDER, entity)) {
+		Render *r = GET_COMPONENT(Render, entity, COMPONENT_RENDER);
+		if (r->textureId < MAX_TEXTURES) {
+			CoordinatorUnloadAsset(r->textureId);
+		}
+	}
+
 	ComponentManagerRemove(&componentManager, type, entity);
 	Signature sig = EntityManagerGetSignature(&entityManager, entity);
 	sig &= ~COMPONENT_BIT(type);
@@ -128,6 +156,8 @@ void *CoordinatorGetComponent(Entity entity, ComponentType type)
 	ASSERT_INITIALIZED(initCalled);
 	return ComponentManagerGet(&componentManager, type, entity);
 }
+
+// ===== System related functions =====
 
 /**
  * Delegates system registration logic to system manager. You get the system
@@ -156,4 +186,26 @@ System *CoordinatorGetSystem(SystemType type)
 {
 	ASSERT_INITIALIZED(initCalled);
 	return SystemManagerGetSystem(&systemManager, type);
+}
+
+// ===== Asset related functions =====
+
+/**
+ * Loads a texture file and returns its id. Delegates logic to
+ * assets.h
+ */
+AssetId CoordinatorLoadAsset(const char *filename)
+{
+	ASSERT_INITIALIZED(initCalled);
+	LOG(L_INFO, "Coordinator is loading assets.");
+	return AssetsLoadTexture(filename);
+}
+
+/**
+ * Unloads a particular asset. Delegates logic to assets.h
+ */
+void CoordinatorUnloadAsset(AssetId id)
+{
+	ASSERT_INITIALIZED(initCalled);
+	AssetUnloadTexture(id);
 }

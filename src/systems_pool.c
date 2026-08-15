@@ -1,8 +1,6 @@
 #include "systems_pool.h"
+#include "utils.h"
 #include <assert.h>
-
-#define ASSERT_INITIALIZED \
-	(assert(initCalled && "Error. SystemsPool uninitialized."))
 
 // there should be at most 1 SystemsPool running
 static bool initCalled = false;
@@ -21,7 +19,7 @@ void SystemsPoolInit(SystemsPool *systemsPool)
 
 void SystemsPoolDeinit(SystemsPool *systemsPool)
 {
-	ASSERT_INITIALIZED;
+	ASSERT_STATIC_INITIALIZED;
 	for (size_t i = 0; i < systemsPool->size; i++) {
 		systemsPool->systems[i] = NULL;
 	}
@@ -31,7 +29,7 @@ void SystemsPoolDeinit(SystemsPool *systemsPool)
 
 void SystemsPoolAddSystem(SystemsPool *systemsPool, System *system)
 {
-	ASSERT_INITIALIZED;
+	ASSERT_STATIC_INITIALIZED;
 	assert(systemsPool->count < systemsPool->size &&
 	       "Not enough space to add another system");
 	SystemType type = system->type;
@@ -46,7 +44,7 @@ void SystemsPoolAddSystem(SystemsPool *systemsPool, System *system)
 
 System *SystemsPoolGetSystem(SystemsPool *systemsPool, SystemType type)
 {
-	ASSERT_INITIALIZED;
+	ASSERT_STATIC_INITIALIZED;
 	assert(type < MAX_SYSTEMS_TYPE && "Invalid system type.");
 	assert(systemsPool->sysToIndexMap[type] > -1 &&
 	       "System is not registered.");
@@ -57,7 +55,7 @@ System *SystemsPoolGetSystem(SystemsPool *systemsPool, SystemType type)
 
 System *SystemsPoolGetSystemByIndex(SystemsPool *systemsPool, size_t index)
 {
-	ASSERT_INITIALIZED;
+	ASSERT_STATIC_INITIALIZED;
 	assert(index < systemsPool->count && "Invalid index. Out of range.");
 	return systemsPool->systems[index];
 }
@@ -67,7 +65,7 @@ System *SystemsPoolGetSystemByIndex(SystemsPool *systemsPool, size_t index)
  */
 size_t SystemsPoolGetIndex(SystemsPool *systemsPool, SystemType type)
 {
-	ASSERT_INITIALIZED;
+	ASSERT_STATIC_INITIALIZED;
 	assert(type < MAX_SYSTEMS_TYPE && "Invalid System.");
 	assert(systemsPool->sysToIndexMap[type] > -1 &&
 	       "System is not registered.");
