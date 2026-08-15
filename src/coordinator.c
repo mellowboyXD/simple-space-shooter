@@ -45,9 +45,12 @@ void CoordinatorInit()
 void CoordinatorDeinit()
 {
 	assert(initCalled && "Coordinator init was never called");
+
+        // apparently, systems should go first, followed by component, then 
+        // entity and finally assets
+	SystemManagerDeinit(&systemManager);
 	ComponentManagerDeinit(&componentManager);
 	EntityManagerDeinit(&entityManager);
-	SystemManagerDeinit(&systemManager);
 
 	AssetsDeinit();
 
@@ -194,6 +197,7 @@ System *CoordinatorGetSystem(SystemType type)
 AssetId CoordinatorLoadAsset(const char *filename)
 {
 	ASSERT_INITIALIZED(initCalled);
+        LOG(L_INFO, "Coordinator is loading assets.");
 	return AssetsLoadTexture(filename);
 }
 
