@@ -17,6 +17,26 @@
 typedef struct HashMap HashMap;
 typedef struct HashMapIterator HashMapIterator;
 
+struct HashMapEntry {
+	const char *key; // key is set to "__EMPTY___" if empty
+	void *value;
+};
+
+struct HashMap {
+	struct HashMapEntry *entries;
+	size_t size; // number of entries in map
+	size_t capacity; // max number of entries
+};
+
+struct HashMapIterator {
+	const char *key;
+	void *value;
+
+	HashMap *_map;
+	size_t _index; // index of next entry
+};
+
+
 // returns a hash map structure
 HashMap *HashMapCreate();
 
@@ -26,6 +46,9 @@ void HashMapDestroy(HashMap *map);
 
 // returns the value associated with a key, else NULL
 void *HashMapGet(HashMap *map, const char *key);
+
+// returns the value associated with a key or errorValue if not found
+void *HashMapGetOrError(HashMap *map, const char *key, void *errorValue);
 
 // adds a key-value pair to the map
 bool HashMapSet(HashMap *map, const char *key, void *value);

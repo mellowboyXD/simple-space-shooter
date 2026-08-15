@@ -23,6 +23,7 @@
 
 #include "raylib.h"
 
+#include <stddef.h>
 #include <stdint.h>
 
 typedef size_t AssetId;
@@ -32,5 +33,7 @@ void AssetsDeinit();
 AssetId AssetsLoadTexture(const char *filename);
 Texture2D AssetsGetTexture2D(AssetId id);
 void AssetUnloadTexture(AssetId id);
+void AssetLogInfo(); // logs useful details about the asset pool. use in debug
+void AssetLogRefCount(AssetId id);
 
 #endif /* ASSETS_H */

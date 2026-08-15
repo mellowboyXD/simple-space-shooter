@@ -8,6 +8,8 @@
  * user of the Entity-Component-System.
  */
 #include "game.h"
+#include "assets.h"
+#include "components.h"
 #include "constants.h"
 #include "coordinator.h"
 #include "debug.h"
@@ -81,6 +83,22 @@ static void _AssociateComponents(GameData *gameData)
 				&UI_MOUSE_INPUT_STATE(false));
 	CoordinatorAddComponent(global, COMPONENT_UI_CALLBACK,
 				&UICALLBACK(NULL));
+
+#ifdef DEBUG // verifies that hash map + ref count asset manager are working
+	for (int i = 0; i < 10; i++) {
+		Entity e = CoordinatorCreateEntity();
+		CoordinatorAddComponent(e, COMPONENT_POSITION,
+					&POSITION(i * 15, 20));
+		CoordinatorAddComponent(e, COMPONENT_HITBOX, &HITBOX(30, 30));
+		id = CoordinatorLoadAsset(
+			"resources/sprites/main_ship/base_very_damaged.png");
+		CoordinatorAddComponent(e, COMPONENT_RENDER,
+					&RENDER_S(id, frame));
+	}
+
+	AssetLogInfo();
+	AssetLogRefCount(id);
+#endif
 }
 
 static void _RenderGameSystems(GameData *gameData)
@@ -131,6 +149,8 @@ void GameInit(GameData *gameData)
 	gameData->player = player;
 	gameData->global = global;
 
+	LOG(L_INFO, "Entities created successfully.");
+
 	_AssociateComponents(gameData);
 
 	// Initialize the virtual screen
@@ -154,7 +174,7 @@ void GameUpdate(GameData *gameData, float dt)
 	Position *playerPos =
 		GET_COMPONENT(Position, gameData->player, COMPONENT_POSITION);
 	if (playerPos->x + gameCameraOffset.x > (float)GAME_VIEW_WIDTH) {
-		LOG(L_INFO, "player out of bounds: %f", playerPos->x);
+		//LOG(L_INFO, "player out of bounds: %f", playerPos->x);
 	}
 	_UpdateSystems(gameData, dt);
 }

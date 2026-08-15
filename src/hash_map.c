@@ -5,25 +5,6 @@
 #include <stdlib.h>
 #include <string.h>
 
-struct HashMapEntry {
-	const char *key; // key is set to "__EMPTY___" if empty
-	void *value;
-};
-
-struct HashMap {
-	struct HashMapEntry *entries;
-	size_t size; // number of entries in map
-	size_t capacity; // max number of entries
-};
-
-struct HashMapIterator {
-	const char *key;
-	void *value;
-
-	HashMap *_map;
-	size_t _index; // index of next entry
-};
-
 static const size_t INIT_CAPACITY = 16; // must be power of 2
 static const uint64_t FNV_OFFSET = 14695981039346656037u;
 static const uint64_t FNV_PRIME = 1099511628211u;
@@ -177,11 +158,13 @@ void *HashMapGet(HashMap *map, const char *key)
 {
 	assert(map != NULL && "Invalid argument. Hash map is null");
 	assert(key != NULL && "Invalid argument. Key is null");
+        assert(map->entries != NULL && "Invalid entry. Entries is null");
 
 	size_t n = strlen(key);
 	uintptr_t hash = _FNV1Hash(key, n);
 
 	size_t index = _SlotIndex(hash, map->capacity);
+        LOG(L_INFO, "Got index %zu for hash: %p", index, hash);
 	while (map->entries[index].key != NULL) {
 		if (map->entries[index].key != HASH_ENTRY_EMPTY &&
 		    strcmp(map->entries[index].key, key) == 0)
@@ -191,7 +174,22 @@ void *HashMapGet(HashMap *map, const char *key)
 		index = (index + 1) % map->capacity;
 	}
 
+        LOG(L_INFO, "key with hash: %p is not in the map.", hash);
 	return NULL;
+}
+
+void *HashMapGetOrError(HashMap *map, const char *key, void *errorValue)
+{
+        assert(map != NULL && "Invalid argument. Hash map is null.");
+        assert(key != NULL && "Invalid argument. key is null.");
+        assert(errorValue != NULL && "Invalid argument. errorValue is null");
+
+        void *value = HashMapGet(map, key);
+        if (!value) {
+                return errorValue;
+        }
+
+        return value;
 }
 
 bool HashMapHas(HashMap *map, const char *key)

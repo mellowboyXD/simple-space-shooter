@@ -2,7 +2,7 @@
  * Implementation:
  *      Have a hash table that stores filename (as key) and AssetId (as value).
  *      When the user requests to load an asset, we find the key (filename) in 
- *      the hash table. If its there, we use to AssetId as an index into 
+ *      the hash table. If its there, we use the AssetId as an index into 
  *      texture pool, increment the refCount and return the AssetId.
  *      Otherswise, we add the texture to the back of the pool, set the
  *      refCount to 0 and return the index as AssetId.
@@ -17,45 +17,12 @@
  */
 #include "assets.h"
 #include "debug.h"
+#include "hash_map.h"
 #include "utils.h"
 
 #include <assert.h>
 #include <stdlib.h>
 #include <string.h>
-
-#define strdup _strdup
-
-// TODO: Replace with actuall hash table implementation
-struct HashTable {
-	char *key;
-	AssetId value;
-};
-
-/**
- * Finds the value associated with key in ht.
- * Returns errorValue if key is not found in ht.
- */
-AssetId HashTableGetOrError(struct HashTable ht, const char *key,
-			    AssetId errorValue)
-{
-        RAISE_UNIMPLEMENTED;
-}
-/**
- * Adds a new key-value pair to the hash table
- */
-void HashTableAdd(struct HashTable ht, const char *key, AssetId value)
-{
-        RAISE_UNIMPLEMENTED;
-}
-
-/**
- * Removes a key from the hash table.
- * Returns true on success, false otherwise
- */
-bool HashTableDelete(struct HashTable ht, const char *key)
-{
-        RAISE_UNIMPLEMENTED;
-}
 
 struct _AssetTexture {
 	char *filename; // the asset filename, used for fast ht lookups
@@ -69,12 +36,13 @@ static constexpr size_t MAX_TEXTURES = 256;
 // sentinel value to designate an invalid index/AssetId (basically same thing)
 static constexpr AssetId INVALID_ID_OR_INDEX = MAX_TEXTURES + 1;
 
-static struct HashTable ht = { 0 };
+static struct HashMap *map = NULL;
 
 static struct _AssetTexture _texturesPool[MAX_TEXTURES];
 static size_t _texturesCount = 0;
 static size_t _assetIdToIndexMap[MAX_TEXTURES];
 static AssetId _indexToAssetIdMap[MAX_TEXTURES];
+static AssetId _nextAssetId = 1; // id of 0 is reserved
 
 static bool initCalled = false;
 
@@ -92,8 +60,9 @@ static void _TrashAssetTexture(AssetId id)
 
 	// key(filename) is freed later
 	char *key = _texturesPool[index].filename;
-	if (!HashTableDelete(ht, (const char *)key)) {
-		LOG(L_ERROR, "Failed to remove %s from the hash table", key);
+	if (!HashMapDel(map, (const char *)key)) {
+		LOG(L_ERROR, "Failed to remove %s from the hash map", key);
+		free(key);
 		exit(EXIT_FAILURE);
 	}
 
@@ -133,6 +102,10 @@ void AssetsInit()
 		_assetIdToIndexMap[i] = INVALID_ID_OR_INDEX;
 		_indexToAssetIdMap[i] = INVALID_ID_OR_INDEX;
 	}
+
+	// initialize the hash table
+	map = HashMapCreate();
+
 	LOG(L_INFO, "Asset was initialized successfully.");
 	initCalled = true;
 }
@@ -143,10 +116,11 @@ void AssetsInit()
 void AssetsDeinit()
 {
 	ASSERT_STATIC_INITIALIZED;
-	for (AssetId i = 0; i < _texturesCount; i++) {
-		AssetUnloadTexture(i);
+	for (AssetId id = 0; id < MAX_TEXTURES; id++) {
+		AssetUnloadTexture(id); // should skip invalid ids
 	}
 	_texturesCount = 0;
+	HashMapDestroy(map);
 	LOG(L_INFO, "Assets were deinitialized successfully.");
 }
 
@@ -160,27 +134,36 @@ AssetId AssetsLoadTexture(const char *filename)
 	AssetId id;
 	size_t index;
 
-	// TODO: Hash table lookup
-	id = HashTableGetOrError(ht, filename, INVALID_ID_OR_INDEX);
+	LOG(L_INFO, "Checking if texture is in cache");
+	id = (AssetId)((uintptr_t)HashMapGetOrError(
+		map, filename, (void *)((uintptr_t)INVALID_ID_OR_INDEX)));
 	if (id != INVALID_ID_OR_INDEX) {
-		size_t index = _assetIdToIndexMap[id];
+		index = _assetIdToIndexMap[id];
 		_texturesPool[index].refCount++;
 		return id;
 	}
 
+	LOG(L_INFO, "Texture not in cache. Loading manually.");
 	// it does not exist, so load it into the pool
 	assert(_texturesCount < MAX_TEXTURES && "Max textures reached.");
 	index = _texturesCount++;
+	id = _nextAssetId++;
+
+	assert(id < MAX_TEXTURES && "Invalid Asset Id. Out of range.");
+
 	_texturesPool[index].texture = LoadTexture(filename);
 	_texturesPool[index].refCount = 1;
 	_texturesPool[index].filename = strdup(filename); // need to free
 
-	// add the entry to the hash table
-	HashTableAdd(ht, filename, index);
-
 	// update the maps
 	_assetIdToIndexMap[id] = index;
 	_indexToAssetIdMap[index] = id;
+
+	// add the entry to the hash table
+	if (!HashMapSet(map, filename, (void *)((uintptr_t)id))) {
+		LOG(L_ERROR, "Could not add id to hash table.");
+		exit(EXIT_FAILURE);
+	}
 
 	return id;
 }
@@ -192,7 +175,7 @@ void AssetUnloadTexture(AssetId id)
 {
 	ASSERT_STATIC_INITIALIZED;
 
-	assert(id < _texturesCount && "Invalid asset id.");
+	assert(id < MAX_TEXTURES && "Invalid asset id.");
 
 	// check if texture is present
 	// if not present return
@@ -219,4 +202,27 @@ Texture2D AssetsGetTexture2D(AssetId id)
 	       "Trying to access an invalid texture.");
 
 	return _texturesPool[index].texture;
+}
+
+void AssetLogInfo()
+{
+	ASSERT_STATIC_INITIALIZED;
+	LOG(L_INFO, "Asset pool count: %zu", _texturesCount);
+}
+
+void AssetLogRefCount(AssetId id)
+{
+	ASSERT_STATIC_INITIALIZED;
+	assert(id < MAX_TEXTURES && "Invalid asset id. Out of range.");
+
+	size_t index = _assetIdToIndexMap[id];
+	if (index == INVALID_ID_OR_INDEX) {
+		LOG(L_ERROR, "Requested asset id (%zu) not found.", id);
+		return;
+	}
+
+	struct _AssetTexture texture = _texturesPool[index];
+
+	LOG(L_INFO, "Ref count of asset('%s') with id %zu:- %zu", texture.filename, id,
+	    texture.refCount);
 }

@@ -5,6 +5,7 @@
 
 #include "coordinator.h"
 #include "component_manager.h"
+#include "components.h"
 #include "debug.h"
 #include "systems/system_manager.h"
 #include <assert.h>
@@ -72,7 +73,9 @@ void CoordinatorDestroyEntity(Entity entity)
 {
 	ASSERT_INITIALIZED(initCalled);
 
-	// TODO: Remove its assets if has render component
+	if (ComponentManagerHas(&componentManager, COMPONENT_RENDER, entity)) {
+		CoordinatorRemoveComponent(entity, COMPONENT_RENDER);
+	}
 
 	EntityManagerDestroy(&entityManager, entity);
 	ComponentManagerEntityDestroyed(&componentManager, entity);
@@ -124,7 +127,14 @@ void CoordinatorRemoveComponent(Entity entity, ComponentType type)
 	ASSERT_INITIALIZED(initCalled);
 	ASSERT_COMPONENT_TYPE(type);
 
-	// TODO: Remove texture assets if has render component
+	// Remove texture assets if entity has render component
+	if (type == COMPONENT_RENDER &&
+	    ComponentManagerHas(&componentManager, COMPONENT_RENDER, entity)) {
+		Render *r = GET_COMPONENT(Render, entity, COMPONENT_RENDER);
+		if (r->renderMode == RENDER_SPRITE) {
+			CoordinatorUnloadAsset(r->textureId);
+		}
+	}
 
 	ComponentManagerRemove(&componentManager, type, entity);
 	Signature sig = EntityManagerGetSignature(&entityManager, entity);
@@ -183,8 +193,8 @@ System *CoordinatorGetSystem(SystemType type)
  */
 AssetId CoordinatorLoadAsset(const char *filename)
 {
-        ASSERT_INITIALIZED(initCalled);
-        return AssetsLoadTexture(filename);
+	ASSERT_INITIALIZED(initCalled);
+	return AssetsLoadTexture(filename);
 }
 
 /**
@@ -192,6 +202,6 @@ AssetId CoordinatorLoadAsset(const char *filename)
  */
 void CoordinatorUnloadAsset(AssetId id)
 {
-        ASSERT_INITIALIZED(initCalled);
-        AssetUnloadTexture(id);
+	ASSERT_INITIALIZED(initCalled);
+	AssetUnloadTexture(id);
 }
