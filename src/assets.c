@@ -85,6 +85,8 @@ static void _TrashAssetTexture(AssetId id)
 	_indexToAssetIdMap[indexOfLast] = INVALID_ID_OR_INDEX;
 	_texturesPool[indexOfLast] = (struct _AssetTexture){ 0 };
 
+	LOG(L_INFO, "Asset '%s' was completely trashed.", key);
+
 	// free strdup'ed filename (see AssetsLoadTexture)
 	free(key);
 }
@@ -117,7 +119,11 @@ void AssetsDeinit()
 {
 	ASSERT_STATIC_INITIALIZED;
 	for (AssetId id = 0; id < MAX_TEXTURES; id++) {
-		AssetUnloadTexture(id); // should skip invalid ids
+		while (_assetIdToIndexMap[id] != INVALID_ID_OR_INDEX &&
+		       _texturesPool[_assetIdToIndexMap[id]].refCount > 0) {
+
+			AssetUnloadTexture(id);
+		}
 	}
 	_texturesCount = 0;
 	HashMapDestroy(map);
@@ -223,6 +229,6 @@ void AssetLogRefCount(AssetId id)
 
 	struct _AssetTexture texture = _texturesPool[index];
 
-	LOG(L_INFO, "Ref count of asset('%s') with id %zu:- %zu", texture.filename, id,
-	    texture.refCount);
+	LOG(L_INFO, "Ref count of asset('%s') with id %zu:- %zu",
+	    texture.filename, id, texture.refCount);
 }

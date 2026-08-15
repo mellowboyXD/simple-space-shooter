@@ -152,6 +152,7 @@ void HashMapDestroy(HashMap *map)
 
 	free(map->entries);
 	free(map);
+        LOG(L_INFO, "A hash map was destroyed.");
 }
 
 void *HashMapGet(HashMap *map, const char *key)
