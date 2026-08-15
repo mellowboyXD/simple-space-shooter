@@ -30,19 +30,12 @@ struct _AssetTexture {
 	size_t refCount; // reference count
 };
 
-// max allowed assets at all times
-static constexpr size_t MAX_TEXTURES = 256;
-
-// sentinel value to designate an invalid index/AssetId (basically same thing)
-static constexpr AssetId INVALID_ID_OR_INDEX = MAX_TEXTURES + 1;
-
 static struct HashMap *map = NULL;
 
 static struct _AssetTexture _texturesPool[MAX_TEXTURES];
 static size_t _texturesCount = 0;
 static size_t _assetIdToIndexMap[MAX_TEXTURES];
 static AssetId _indexToAssetIdMap[MAX_TEXTURES];
-static AssetId _nextAssetId = 1; // id of 0 is reserved
 
 static bool initCalled = false;
 
@@ -89,6 +82,19 @@ static void _TrashAssetTexture(AssetId id)
 
 	// free strdup'ed filename (see AssetsLoadTexture)
 	free(key);
+}
+
+static AssetId _GetNewAssetId()
+{
+        ASSERT_STATIC_INITIALIZED;
+
+        for (AssetId i = 0; i < MAX_TEXTURES; i++) {
+                if (_assetIdToIndexMap[i] == INVALID_ID_OR_INDEX)
+                        return i;
+        }
+
+        LOG(L_ERROR, "Could not find a valid asset id. Max textures reached.");
+        return INVALID_ID_OR_INDEX;
 }
 
 void AssetsInit()
@@ -153,7 +159,7 @@ AssetId AssetsLoadTexture(const char *filename)
 	// it does not exist, so load it into the pool
 	assert(_texturesCount < MAX_TEXTURES && "Max textures reached.");
 	index = _texturesCount++;
-	id = _nextAssetId++;
+	id = _GetNewAssetId();
 
 	assert(id < MAX_TEXTURES && "Invalid Asset Id. Out of range.");
 

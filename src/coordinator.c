@@ -46,8 +46,8 @@ void CoordinatorDeinit()
 {
 	assert(initCalled && "Coordinator init was never called");
 
-        // apparently, systems should go first, followed by component, then 
-        // entity and finally assets
+	// apparently, systems should go first, followed by component, then
+	// entity and finally assets
 	SystemManagerDeinit(&systemManager);
 	ComponentManagerDeinit(&componentManager);
 	EntityManagerDeinit(&entityManager);
@@ -134,7 +134,7 @@ void CoordinatorRemoveComponent(Entity entity, ComponentType type)
 	if (type == COMPONENT_RENDER &&
 	    ComponentManagerHas(&componentManager, COMPONENT_RENDER, entity)) {
 		Render *r = GET_COMPONENT(Render, entity, COMPONENT_RENDER);
-		if (r->renderMode == RENDER_SPRITE) {
+		if (r->textureId < MAX_TEXTURES) {
 			CoordinatorUnloadAsset(r->textureId);
 		}
 	}
@@ -197,7 +197,7 @@ System *CoordinatorGetSystem(SystemType type)
 AssetId CoordinatorLoadAsset(const char *filename)
 {
 	ASSERT_INITIALIZED(initCalled);
-        LOG(L_INFO, "Coordinator is loading assets.");
+	LOG(L_INFO, "Coordinator is loading assets.");
 	return AssetsLoadTexture(filename);
 }
 

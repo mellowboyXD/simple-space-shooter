@@ -14,14 +14,27 @@ static void _RenderInColorMode(Position *p, Hitbox *h, Color color)
 		      h->width, h->height, color);
 }
 
-static void _RenderInSpriteMode(Position *p, Hitbox *h, AssetId textureId,
-				Rectangle frame)
+static void _RenderInSpriteMode(Position *p, AssetId textureId, Rectangle frame)
 {
 	Texture2D texture = AssetsGetTexture2D(textureId);
 
 	Vector2 screenPos = { p->x + gameCameraOffset.x,
 			      p->y + gameCameraOffset.y };
-	DrawTextureEx(texture, screenPos, 0.0f, 1.0f, WHITE);
+	DrawTextureRec(texture, frame, screenPos, WHITE);
+}
+
+static void _RenderHitbox(Position *p, Hitbox *h, Rectangle frame)
+{
+	float px = p->x + gameCameraOffset.x;
+	float py = p->y + gameCameraOffset.y;
+
+	float cx = frame.width / 2;
+	float cy = frame.height / 2;
+
+	float x = px + (cx - h->width / 2);
+	float y = py + (cy - h->height / 2);
+
+	DrawRectangleLines(x, y, h->width, h->height, RED);
 }
 
 RenderSystem *RenderSystemCreate()
@@ -52,7 +65,10 @@ void RenderSystemUpdate(RenderSystem *self, [[maybe_unused]] float dt)
 		} else if (r->renderMode == RENDER_SPRITE) {
 			AssetId textureId = r->textureId;
 			Rectangle frame = r->frame;
-			_RenderInSpriteMode(p, h, textureId, frame);
+			_RenderInSpriteMode(p, textureId, frame);
+#ifdef DEBUG // draw hitbox in debug mode
+			_RenderHitbox(p, h, frame);
+#endif // DEBUG
 		}
 	}
 }

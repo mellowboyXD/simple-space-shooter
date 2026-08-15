@@ -44,8 +44,8 @@ HashMap *HashMapCreate();
 // note: does not free value. It is the responsibility of caller to free its value
 void HashMapDestroy(HashMap *map);
 
-// returns the value associated with a key, else NULL
-void *HashMapGet(HashMap *map, const char *key);
+// returns true if value is found and sets retval, false otherwise
+bool HashMapGet(HashMap *map, const char *key, void **retval);
 
 // returns the value associated with a key or errorValue if not found
 void *HashMapGetOrError(HashMap *map, const char *key, void *errorValue);

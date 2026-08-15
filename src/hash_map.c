@@ -155,39 +155,41 @@ void HashMapDestroy(HashMap *map)
         LOG(L_INFO, "A hash map was destroyed.");
 }
 
-void *HashMapGet(HashMap *map, const char *key)
+bool HashMapGet(HashMap *map, const char *key, void **retval)
 {
 	assert(map != NULL && "Invalid argument. Hash map is null");
 	assert(key != NULL && "Invalid argument. Key is null");
         assert(map->entries != NULL && "Invalid entry. Entries is null");
+        assert(retval != NULL && "Return value should not be a null pointer.");
 
 	size_t n = strlen(key);
 	uintptr_t hash = _FNV1Hash(key, n);
 
 	size_t index = _SlotIndex(hash, map->capacity);
-        LOG(L_INFO, "Got index %zu for hash: %p", index, hash);
+        LOG(L_INFO, "Got index %zu for hash: %p", index, (void *)hash);
 	while (map->entries[index].key != NULL) {
 		if (map->entries[index].key != HASH_ENTRY_EMPTY &&
-		    strcmp(map->entries[index].key, key) == 0)
-			return map->entries[index].value;
+		    strcmp(map->entries[index].key, key) == 0) {
+                        *retval = map->entries[index].value;
+                        return true;
+                }
 
 		// linear probe to next slot
 		index = (index + 1) % map->capacity;
 	}
 
-        LOG(L_INFO, "key with hash: %p is not in the map.", hash);
-	return NULL;
+        LOG(L_INFO, "key with hash: %p is not in the map.", (void *)hash);
+	return false;
 }
 
 void *HashMapGetOrError(HashMap *map, const char *key, void *errorValue)
 {
         assert(map != NULL && "Invalid argument. Hash map is null.");
         assert(key != NULL && "Invalid argument. key is null.");
-        assert(errorValue != NULL && "Invalid argument. errorValue is null");
 
-        void *value = HashMapGet(map, key);
-        if (!value) {
-                return errorValue;
+        void *value;
+        if (!HashMapGet(map, key, &value)) {
+                return errorValue; // sentinel can be null
         }
 
         return value;
@@ -198,7 +200,8 @@ bool HashMapHas(HashMap *map, const char *key)
 	assert(map != NULL && "Invalid argument. Hash map is null");
 	assert(key != NULL && "Invalid argument. Key is null");
 
-	return HashMapGet(map, key) != NULL;
+        void *value;
+	return HashMapGet(map, key, &value);
 }
 
 bool HashMapSet(HashMap *map, const char *key, void *value)

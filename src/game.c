@@ -72,11 +72,11 @@ static void _AssociateComponents(GameData *gameData)
 
 	CoordinatorAddComponent(player, COMPONENT_POSITION, &POSITION(10, 10));
 	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(100, 20));
-	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(30, 30));
+	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(20, 20));
 
 	AssetId id = CoordinatorLoadAsset(
 		"resources/sprites/main_ship/base_full_health.png");
-	Rectangle frame = { 0 };
+	Rectangle frame = { 0, 0, 48, 48 };
 	CoordinatorAddComponent(player, COMPONENT_RENDER, &RENDER_S(id, frame));
 
 	CoordinatorAddComponent(global, COMPONENT_UI_MOUSE_INPUT_STATE,
@@ -89,7 +89,7 @@ static void _AssociateComponents(GameData *gameData)
 		Entity e = CoordinatorCreateEntity();
 		CoordinatorAddComponent(e, COMPONENT_POSITION,
 					&POSITION(i * 15, 20));
-		CoordinatorAddComponent(e, COMPONENT_HITBOX, &HITBOX(30, 30));
+		CoordinatorAddComponent(e, COMPONENT_HITBOX, &HITBOX(20, 20));
 		id = CoordinatorLoadAsset(
 			"resources/sprites/main_ship/base_very_damaged.png");
 		CoordinatorAddComponent(e, COMPONENT_RENDER,

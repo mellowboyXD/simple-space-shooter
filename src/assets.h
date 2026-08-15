@@ -28,6 +28,12 @@
 
 typedef size_t AssetId;
 
+// max allowed assets at all times
+static constexpr size_t MAX_TEXTURES = 256;
+
+// sentinel value to designate an invalid index/AssetId (basically same thing)
+static constexpr AssetId INVALID_ID_OR_INDEX = MAX_TEXTURES + 1;
+
 void AssetsInit();
 void AssetsDeinit();
 AssetId AssetsLoadTexture(const char *filename);

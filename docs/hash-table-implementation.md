@@ -14,7 +14,7 @@ for the asset manager was to store the filename as key and asset ids as value.
 #### Storage
 
 The hash table will use a dynamic array as its storage space and reallocating
-when 1/3 of the array is filled.
+when 60% of the array is filled.
 
 #### Collision Resolution
 
@@ -24,3 +24,4 @@ probing to resolve hash collisions.
 
 > *References*:
 > - https://en.wikipedia.org/wiki/Open_addressing
+> - https://github.com/benhoyt/ht/blob/master/ht.c
