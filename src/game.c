@@ -34,6 +34,9 @@ static void _RegisterComponents()
 	REGISTER_COMPONENT(Render, COMPONENT_RENDER);
 	REGISTER_COMPONENT(UIMouseInputState, COMPONENT_UI_MOUSE_INPUT_STATE);
 	REGISTER_COMPONENT(UICallback, COMPONENT_UI_CALLBACK);
+
+	// tags need registration just like regular components
+	REGISTER_COMPONENT(Tag, TAG_PLAYER);
 }
 
 static void _CreateSystems(GameData *gameData)
@@ -70,6 +73,8 @@ static void _AssociateComponents(GameData *gameData)
 	Entity player = gameData->player;
 	Entity global = gameData->global;
 
+        CoordinatorAddTag(player, TAG_PLAYER);
+
 	CoordinatorAddComponent(player, COMPONENT_POSITION, &POSITION(10, 10));
 	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(100, 20));
 	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(20, 20));
@@ -98,6 +103,10 @@ static void _AssociateComponents(GameData *gameData)
 
 	AssetLogInfo();
 	AssetLogRefCount(id);
+
+        if (CoordinatorIsPlayer(player)) {
+                LOG(L_INFO, "This entity with id %d is the player.", player);
+        }
 #endif
 }
 

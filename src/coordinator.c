@@ -20,6 +20,13 @@ static EntityManager entityManager = { 0 };
 static SystemManager systemManager = { 0 };
 static bool initCalled = false;
 
+// if convention is followed, nothing should break here.
+// see components.h:L28-30
+bool _isValidTag(ComponentType tagType)
+{
+	return tagType >= TAG_PLAYER && tagType < MAX_COMPONENTS;
+}
+
 /**
  * Initializes all the managers
  */
@@ -155,6 +162,30 @@ void *CoordinatorGetComponent(Entity entity, ComponentType type)
 {
 	ASSERT_INITIALIZED(initCalled);
 	return ComponentManagerGet(&componentManager, type, entity);
+}
+
+// tags an entity
+void CoordinatorAddTag(Entity entity, ComponentType tagType)
+{
+	ASSERT_INITIALIZED(initCalled);
+	assert(_isValidTag(tagType) && "Invalid tag.");
+	CoordinatorAddComponent(entity, tagType, (void *)&tagObj);
+}
+
+// returns true if a specific tag is present for an entity, false otherwise
+bool CoordinatorHasTag(Entity entity, ComponentType tagType)
+{
+	ASSERT_INITIALIZED(initCalled);
+	assert(_isValidTag(tagType) && "Invalid tag.");
+
+	return ComponentManagerHas(&componentManager, tagType, entity);
+}
+
+// returns true if the entity has the player tag
+bool CoordinatorIsPlayer(Entity entity)
+{
+	ASSERT_INITIALIZED(initCalled);
+	return CoordinatorHasTag(entity, TAG_PLAYER);
 }
 
 // ===== System related functions =====
