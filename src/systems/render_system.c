@@ -3,6 +3,7 @@
 #include "coordinator.h"
 #include "raylib.h"
 
+#include "utils.h"
 #include <assert.h>
 
 extern const Vector2 gameCameraOffset; // declared by game.c
@@ -23,18 +24,12 @@ static void _RenderInSpriteMode(Position *p, AssetId textureId, Rectangle frame)
 	DrawTextureRec(texture, frame, screenPos, WHITE);
 }
 
-static void _RenderHitbox(Position *p, Hitbox *h, Rectangle frame)
+static void _RenderHitbox(const Position *const p, const Hitbox *const h,
+			  const Render *const r)
 {
-	float px = p->x + gameCameraOffset.x;
-	float py = p->y + gameCameraOffset.y;
+	Vector2 pos = GetHitboxPos(p, r, h, gameCameraOffset);
 
-	float cx = frame.width / 2;
-	float cy = frame.height / 2;
-
-	float x = px + (cx - h->width / 2);
-	float y = py + (cy - h->height / 2);
-
-	DrawRectangleLines(x, y, h->width, h->height, RED);
+	DrawRectangleLines(pos.x, pos.y, h->width, h->height, RED);
 }
 
 RenderSystem *RenderSystemCreate()
@@ -67,7 +62,7 @@ void RenderSystemUpdate(RenderSystem *self, [[maybe_unused]] float dt)
 			Rectangle frame = r->frame;
 			_RenderInSpriteMode(p, textureId, frame);
 #ifdef DEBUG // draw hitbox in debug mode
-			_RenderHitbox(p, h, frame);
+			_RenderHitbox(p, h, r);
 #endif // DEBUG
 		}
 	}

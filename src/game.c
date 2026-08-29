@@ -15,6 +15,7 @@
 #include "debug.h"
 #include "raylib.h"
 #include "screen.h"
+#include "systems/collision_system.h"
 #include "systems/kb_input_system.h"
 #include "systems_pool.h"
 #include "ui_components.h"
@@ -43,10 +44,11 @@ static void _RegisterComponents()
 static void _CreateSystems(GameData *gameData)
 {
 	SystemsPoolInit(&gameData->systemsPool);
-	SystemsPoolAddSystem(&gameData->systemsPool, MovementSystemCreate());
-	SystemsPoolAddSystem(&gameData->systemsPool, RenderSystemCreate());
-	SystemsPoolAddSystem(&gameData->systemsPool, UICallbackSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, KBInputSystemCreate());
+        SystemsPoolAddSystem(&gameData->systemsPool, CollisionSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool, MovementSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool, UICallbackSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool, RenderSystemCreate());
 }
 
 static bool _shouldSkipSystemUpdate(SystemsPool *pool, size_t index)
@@ -182,8 +184,6 @@ void GameDeinit(GameData *gameData)
  */
 void GameUpdate(GameData *gameData, float dt)
 {
-	/* Handle Input */
-
 	Position *playerPos =
 		GET_COMPONENT(Position, gameData->player, COMPONENT_POSITION);
 	if (playerPos->x + gameCameraOffset.x > (float)GAME_VIEW_WIDTH) {

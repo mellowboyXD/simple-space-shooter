@@ -1,6 +1,5 @@
 #include "movement_system.h"
 #include "coordinator.h"
-#include "debug.h"
 
 /**
  * This method creates a new movement system adding the required system
@@ -36,11 +35,5 @@ void MovementSystemUpdate(MovementSystem *self, float dt)
 
 		position->x += velocity->dx * dt;
 		position->y += velocity->dy * dt;
-
-		// TODO: will need to map to debug window
-		if (IsKeyPressed(KEY_P)) {
-			LOG(L_INFO, "player (%f, %f)", position->x,
-			    position->y);
-		}
 	}
 }

@@ -2,6 +2,7 @@
 #include "constants.h"
 #include "coordinator.h"
 
+#include "debug.h"
 #include <math.h>
 
 Velocity _NormalizeVelocity(Velocity vel)
@@ -10,16 +11,17 @@ Velocity _NormalizeVelocity(Velocity vel)
 	if (len == 0)
 		return vel;
 
-	return (Velocity) {vel.dx / len, vel.dy / len};
+	return (Velocity){ vel.dx / len, vel.dy / len };
 }
 
 KBInputSystem *KBInputSystemCreate()
 {
 	KBInputSystem *self =
-		CoordinatorRegisterSystem(KB_INPUT_SYSTEM, KBInputSystemUpdate);
+		CoordinatorRegisterSystem(KB_INPUT_SYSTEM_TYPE, KBInputSystemUpdate);
 	Signature signature = COMPONENT_BIT(COMPONENT_VELOCITY) |
+			      COMPONENT_BIT(COMPONENT_POSITION) |
 			      COMPONENT_BIT(TAG_PLAYER);
-	CoordinatorSetSystemSignature(KB_INPUT_SYSTEM, signature);
+	CoordinatorSetSystemSignature(KB_INPUT_SYSTEM_TYPE, signature);
 	return self;
 }
 
@@ -28,30 +30,35 @@ void KBInputSystemUpdate(KBInputSystem *self, [[maybe_unused]] float dt)
 	for (size_t i = 0; i < self->count; i++) {
 		Entity player = self->entities[i];
 
-		float speed = PLAYER_SPEED;
+		Position *pos =
+			GET_COMPONENT(Position, player, COMPONENT_POSITION);
 
 		Velocity *vel =
 			GET_COMPONENT(Velocity, player, COMPONENT_VELOCITY);
 
-                Velocity v = {0};
+		Velocity dir = { 0 };
 		if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
-			v.dy = -1;
+			dir.dy = -1;
 		}
 
 		if (IsKeyDown(KEY_S) || IsKeyDown(KEY_DOWN)) {
-			v.dy = 1;
+			dir.dy = 1;
 		}
 
 		if (IsKeyDown(KEY_A) || IsKeyDown(KEY_LEFT)) {
-			v.dx = -1;
+			dir.dx = -1;
 		}
 
 		if (IsKeyDown(KEY_D) || IsKeyDown(KEY_RIGHT)) {
-			v.dx = 1;
+			dir.dx = 1;
 		}
 
-		Velocity normalized = _NormalizeVelocity(v);
-		vel->dy = normalized.dy * speed;
-		vel->dx = normalized.dx * speed;
+		if (IsKeyPressed(KEY_P)) {
+			LOG(L_INFO, "player: (%f, %f)", pos->x, pos->y);
+		}
+
+		Velocity normalized = _NormalizeVelocity(dir);
+		vel->dy = normalized.dy * PLAYER_SPEED;
+		vel->dx = normalized.dx * PLAYER_SPEED;
 	}
 }

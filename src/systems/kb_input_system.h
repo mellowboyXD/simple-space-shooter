@@ -6,6 +6,6 @@
 typedef System KBInputSystem;
 
 KBInputSystem *KBInputSystemCreate();
-void KBInputSystemUpdate(KBInputSystem *self, float dt);
+void KBInputSystemUpdate(KBInputSystem *self, [[maybe_unused]] float dt);
 
 #endif // KB_INPUT_SYSTEM_H

@@ -18,6 +18,9 @@ void debug_log(LogLevel logLevel, const char *file, int line, const char *fmt,
 	case L_ERROR:
 		fprintf(stderr, "[ERROR]: ");
 		break;
+        case L_DEBUG:
+                fprintf(stdout, "[DEBUG]: ");
+                break;
 	}
 
 	FILE *stream = logLevel == L_ERROR ? stderr : stdout;

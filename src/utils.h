@@ -1,6 +1,9 @@
 #ifndef UTILS_H
 #define UTILS_H
 
+#include "components.h"
+#include "raylib.h"
+
 #define max(a, b) ((a) > (b) ? (a) : (b))
 #define min(a, b) ((a) < (b) ? (a) : (b))
 
@@ -11,5 +14,8 @@
 #define RAISE_UNIMPLEMENTED                                 \
 	LOG(L_WARN, "[TODO]: NOT IMPLEMENTED FUNCTION!\n"); \
 	exit(EXIT_FAILURE)
+
+Vector2 GetHitboxPos(const Position *const pos, const Render *const r,
+		     const Hitbox *const hb, const Vector2 gameCameraOffset);
 
 #endif // UTILS_H
