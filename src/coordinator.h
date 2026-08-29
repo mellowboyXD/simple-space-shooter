@@ -23,6 +23,7 @@ void CoordinatorAddComponent(Entity entity, ComponentType type,
 			     void *component);
 void CoordinatorRemoveComponent(Entity entity, ComponentType type);
 void *CoordinatorGetComponent(Entity entity, ComponentType type);
+bool CoordinatorHasComponent(Entity entity, ComponentType type);
 void CoordinatorAddTag(Entity entity, ComponentType tagType);
 bool CoordinatorHasTag(Entity entity, ComponentType tagType);
 bool CoordinatorIsPlayer(Entity entity);

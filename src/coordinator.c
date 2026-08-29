@@ -164,6 +164,13 @@ void *CoordinatorGetComponent(Entity entity, ComponentType type)
 	return ComponentManagerGet(&componentManager, type, entity);
 }
 
+bool CoordinatorHasComponent(Entity entity, ComponentType type)
+{
+        ASSERT_INITIALIZED(initCalled);
+        ASSERT_COMPONENT_TYPE(type);
+        return ComponentManagerHas(&componentManager, type, entity);
+}
+
 // tags an entity
 void CoordinatorAddTag(Entity entity, ComponentType tagType)
 {

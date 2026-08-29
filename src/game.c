@@ -15,6 +15,7 @@
 #include "debug.h"
 #include "raylib.h"
 #include "screen.h"
+#include "systems/kb_input_system.h"
 #include "systems_pool.h"
 #include "ui_components.h"
 #include "systems/movement_system.h"
@@ -45,6 +46,7 @@ static void _CreateSystems(GameData *gameData)
 	SystemsPoolAddSystem(&gameData->systemsPool, MovementSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, RenderSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, UICallbackSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool, KBInputSystemCreate());
 }
 
 static bool _shouldSkipSystemUpdate(SystemsPool *pool, size_t index)
@@ -73,10 +75,12 @@ static void _AssociateComponents(GameData *gameData)
 	Entity player = gameData->player;
 	Entity global = gameData->global;
 
-        CoordinatorAddTag(player, TAG_PLAYER);
+	CoordinatorAddTag(player, TAG_PLAYER);
 
-	CoordinatorAddComponent(player, COMPONENT_POSITION, &POSITION(10, 10));
-	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(100, 20));
+	CoordinatorAddComponent(player, COMPONENT_POSITION,
+				&POSITION(GAME_VIEW_WIDTH / 2.0f - 24,
+					  GAME_VIEW_HEIGHT - 60));
+	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(0, 0));
 	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(20, 20));
 
 	AssetId id = CoordinatorLoadAsset(
@@ -104,9 +108,9 @@ static void _AssociateComponents(GameData *gameData)
 	AssetLogInfo();
 	AssetLogRefCount(id);
 
-        if (CoordinatorIsPlayer(player)) {
-                LOG(L_INFO, "This entity with id %d is the player.", player);
-        }
+	if (CoordinatorIsPlayer(player)) {
+		LOG(L_INFO, "This entity with id %d is the player.", player);
+	}
 #endif
 }
 

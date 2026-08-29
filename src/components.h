@@ -36,7 +36,7 @@ typedef enum {
 	COMPONENT_RENDER,
 	COMPONENT_UI_MOUSE_INPUT_STATE,
 	COMPONENT_UI_CALLBACK,
-        TAG_PLAYER,
+	TAG_PLAYER,
 	MAX_COMPONENTS
 } ComponentType;
 
@@ -79,8 +79,8 @@ typedef struct {
 } Render;
 
 typedef struct {
-        char __dummy;
+	char __dummy;
 } Tag;
-constexpr Tag tagObj = {0};
+constexpr Tag tagObj = { 0 };
 
 #endif /* COMPONENTS_H */

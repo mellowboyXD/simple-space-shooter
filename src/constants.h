@@ -21,4 +21,6 @@ constexpr int HUD_HEIGHT = GAME_VIEW_HEIGHT;
 
 constexpr int TARGET_FPS = 150;
 
+constexpr float PLAYER_SPEED = 120.0f;
+
 #endif /* CONSTANTS_H */
