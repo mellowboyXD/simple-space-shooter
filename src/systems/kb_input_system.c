@@ -6,9 +6,7 @@
 #include "debug.h"
 #include <math.h>
 
-extern int tick;
-
-Velocity _NormalizeVelocity(Velocity vel)
+static Velocity _NormalizeVelocity(Velocity vel)
 {
 	double len = sqrt(vel.dx * vel.dx + vel.dy * vel.dy);
 	if (len == 0)
@@ -17,7 +15,7 @@ Velocity _NormalizeVelocity(Velocity vel)
 	return (Velocity){ vel.dx / len, vel.dy / len };
 }
 
-void _SpawnBullet(const Position *const pos)
+static void _SpawnBullet(const Position *const pos)
 {
 	Entity bullet = CoordinatorCreateEntity();
 	Velocity vel = { 0, -BULLET_SPEED };
@@ -27,7 +25,7 @@ void _SpawnBullet(const Position *const pos)
 	CoordinatorAddComponent(bullet, COMPONENT_VELOCITY, &vel);
 	CoordinatorAddComponent(bullet, COMPONENT_HITBOX, &hb);
 	CoordinatorAddComponent(bullet, COMPONENT_RENDER, &RENDER_C(BLACK));
-        CoordinatorAddTag(bullet, TAG_BULLET);
+	CoordinatorAddTag(bullet, TAG_BULLET);
 }
 
 // Public Functions
@@ -44,8 +42,10 @@ KBInputSystem *KBInputSystemCreate()
 	return self;
 }
 
+static float _cooldown = 0;
 void KBInputSystemUpdate(KBInputSystem *self, [[maybe_unused]] float dt)
 {
+	_cooldown -= dt;
 	for (size_t i = 0; i < self->count; i++) {
 		Entity player = self->entities[i];
 
@@ -54,7 +54,7 @@ void KBInputSystemUpdate(KBInputSystem *self, [[maybe_unused]] float dt)
 
 		Velocity *vel =
 			GET_COMPONENT(Velocity, player, COMPONENT_VELOCITY);
-                Hitbox *hb = GET_COMPONENT(Hitbox, player, COMPONENT_HITBOX);
+		Hitbox *hb = GET_COMPONENT(Hitbox, player, COMPONENT_HITBOX);
 
 		Velocity dir = { 0 };
 		if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
@@ -77,9 +77,11 @@ void KBInputSystemUpdate(KBInputSystem *self, [[maybe_unused]] float dt)
 			LOG(L_INFO, "player: (%f, %f)", pos->x, pos->y);
 		}
 
-		if (IsKeyDown(KEY_SPACE) && tick % 20 == 0) {
-                        Position spawnPos = {pos->x + hb->width / 2.0f, pos->y};
+		if (IsKeyDown(KEY_SPACE) && _cooldown <= 0.0f) {
+			Position spawnPos = { pos->x + hb->width / 2.0f,
+					      pos->y };
 			_SpawnBullet(&spawnPos);
+			_cooldown = NORMAL_FIRE_RATE;
 		}
 
 		Velocity normalized = _NormalizeVelocity(dir);

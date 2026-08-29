@@ -23,5 +23,5 @@ constexpr int TARGET_FPS = 150;
 
 constexpr float PLAYER_SPEED = 225.8f;
 constexpr float BULLET_SPEED = 255.5f;
-
+constexpr float NORMAL_FIRE_RATE = 0.2f;
 #endif /* CONSTANTS_H */

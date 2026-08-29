@@ -29,7 +29,6 @@
 #include <stdio.h>
 
 const Vector2 gameCameraOffset = { GAME_VIEW_X, GAME_VIEW_Y };
-int tick = 0;
 
 static void _RegisterComponents()
 {
@@ -201,10 +200,6 @@ void GameUpdate(GameData *gameData, float dt)
 		//LOG(L_INFO, "player out of bounds: %f", playerPos->x);
 	}
 	_UpdateSystems(gameData, dt);
-
-	tick++;
-	if (tick > 60)
-		tick = 0;
 }
 
 /**
