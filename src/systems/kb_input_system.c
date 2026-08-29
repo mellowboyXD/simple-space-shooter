@@ -14,6 +14,13 @@ Velocity _NormalizeVelocity(Velocity vel)
 	return (Velocity){ vel.dx / len, vel.dy / len };
 }
 
+void _SpawnBullet(const Position * const pos)
+{
+        LOG(L_DEBUG, "SPAWN BULLET");
+}
+
+// Public Functions
+
 KBInputSystem *KBInputSystemCreate()
 {
 	KBInputSystem *self =
@@ -56,6 +63,10 @@ void KBInputSystemUpdate(KBInputSystem *self, [[maybe_unused]] float dt)
 		if (IsKeyPressed(KEY_P)) {
 			LOG(L_INFO, "player: (%f, %f)", pos->x, pos->y);
 		}
+
+                if (IsKeyPressed(KEY_SPACE)) {
+                        _SpawnBullet(pos);
+                }
 
 		Velocity normalized = _NormalizeVelocity(dir);
 		vel->dy = normalized.dy * PLAYER_SPEED;

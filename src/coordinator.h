@@ -16,6 +16,7 @@ void CoordinatorInit();
 void CoordinatorDeinit();
 Entity CoordinatorCreateEntity();
 void CoordinatorDestroyEntity(Entity entity);
+int CoordinatorGetEntityCount();
 
 /* Component related functions */
 void CoordinatorRegisterComponent(ComponentType type, size_t sizeOfComponent);

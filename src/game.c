@@ -25,6 +25,7 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
 
 const Vector2 gameCameraOffset = { GAME_VIEW_X, GAME_VIEW_Y };
 
@@ -146,7 +147,11 @@ static void _DrawGameViewport(GameData *gameData)
 static void _DrawHUD([[maybe_unused]] GameData *gameData)
 {
 #ifdef DEBUG
+        char entityCountText[MAX_STR_LEN] = {0};
+        sprintf(entityCountText, "entity count: %d\n", CoordinatorGetEntityCount());
+
 	DrawFPS(VIRTUAL_WIDTH - 80, VIRTUAL_HEIGHT - 20);
+        DrawText(entityCountText, 0, 0, 14, BLUE);
 #endif
 }
 

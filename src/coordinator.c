@@ -7,6 +7,7 @@
 #include "component_manager.h"
 #include "components.h"
 #include "debug.h"
+#include "entity_manager.h"
 #include "systems/system_manager.h"
 #include <assert.h>
 #include <string.h>
@@ -99,6 +100,12 @@ Signature CoordinatorGetEntitySignature(Entity entity)
 {
 	ASSERT_INITIALIZED(initCalled);
 	return EntityManagerGetSignature(&entityManager, entity);
+}
+
+int CoordinatorGetEntityCount()
+{
+        ASSERT_INITIALIZED(initCalled);
+        return EntityManagerCount(&entityManager);
 }
 
 // ===== Component related functions =====
