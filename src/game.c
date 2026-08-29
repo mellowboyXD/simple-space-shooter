@@ -16,6 +16,7 @@
 #include "raylib.h"
 #include "screen.h"
 #include "systems/collision_system.h"
+#include "systems/entity_cleanup_system.h"
 #include "systems/kb_input_system.h"
 #include "systems_pool.h"
 #include "ui_components.h"
@@ -28,6 +29,7 @@
 #include <stdio.h>
 
 const Vector2 gameCameraOffset = { GAME_VIEW_X, GAME_VIEW_Y };
+int tick = 0;
 
 static void _RegisterComponents()
 {
@@ -40,16 +42,19 @@ static void _RegisterComponents()
 
 	// tags need registration just like regular components
 	REGISTER_COMPONENT(Tag, TAG_PLAYER);
+	REGISTER_COMPONENT(Tag, TAG_BULLET);
 }
 
 static void _CreateSystems(GameData *gameData)
 {
 	SystemsPoolInit(&gameData->systemsPool);
 	SystemsPoolAddSystem(&gameData->systemsPool, KBInputSystemCreate());
-        SystemsPoolAddSystem(&gameData->systemsPool, CollisionSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool, CollisionSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, MovementSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, UICallbackSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, RenderSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool,
+			     EntityCleanUpSystemCreate());
 }
 
 static bool _shouldSkipSystemUpdate(SystemsPool *pool, size_t index)
@@ -147,11 +152,12 @@ static void _DrawGameViewport(GameData *gameData)
 static void _DrawHUD([[maybe_unused]] GameData *gameData)
 {
 #ifdef DEBUG
-        char entityCountText[MAX_STR_LEN] = {0};
-        sprintf(entityCountText, "entity count: %d\n", CoordinatorGetEntityCount());
+	char entityCountText[MAX_STR_LEN] = { 0 };
+	sprintf(entityCountText, "entity count: %d\n",
+		CoordinatorGetEntityCount());
 
 	DrawFPS(VIRTUAL_WIDTH - 80, VIRTUAL_HEIGHT - 20);
-        DrawText(entityCountText, 0, 0, 14, BLUE);
+	DrawText(entityCountText, 0, 0, 14, BLUE);
 #endif
 }
 
@@ -195,6 +201,10 @@ void GameUpdate(GameData *gameData, float dt)
 		//LOG(L_INFO, "player out of bounds: %f", playerPos->x);
 	}
 	_UpdateSystems(gameData, dt);
+
+	tick++;
+	if (tick > 60)
+		tick = 0;
 }
 
 /**
