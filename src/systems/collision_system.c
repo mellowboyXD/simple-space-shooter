@@ -48,7 +48,8 @@ void CollisionSystemUpdate(CollisionSystem *self, [[maybe_unused]] float dt)
 		Position newPos = { pos->x + vel->dx * dt,
 				    pos->y + vel->dy * dt };
 
-		if (_IsOutOfBounds(&newPos, hb, r)) {
+		if (CoordinatorIsPlayer(entity) &&
+		    _IsOutOfBounds(&newPos, hb, r)) {
 			vel->dx = 0;
 			vel->dy = 0;
 		}
