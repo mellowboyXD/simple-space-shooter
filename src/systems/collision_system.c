@@ -10,10 +10,7 @@ extern const Vector2 gameCameraOffset; // declared in game.c
 bool _IsOutOfBounds(const Position *const pos, const Hitbox *const hb,
 		    const Render *const r)
 {
-	Vector2 hbPos = GetHitboxPos(pos, r, hb, gameCameraOffset);
-
-	hbPos.x -= gameCameraOffset.x;
-	hbPos.y -= gameCameraOffset.y;
+	Vector2 hbPos = GetHitboxPos(pos, r, hb, (Vector2){0, 0});
 
 	return hbPos.x <= 0 || hbPos.x + hb->width >= GAME_VIEW_WIDTH ||
 	       hbPos.y <= 0 || hbPos.y + hb->height >= GAME_VIEW_HEIGHT;

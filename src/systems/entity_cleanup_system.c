@@ -14,7 +14,8 @@ EntityCleanUpSystem *EntityCleanUpSystemCreate()
 	return self;
 }
 
-void EntityCleanUpSystemUpdate(EntityCleanUpSystem *self, float dt)
+void EntityCleanUpSystemUpdate(EntityCleanUpSystem *self,
+			       [[maybe_unused]] float dt)
 {
 	for (size_t i = 0; i < self->count; i++) {
 		Entity entity = self->entities[i];
@@ -25,7 +26,7 @@ void EntityCleanUpSystemUpdate(EntityCleanUpSystem *self, float dt)
 
 		if (p->x < -offset || p->x > GAME_VIEW_WIDTH + offset ||
 		    p->y < -offset || p->y > GAME_VIEW_HEIGHT + offset) {
-                        CoordinatorDestroyEntity(entity);
-                }
+			CoordinatorDestroyEntity(entity);
+		}
 	}
 }

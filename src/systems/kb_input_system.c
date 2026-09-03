@@ -2,9 +2,14 @@
 #include "components.h"
 #include "constants.h"
 #include "coordinator.h"
+#include "raylib.h"
+#include "utils.h"
 
 #include "debug.h"
+#include <assert.h>
 #include <math.h>
+
+extern const Vector2 gameCameraOffset; // declared by game.c
 
 static Velocity _NormalizeVelocity(Velocity vel)
 {
@@ -20,8 +25,9 @@ static void _SpawnBullet(const Position *const pos)
 	Entity bullet = CoordinatorCreateEntity();
 	Velocity vel = { 0, -BULLET_SPEED };
 	Hitbox hb = { 10, 10 };
+	Position spawnPos = { pos->x + hb.width / 2.0f, pos->y };
 
-	CoordinatorAddComponent(bullet, COMPONENT_POSITION, (Position *)pos);
+	CoordinatorAddComponent(bullet, COMPONENT_POSITION, &spawnPos);
 	CoordinatorAddComponent(bullet, COMPONENT_VELOCITY, &vel);
 	CoordinatorAddComponent(bullet, COMPONENT_HITBOX, &hb);
 	CoordinatorAddComponent(bullet, COMPONENT_RENDER, &RENDER_C(BLACK));
@@ -56,6 +62,10 @@ void KBInputSystemUpdate(KBInputSystem *self, [[maybe_unused]] float dt)
 			GET_COMPONENT(Velocity, player, COMPONENT_VELOCITY);
 		Hitbox *hb = GET_COMPONENT(Hitbox, player, COMPONENT_HITBOX);
 
+		// if you are player, you should already have that component
+		Render *r = GET_COMPONENT(Render, player, COMPONENT_RENDER);
+		assert(r != NULL && "Player should have a render component");
+
 		Velocity dir = { 0 };
 		if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
 			dir.dy = -1;
@@ -78,8 +88,9 @@ void KBInputSystemUpdate(KBInputSystem *self, [[maybe_unused]] float dt)
 		}
 
 		if (IsKeyDown(KEY_SPACE) && _cooldown <= 0.0f) {
-			Position spawnPos = { pos->x + hb->width / 2.0f,
-					      pos->y };
+			Position spawnPos =
+				GetHitboxPos(pos, r, hb, (Vector2){ 0, 0 });
+			spawnPos.y = pos->y;
 			_SpawnBullet(&spawnPos);
 			_cooldown = NORMAL_FIRE_RATE;
 		}
