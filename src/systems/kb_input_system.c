@@ -9,8 +9,6 @@
 #include <assert.h>
 #include <math.h>
 
-extern const Vector2 gameCameraOffset; // declared by game.c
-
 static Velocity _NormalizeVelocity(Velocity vel)
 {
 	double len = sqrt(vel.dx * vel.dx + vel.dy * vel.dy);
