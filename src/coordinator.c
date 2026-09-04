@@ -183,7 +183,7 @@ void CoordinatorAddTag(Entity entity, ComponentType tagType)
 {
 	ASSERT_INITIALIZED(initCalled);
 	assert(_isValidTag(tagType) && "Invalid tag.");
-	CoordinatorAddComponent(entity, tagType, (void *)&tagObj);
+	CoordinatorAddComponent(entity, tagType, (void *)&TAG_OBJ);
 }
 
 // returns true if a specific tag is present for an entity, false otherwise

@@ -2,18 +2,18 @@
 #include "components.h"
 #include "constants.h"
 #include "coordinator.h"
+#include "debug.h"
 #include "utils.h"
 
-extern const Vector2 gameCameraOffset; // declared in game.c
-
 // both pointer and value are immutable
-bool _IsOutOfBounds(const Position *const pos, const Hitbox *const hb,
-		    const Render *const r)
+static bool _IsXOutOfBounds(const Vector2 hitboxPos, const Hitbox *const hb)
 {
-	Vector2 hbPos = GetHitboxPos(pos, r, hb, (Vector2){0, 0});
+	return hitboxPos.x < 0 || hitboxPos.x + hb->width > GAME_VIEW_WIDTH;
+}
 
-	return hbPos.x <= 0 || hbPos.x + hb->width >= GAME_VIEW_WIDTH ||
-	       hbPos.y <= 0 || hbPos.y + hb->height >= GAME_VIEW_HEIGHT;
+static bool _IsYOutOfBounds(const Vector2 hbPos, const Hitbox *const hb)
+{
+	return hbPos.y < 0 || hbPos.y + hb->height > GAME_VIEW_HEIGHT;
 }
 
 CollisionSystem *CollisionSystemCreate()
@@ -44,11 +44,26 @@ void CollisionSystemUpdate(CollisionSystem *self, [[maybe_unused]] float dt)
 
 		Position newPos = { pos->x + vel->dx * dt,
 				    pos->y + vel->dy * dt };
+		Vector2 hitboxPos =
+			GetHitboxPos(&newPos, r, hb, (Vector2){ 0, 0 });
 
-		if (CoordinatorIsPlayer(entity) &&
-		    _IsOutOfBounds(&newPos, hb, r)) {
-			vel->dx = 0;
-			vel->dy = 0;
+                if (entity == 12) {
+                        LOG(L_DEBUG, "pos: (%f, %f)", pos->x, pos->y);
+                }
+		if (_IsXOutOfBounds(hitboxPos, hb)) {
+			if (CoordinatorIsPlayer(entity)) {
+				vel->dx = 0;
+			} else {
+				CoordinatorAddTag(entity, TAG_FOR_CLEANUP);
+			}
+		}
+
+		if (_IsYOutOfBounds(hitboxPos, hb)) {
+			if (CoordinatorIsPlayer(entity)) {
+				vel->dy = 0;
+			} else {
+				CoordinatorAddTag(entity, TAG_FOR_CLEANUP);
+			}
 		}
 	}
 }

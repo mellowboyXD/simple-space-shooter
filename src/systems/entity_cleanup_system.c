@@ -1,15 +1,15 @@
 #include "entity_cleanup_system.h"
 #include "components.h"
-#include "constants.h"
 #include "coordinator.h"
+#include "debug.h"
+#include <stddef.h>
 
 EntityCleanUpSystem *EntityCleanUpSystemCreate()
 {
 	EntityCleanUpSystem *self = CoordinatorRegisterSystem(
 		ENTITY_CLEANUP_SYSTEM_TYPE, EntityCleanUpSystemUpdate);
 
-	Signature signature = COMPONENT_BIT(COMPONENT_POSITION) |
-			      COMPONENT_BIT(TAG_BULLET);
+	Signature signature = COMPONENT_BIT(TAG_FOR_CLEANUP);
 	CoordinatorSetSystemSignature(ENTITY_CLEANUP_SYSTEM_TYPE, signature);
 	return self;
 }
@@ -17,16 +17,13 @@ EntityCleanUpSystem *EntityCleanUpSystemCreate()
 void EntityCleanUpSystemUpdate(EntityCleanUpSystem *self,
 			       [[maybe_unused]] float dt)
 {
-	for (size_t i = 0; i < self->count; i++) {
-		Entity entity = self->entities[i];
-		Position *p =
-			GET_COMPONENT(Position, entity, COMPONENT_POSITION);
+	if (self->count <= 0)
+		return; // no entities to cleanup
 
-		int offset = 20;
+        for (size_t i = self->count; i > 0; i--) {
+		Entity entity = self->entities[i - 1];
+                LOG(L_DEBUG, "Nuking entity %d", entity);
 
-		if (p->x < -offset || p->x > GAME_VIEW_WIDTH + offset ||
-		    p->y < -offset || p->y > GAME_VIEW_HEIGHT + offset) {
-			CoordinatorDestroyEntity(entity);
-		}
+		CoordinatorDestroyEntity(entity);
 	}
 }

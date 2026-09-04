@@ -18,3 +18,13 @@ Vector2 GetHitboxPos(const Position *const pos, const Render *const r,
 
 	return (Vector2){ x, y };
 }
+
+float clampf(float min, float value, float max)
+{
+        if (value < min)
+                return min;
+        if (value > max)
+                return max;
+
+        return value;
+}

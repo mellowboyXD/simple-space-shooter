@@ -38,10 +38,12 @@ static void _RegisterComponents()
 	REGISTER_COMPONENT(Render, COMPONENT_RENDER);
 	REGISTER_COMPONENT(UIMouseInputState, COMPONENT_UI_MOUSE_INPUT_STATE);
 	REGISTER_COMPONENT(UICallback, COMPONENT_UI_CALLBACK);
+	REGISTER_COMPONENT(Weapon, COMPONENT_WEAPON);
 
 	// tags need registration just like regular components
 	REGISTER_COMPONENT(Tag, TAG_PLAYER);
 	REGISTER_COMPONENT(Tag, TAG_BULLET);
+	REGISTER_COMPONENT(Tag, TAG_FOR_CLEANUP);
 }
 
 static void _CreateSystems(GameData *gameData)
@@ -99,6 +101,8 @@ static void _AssociateComponents(GameData *gameData)
 				&UI_MOUSE_INPUT_STATE(false));
 	CoordinatorAddComponent(global, COMPONENT_UI_CALLBACK,
 				&UICALLBACK(NULL));
+	CoordinatorAddComponent(player, COMPONENT_WEAPON,
+				&WEAPON(NORMAL_FIRE_RATE, AUTO_CANNON_WEAPON));
 
 #ifdef DEBUG // verifies that hash map + ref count asset manager are working
 	for (int i = 0; i < 10; i++) {
