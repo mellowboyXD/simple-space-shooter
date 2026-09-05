@@ -22,7 +22,6 @@ void EntityCleanUpSystemUpdate(EntityCleanUpSystem *self,
 
         for (size_t i = self->count; i > 0; i--) {
 		Entity entity = self->entities[i - 1];
-                LOG(L_DEBUG, "Nuking entity %d", entity);
 
 		CoordinatorDestroyEntity(entity);
 	}

@@ -47,9 +47,6 @@ void CollisionSystemUpdate(CollisionSystem *self, [[maybe_unused]] float dt)
 		Vector2 hitboxPos =
 			GetHitboxPos(&newPos, r, hb, (Vector2){ 0, 0 });
 
-                if (entity == 12) {
-                        LOG(L_DEBUG, "pos: (%f, %f)", pos->x, pos->y);
-                }
 		if (_IsXOutOfBounds(hitboxPos, hb)) {
 			if (CoordinatorIsPlayer(entity)) {
 				vel->dx = 0;
