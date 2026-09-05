@@ -16,6 +16,7 @@ void CoordinatorInit();
 void CoordinatorDeinit();
 Entity CoordinatorCreateEntity();
 void CoordinatorDestroyEntity(Entity entity);
+int CoordinatorGetEntityCount();
 
 /* Component related functions */
 void CoordinatorRegisterComponent(ComponentType type, size_t sizeOfComponent);
@@ -23,6 +24,10 @@ void CoordinatorAddComponent(Entity entity, ComponentType type,
 			     void *component);
 void CoordinatorRemoveComponent(Entity entity, ComponentType type);
 void *CoordinatorGetComponent(Entity entity, ComponentType type);
+bool CoordinatorHasComponent(Entity entity, ComponentType type);
+void CoordinatorAddTag(Entity entity, ComponentType tagType);
+bool CoordinatorHasTag(Entity entity, ComponentType tagType);
+bool CoordinatorIsPlayer(Entity entity);
 
 /* Systems related functions */
 System *CoordinatorRegisterSystem(SystemType type,

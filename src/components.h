@@ -8,6 +8,10 @@
  * 2. No logic in components
  * 3. Use tag components freely
  * 4. Keep serialization in mind
+ *
+ * Tags:
+ *      A tag is just component that makes it easy to look up a specific
+ *      entity.
  */
 #ifndef COMPONENTS_H
 #define COMPONENTS_H
@@ -21,6 +25,9 @@
 	(assert((type) > COMPONENT_NONE && (type) < MAX_COMPONENTS && \
 		"Invalid component type"))
 
+// convention/standard to follow: tags are placed after TAG_PLAYER which is
+// always the very first tag the system knows about. A tag is basically a
+// component.
 typedef enum {
 	COMPONENT_NONE,
 	COMPONENT_POSITION,
@@ -29,6 +36,10 @@ typedef enum {
 	COMPONENT_RENDER,
 	COMPONENT_UI_MOUSE_INPUT_STATE,
 	COMPONENT_UI_CALLBACK,
+	COMPONENT_WEAPON,
+	TAG_PLAYER,
+	TAG_BULLET,
+        TAG_FOR_CLEANUP,
 	MAX_COMPONENTS
 } ComponentType;
 
@@ -69,5 +80,24 @@ typedef struct {
 	AssetId textureId; // use this in mode RENDER_SPRITE
 	Rectangle frame; // use this in mode RENDER_SPRITE
 } Render;
+
+typedef enum {
+	AUTO_CANNON_WEAPON,
+	SPACE_GUN_WEAPON,
+	ZAPPER_WEAPON,
+	ROCKET_WEAPON
+} WeaponType;
+
+#define WEAPON(f, t) ((Weapon){ 0, (f), (t) })
+typedef struct {
+	float _cooldown; // time before next fire. Used internally to dictate when next to shoot
+	float fireRate;
+	WeaponType type;
+} Weapon;
+
+#define TAG_OBJ ((Tag){ 0 })
+typedef struct {
+	char __dummy;
+} Tag;
 
 #endif /* COMPONENTS_H */

@@ -15,6 +15,9 @@
 #include "debug.h"
 #include "raylib.h"
 #include "screen.h"
+#include "systems/collision_system.h"
+#include "systems/entity_cleanup_system.h"
+#include "systems/kb_input_system.h"
 #include "systems_pool.h"
 #include "ui_components.h"
 #include "systems/movement_system.h"
@@ -23,6 +26,7 @@
 
 #include <assert.h>
 #include <stddef.h>
+#include <stdio.h>
 
 const Vector2 gameCameraOffset = { GAME_VIEW_X, GAME_VIEW_Y };
 
@@ -34,14 +38,24 @@ static void _RegisterComponents()
 	REGISTER_COMPONENT(Render, COMPONENT_RENDER);
 	REGISTER_COMPONENT(UIMouseInputState, COMPONENT_UI_MOUSE_INPUT_STATE);
 	REGISTER_COMPONENT(UICallback, COMPONENT_UI_CALLBACK);
+	REGISTER_COMPONENT(Weapon, COMPONENT_WEAPON);
+
+	// tags need registration just like regular components
+	REGISTER_COMPONENT(Tag, TAG_PLAYER);
+	REGISTER_COMPONENT(Tag, TAG_BULLET);
+	REGISTER_COMPONENT(Tag, TAG_FOR_CLEANUP);
 }
 
 static void _CreateSystems(GameData *gameData)
 {
 	SystemsPoolInit(&gameData->systemsPool);
+	SystemsPoolAddSystem(&gameData->systemsPool, KBInputSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool, CollisionSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, MovementSystemCreate());
-	SystemsPoolAddSystem(&gameData->systemsPool, RenderSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, UICallbackSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool, RenderSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool,
+			     EntityCleanUpSystemCreate());
 }
 
 static bool _shouldSkipSystemUpdate(SystemsPool *pool, size_t index)
@@ -70,8 +84,12 @@ static void _AssociateComponents(GameData *gameData)
 	Entity player = gameData->player;
 	Entity global = gameData->global;
 
-	CoordinatorAddComponent(player, COMPONENT_POSITION, &POSITION(10, 10));
-	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(100, 20));
+	CoordinatorAddTag(player, TAG_PLAYER);
+
+	CoordinatorAddComponent(player, COMPONENT_POSITION,
+				&POSITION(GAME_VIEW_WIDTH / 2.0f - 24,
+					  GAME_VIEW_HEIGHT - 60));
+	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(0, 0));
 	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(20, 20));
 
 	AssetId id = CoordinatorLoadAsset(
@@ -83,6 +101,8 @@ static void _AssociateComponents(GameData *gameData)
 				&UI_MOUSE_INPUT_STATE(false));
 	CoordinatorAddComponent(global, COMPONENT_UI_CALLBACK,
 				&UICALLBACK(NULL));
+	CoordinatorAddComponent(player, COMPONENT_WEAPON,
+				&WEAPON(NORMAL_FIRE_RATE, AUTO_CANNON_WEAPON));
 
 #ifdef DEBUG // verifies that hash map + ref count asset manager are working
 	for (int i = 0; i < 10; i++) {
@@ -98,6 +118,10 @@ static void _AssociateComponents(GameData *gameData)
 
 	AssetLogInfo();
 	AssetLogRefCount(id);
+
+	if (CoordinatorIsPlayer(player)) {
+		LOG(L_INFO, "This entity with id %d is the player.", player);
+	}
 #endif
 }
 
@@ -131,7 +155,12 @@ static void _DrawGameViewport(GameData *gameData)
 static void _DrawHUD([[maybe_unused]] GameData *gameData)
 {
 #ifdef DEBUG
+	char entityCountText[MAX_STR_LEN] = { 0 };
+	sprintf(entityCountText, "entity count: %d\n",
+		CoordinatorGetEntityCount());
+
 	DrawFPS(VIRTUAL_WIDTH - 80, VIRTUAL_HEIGHT - 20);
+	DrawText(entityCountText, 0, 0, 14, BLUE);
 #endif
 }
 
@@ -169,8 +198,6 @@ void GameDeinit(GameData *gameData)
  */
 void GameUpdate(GameData *gameData, float dt)
 {
-	/* Handle Input */
-
 	Position *playerPos =
 		GET_COMPONENT(Position, gameData->player, COMPONENT_POSITION);
 	if (playerPos->x + gameCameraOffset.x > (float)GAME_VIEW_WIDTH) {

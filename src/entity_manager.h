@@ -41,4 +41,7 @@ void EntityManagerSetSignature(EntityManager *manager, Entity entity,
 			       Signature signature);
 Signature EntityManagerGetSignature(EntityManager *manager, Entity entity);
 
+// returns the number of active entities
+int EntityManagerCount(const EntityManager *const manager);
+
 #endif /* ENTITY_MANAGER_H */

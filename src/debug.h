@@ -1,7 +1,7 @@
 #ifndef DEBUG_H
 #define DEBUG_H
 
-typedef enum { L_INFO, L_WARN, L_ERROR } LogLevel;
+typedef enum { L_INFO, L_WARN, L_ERROR, L_DEBUG } LogLevel;
 
 #ifdef DEBUG
 

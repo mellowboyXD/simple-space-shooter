@@ -87,3 +87,8 @@ Signature EntityManagerGetSignature(EntityManager *manager, Entity entity)
 	ASSERT_ENTITY(entity);
 	return manager->signatures[entity];
 }
+
+int EntityManagerCount(const EntityManager *const manager)
+{
+	return manager->entityCount;
+}

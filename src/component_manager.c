@@ -62,6 +62,9 @@ void *ComponentManagerAdd(ComponentManager *manager,
 	ASSERT_COMPONENT_TYPE(componentType);
 	ASSERT_ACTIVE_TYPE(componentType);
 
+	LOG(L_DEBUG, "Adding component `%d` to entity `%d`", componentType,
+	    entity);
+
 	ComponentPool *pool = manager->pools + componentType;
 	return ComponentPoolAdd(pool, entity, component);
 }
