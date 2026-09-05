@@ -4,11 +4,12 @@
 #include "systems/system.h"
 #include "utils.h"
 
-static void _SpawnBullet(const Position *const pos, float bulletSpeed)
+static void _SpawnBullet(const Position *const pos,
+			 const WeaponModifier *const wm)
 {
 	Entity bullet = CoordinatorCreateEntity();
-	Velocity vel = { 0, -bulletSpeed };
-	Hitbox hb = { 10, 10 };
+	Velocity vel = { 0, -wm->bulletSpeed };
+	Hitbox hb = { wm->bulletSize, wm->bulletSize };
 	Position spawnPos = { pos->x + hb.width / 2.0f, pos->y };
 
 	CoordinatorAddComponent(bullet, COMPONENT_POSITION, &spawnPos);
@@ -49,9 +50,14 @@ void BulletSystemUpdate(BulletSystem *self, float dt)
 
 		wm->_cooldown -= dt;
 		if (input->fire && wm->_cooldown <= 0.0f) {
-			Position hbPos =
-				GetHitboxPos(pos, r, hb, (Vector2){ 0, -10 });
-                        _SpawnBullet(&hbPos, wm->bulletSpeed);
+			Vector2 offset = { 0 };
+			Position hbPos = GetHitboxPos(pos, r, hb, offset);
+
+			float x = hbPos.x + hb->width / 2.0f - wm->bulletSize;
+			float y = hbPos.y - wm->bulletSize;
+			Position spawnPos = { x, y };
+
+			_SpawnBullet(&spawnPos, wm);
 			wm->_cooldown = wm->fireRate;
 		}
 	}

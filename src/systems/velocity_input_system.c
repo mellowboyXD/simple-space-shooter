@@ -40,19 +40,19 @@ void VelocityInputSystemUpdate(VelocityInputSystem *self,
 
 		Vector2 dir = { 0, 0 };
 		if (input->left) {
-			dir.x = -1;
+			dir.x -= 1;
 		}
 
 		if (input->right) {
-			dir.x = 1;
+			dir.x += 1;
 		}
 
 		if (input->up) {
-			dir.y = -1;
+			dir.y -= 1;
 		}
 
 		if (input->down) {
-			dir.y = 1;
+			dir.y += 1;
 		}
 
 		Vector2 normalized = _NormalizeVector2(dir);

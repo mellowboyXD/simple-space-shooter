@@ -112,7 +112,7 @@ static void _AssociateComponents(GameData *gameData)
 				&UICALLBACK(NULL));
 	CoordinatorAddComponent(player, COMPONENT_WEAPON_MODIFIER,
 				&WEAPON(NORMAL_FIRE_RATE, AUTO_CANNON_WEAPON,
-					BULLET_SPEED));
+					BULLET_SPEED, BULLET_SIZE));
 	CoordinatorAddComponent(player, COMPONENT_PLAYER_INPUT,
 				&PLAYER_INPUT_INIT);
 

@@ -95,12 +95,13 @@ typedef enum {
 	ROCKET_WEAPON
 } WeaponType;
 
-#define WEAPON(f, t, bs) ((WeaponModifier){ 0, (f), (t), (bs) })
+#define WEAPON(f, t, bs, s) ((WeaponModifier){ 0, (f), (t), (bs), (s) })
 typedef struct {
 	float _cooldown; // time before next fire. Used internally to dictate when next to shoot
 	float fireRate;
 	WeaponType type;
         float bulletSpeed;
+        float bulletSize;
 } WeaponModifier;
 
 #define TAG_OBJ ((Tag){ 0 })
