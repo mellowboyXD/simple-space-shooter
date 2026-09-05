@@ -32,14 +32,16 @@ typedef enum {
 	COMPONENT_NONE,
 	COMPONENT_POSITION,
 	COMPONENT_VELOCITY,
+	COMPONENT_PLAYER_MODIFIERS,
+	COMPONENT_WEAPON_MODIFIER,
 	COMPONENT_HITBOX,
 	COMPONENT_RENDER,
 	COMPONENT_UI_MOUSE_INPUT_STATE,
 	COMPONENT_UI_CALLBACK,
-	COMPONENT_WEAPON,
+	COMPONENT_PLAYER_INPUT,
 	TAG_PLAYER,
 	TAG_BULLET,
-        TAG_FOR_CLEANUP,
+	TAG_FOR_CLEANUP,
 	MAX_COMPONENTS
 } ComponentType;
 
@@ -51,6 +53,11 @@ typedef struct {
 	float dx;
 	float dy;
 } Velocity;
+
+#define PLAYER_MODIFIERS(s) ((PlayerModifiers){ (s) })
+typedef struct {
+	float speed;
+} PlayerModifiers;
 
 #define HITBOX(width, height) ((Hitbox){ (width), (height) })
 typedef struct {
@@ -88,16 +95,27 @@ typedef enum {
 	ROCKET_WEAPON
 } WeaponType;
 
-#define WEAPON(f, t) ((Weapon){ 0, (f), (t) })
+#define WEAPON(f, t, bs, s) ((WeaponModifier){ 0, (f), (t), (bs), (s) })
 typedef struct {
 	float _cooldown; // time before next fire. Used internally to dictate when next to shoot
 	float fireRate;
 	WeaponType type;
-} Weapon;
+        float bulletSpeed;
+        float bulletSize;
+} WeaponModifier;
 
 #define TAG_OBJ ((Tag){ 0 })
 typedef struct {
 	char __dummy;
 } Tag;
+
+#define PLAYER_INPUT_INIT ((PlayerInput){ 0 })
+typedef struct {
+	bool left;
+	bool right;
+	bool up;
+	bool down;
+	bool fire;
+} PlayerInput;
 
 #endif /* COMPONENTS_H */
