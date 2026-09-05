@@ -130,9 +130,23 @@ void GameInit(GameData *gameData)
 
 	gameData->player = CoordinatorCreateEntity();
 
+#ifdef DEBUG
+	Entity d = CoordinatorCreateEntity();
+	Hitbox hb = { 40, 40 };
+	Render r = { .zIndex = 1,
+		     .renderColor = BLUE,
+		     .renderMode = RENDER_COLOR,
+		     .frame = { 0, 0, 0, 0 },
+		     .textureId = 0 };
+
+	CoordinatorAddComponent(d, COMPONENT_HITBOX, &hb);
+	CoordinatorAddComponent(d, COMPONENT_POSITION, &POSITION(100, 100));
+	CoordinatorAddComponent(d, COMPONENT_RENDER, &r);
+#endif // DEBUG
+
 	LOG(L_INFO, "Entities created successfully.");
 
-        PlayerInit(gameData->player);
+	PlayerInit(gameData->player);
 
 	// Initialize the virtual screen
 	ScreenInit(&gameData->screen, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);
