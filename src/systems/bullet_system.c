@@ -16,7 +16,7 @@ static void _SpawnBullet(const Position *const pos, WeaponModifier *const wm)
 		.renderMode = RENDER_SPRITE,
 		.textureId = CoordinatorLoadAsset(
 			"resources/sprites/weapons/auto_cannon_projectile.png"),
-		.frame = { 0, 0, 32, 32 },
+		.frame = { 0, 0, BULLET_SPRITE_SIZE, BULLET_SPRITE_SIZE },
 		.renderColor = BLACK
 	};
 
