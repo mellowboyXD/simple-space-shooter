@@ -15,11 +15,13 @@
 #include "debug.h"
 #include "raylib.h"
 #include "screen.h"
+#include "systems/bullet_system.h"
+#include "ui_components.h"
+#include "systems_pool.h"
 #include "systems/collision_system.h"
 #include "systems/entity_cleanup_system.h"
 #include "systems/kb_input_system.h"
-#include "systems_pool.h"
-#include "ui_components.h"
+#include "systems/velocity_input_system.h"
 #include "systems/movement_system.h"
 #include "systems/render_system.h"
 #include "systems/ui_callback_system.h"
@@ -38,7 +40,9 @@ static void _RegisterComponents()
 	REGISTER_COMPONENT(Render, COMPONENT_RENDER);
 	REGISTER_COMPONENT(UIMouseInputState, COMPONENT_UI_MOUSE_INPUT_STATE);
 	REGISTER_COMPONENT(UICallback, COMPONENT_UI_CALLBACK);
-	REGISTER_COMPONENT(Weapon, COMPONENT_WEAPON);
+	REGISTER_COMPONENT(WeaponModifier, COMPONENT_WEAPON_MODIFIER);
+	REGISTER_COMPONENT(PlayerInput, COMPONENT_PLAYER_INPUT);
+	REGISTER_COMPONENT(PlayerModifiers, COMPONENT_PLAYER_MODIFIERS);
 
 	// tags need registration just like regular components
 	REGISTER_COMPONENT(Tag, TAG_PLAYER);
@@ -50,6 +54,9 @@ static void _CreateSystems(GameData *gameData)
 {
 	SystemsPoolInit(&gameData->systemsPool);
 	SystemsPoolAddSystem(&gameData->systemsPool, KBInputSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool,
+			     VelocityInputSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool, BulletSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, CollisionSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, MovementSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, UICallbackSystemCreate());
@@ -90,6 +97,8 @@ static void _AssociateComponents(GameData *gameData)
 				&POSITION(GAME_VIEW_WIDTH / 2.0f - 24,
 					  GAME_VIEW_HEIGHT - 60));
 	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(0, 0));
+	CoordinatorAddComponent(player, COMPONENT_PLAYER_MODIFIERS,
+				&PLAYER_MODIFIERS(PLAYER_SPEED));
 	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(20, 20));
 
 	AssetId id = CoordinatorLoadAsset(
@@ -101,8 +110,11 @@ static void _AssociateComponents(GameData *gameData)
 				&UI_MOUSE_INPUT_STATE(false));
 	CoordinatorAddComponent(global, COMPONENT_UI_CALLBACK,
 				&UICALLBACK(NULL));
-	CoordinatorAddComponent(player, COMPONENT_WEAPON,
-				&WEAPON(NORMAL_FIRE_RATE, AUTO_CANNON_WEAPON));
+	CoordinatorAddComponent(player, COMPONENT_WEAPON_MODIFIER,
+				&WEAPON(NORMAL_FIRE_RATE, AUTO_CANNON_WEAPON,
+					BULLET_SPEED));
+	CoordinatorAddComponent(player, COMPONENT_PLAYER_INPUT,
+				&PLAYER_INPUT_INIT);
 
 #ifdef DEBUG // verifies that hash map + ref count asset manager are working
 	for (int i = 0; i < 10; i++) {
