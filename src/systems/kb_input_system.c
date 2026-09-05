@@ -11,8 +11,7 @@ KBInputSystem *KBInputSystemCreate()
 {
 	KBInputSystem *self = CoordinatorRegisterSystem(KB_INPUT_SYSTEM_TYPE,
 							KBInputSystemUpdate);
-	Signature signature = COMPONENT_BIT(COMPONENT_PLAYER_INPUT) |
-			      COMPONENT_BIT(TAG_PLAYER);
+	Signature signature = COMPONENT_BIT(COMPONENT_PLAYER_INPUT);
 	CoordinatorSetSystemSignature(KB_INPUT_SYSTEM_TYPE, signature);
 	return self;
 }
@@ -24,9 +23,8 @@ void KBInputSystemUpdate(KBInputSystem *self, [[maybe_unused]] float dt)
 
 		PlayerInput *input = GET_COMPONENT(PlayerInput, player,
 						   COMPONENT_PLAYER_INPUT);
-                (*input) = PLAYER_INPUT_INIT;
+                (*input) = PLAYER_INPUT_INIT; // reset inputs
 
-		Velocity dir = { 0 };
 		if (IsKeyDown(KEY_W) || IsKeyDown(KEY_UP)) {
                         input->up = true;
 		}
