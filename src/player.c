@@ -1,4 +1,5 @@
 #include "player.h"
+#include "components.h"
 #include "constants.h"
 #include "coordinator.h"
 
@@ -12,10 +13,16 @@ void PlayerInit(Entity player)
 	PlayerModifiers mod = { .speed = PLAYER_SPEED };
 	Velocity vel = { 0, 0 };
 	Hitbox hb = { PLAYER_HITBOX_SIZE, PLAYER_HITBOX_SIZE };
+	WeaponSprite weaponSprite = {
+		.type = AUTO_CANNON_WEAPON,
+		.textureId = CoordinatorLoadAsset(
+			"resources/sprites/weapons/auto_cannon.png"),
+		.frame = (Rectangle){ 0, 0, SPRITE_SIZE, SPRITE_SIZE }
+	};
 	WeaponModifier weapon = { .bulletSize = BULLET_SIZE,
 				  .bulletSpeed = BULLET_SPEED,
-				  .type = AUTO_CANNON_WEAPON,
-				  .fireRate = NORMAL_FIRE_RATE };
+				  .fireRate = NORMAL_FIRE_RATE,
+				  .sprite = weaponSprite };
 
 	CoordinatorAddTag(player, TAG_PLAYER);
 
@@ -24,7 +31,8 @@ void PlayerInit(Entity player)
 	CoordinatorAddComponent(player, COMPONENT_PLAYER_MODIFIERS, &mod);
 	CoordinatorAddComponent(player, COMPONENT_HITBOX, &hb);
 
-	CoordinatorAddComponent(player, COMPONENT_RENDER, &RENDER_S(id, frame));
+	CoordinatorAddComponent(player, COMPONENT_RENDER,
+				&RENDER_S(id, frame, BASE_LAYER));
 
 	CoordinatorAddComponent(player, COMPONENT_WEAPON_MODIFIER, &weapon);
 	CoordinatorAddComponent(player, COMPONENT_PLAYER_INPUT,

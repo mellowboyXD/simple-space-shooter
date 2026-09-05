@@ -18,6 +18,9 @@
 Vector2 GetHitboxPos(const Position *const pos, const Render *const r,
 		     const Hitbox *const hb, const Vector2 gameCameraOffset);
 
+Vector2 GetHitboxCenter(const Position *const pos, const Render *const r,
+			const Hitbox *const hb, const Vector2 offset);
+
 float clampf(float min, float value, float max);
 
 #endif // UTILS_H

@@ -1,5 +1,6 @@
 #include "render_system.h"
 #include "assets.h"
+#include "components.h"
 #include "coordinator.h"
 #include "entity_manager.h"
 #include "raylib.h"
@@ -25,20 +26,26 @@ static void _ResetLayers()
 	}
 }
 
-static void _RenderInColorMode(Position *p, Hitbox *h, Color color)
+static void _RenderInColorMode(const Position *const p, const Hitbox *const h,
+			       const Color color)
 {
 	// apply game offset
 	DrawRectangle(p->x + gameCameraOffset.x, p->y + gameCameraOffset.y,
 		      h->width, h->height, color);
 }
 
-static void _RenderInSpriteMode(Position *p, AssetId textureId, Rectangle frame)
+static void _RenderInSpriteMode(const Position *const p,
+				const AssetId textureId, const Rectangle frame)
 {
 	Texture2D texture = AssetsGetTexture2D(textureId);
 
 	Vector2 screenPos = { p->x + gameCameraOffset.x,
 			      p->y + gameCameraOffset.y };
 	DrawTextureRec(texture, frame, screenPos, WHITE);
+#ifdef DEBUG
+	DrawRectangleLines(screenPos.x, screenPos.y, frame.width, frame.height,
+			   RED);
+#endif
 }
 
 static void _RenderHitbox(const Position *const p, const Hitbox *const h,
@@ -47,6 +54,19 @@ static void _RenderHitbox(const Position *const p, const Hitbox *const h,
 	Vector2 pos = GetHitboxPos(p, r, h, gameCameraOffset);
 
 	DrawRectangleLines(pos.x, pos.y, h->width, h->height, RED);
+}
+
+static void _RenderWeapon(const Position *const p, const Hitbox *const h,
+			  const Render *const r, const WeaponModifier *const w)
+{
+	if (r->renderMode == RENDER_COLOR) {
+		Hitbox hb = { 10, 10 };
+		_RenderInColorMode(p, &hb, GRAY);
+		return;
+	}
+
+	Rectangle frame = w->sprite.frame;
+	_RenderInSpriteMode(p, w->sprite.textureId, frame);
 }
 
 RenderSystem *RenderSystemCreate()
@@ -96,6 +116,13 @@ void RenderSystemUpdate(RenderSystem *self, [[maybe_unused]] float dt)
 				GET_COMPONENT(Hitbox, entity, COMPONENT_HITBOX);
 			Render *r =
 				GET_COMPONENT(Render, entity, COMPONENT_RENDER);
+
+			if (CoordinatorIsPlayer(entity)) {
+				WeaponModifier *w = GET_COMPONENT(
+					WeaponModifier, entity,
+					COMPONENT_WEAPON_MODIFIER);
+				_RenderWeapon(p, h, r, w);
+			}
 
 			if (r->renderMode == RENDER_COLOR) {
 				_RenderInColorMode(p, h, r->renderColor);
