@@ -119,7 +119,9 @@ void RenderSystemUpdate(RenderSystem *self, [[maybe_unused]] float dt)
 			Render *r =
 				GET_COMPONENT(Render, entity, COMPONENT_RENDER);
 
-			if (CoordinatorIsPlayer(entity)) {
+			if (CoordinatorIsPlayer(entity) &&
+			    CoordinatorHasComponent(
+				    entity, COMPONENT_WEAPON_MODIFIER)) {
 				WeaponModifier *w = GET_COMPONENT(
 					WeaponModifier, entity,
 					COMPONENT_WEAPON_MODIFIER);
