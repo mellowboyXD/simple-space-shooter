@@ -24,7 +24,7 @@ constexpr int TARGET_FPS = 150;
 constexpr float SPRITE_SIZE = 48.0f;
 constexpr float BULLET_SPRITE_SIZE = 32.0f;
 
-constexpr float BULLET_SPAWN_OFFSET_Y = 9.0f;
+constexpr float BULLET_SPAWN_OFFSET_Y = 17.0f;
 
 constexpr int BASE_LAYER = 10;
 

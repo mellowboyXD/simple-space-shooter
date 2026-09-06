@@ -73,8 +73,6 @@ void BulletSystemUpdate(BulletSystem *self, float dt)
 			Vector2 offset = { 0, 0 };
 			Position hbPos = GetHitboxCenter(pos, r, hb, offset);
 
-			hbPos.y -= wm->bulletSize;
-
 			_SpawnBullet(&hbPos, wm);
 			wm->_cooldown = wm->fireRate;
 		}
