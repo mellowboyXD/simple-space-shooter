@@ -8,21 +8,19 @@
 #include "utils.h"
 #include <assert.h>
 
-typedef struct {
+struct _Layer {
 	Entity entities[MAX_ENTITIES];
 	size_t count;
-} Layer;
+};
 
 extern const Vector2 gameCameraOffset; // declared by game.c
 
-static constexpr size_t MAX_LAYERS = 50;
-
-static Layer layers[MAX_LAYERS];
+static struct _Layer _layers[MAX_LAYERS];
 
 static void _ResetLayers()
 {
 	for (size_t i = 0; i < MAX_LAYERS; i++) {
-		layers[i].count = 0;
+		_layers[i].count = 0;
 	}
 }
 
@@ -42,10 +40,6 @@ static void _RenderInSpriteMode(const Position *const p,
 	Vector2 screenPos = { p->x + gameCameraOffset.x,
 			      p->y + gameCameraOffset.y };
 	DrawTextureRec(texture, frame, screenPos, WHITE);
-#ifdef DEBUG
-	DrawRectangleLines(screenPos.x, screenPos.y, frame.width, frame.height,
-			   RED);
-#endif
 }
 
 static void _RenderHitbox(const Position *const p, const Hitbox *const h,
@@ -99,24 +93,24 @@ void RenderSystemUpdate(RenderSystem *self, [[maybe_unused]] float dt)
 			continue;
 		}
 
-		size_t countAtLayer = layers[r->zIndex].count;
+		size_t countAtLayer = _layers[r->zIndex].count;
 		assert(countAtLayer < MAX_ENTITIES && "Max entities at layer");
 		if (countAtLayer >= MAX_ENTITIES) {
 			continue;
 		}
 
-		layers[r->zIndex].entities[countAtLayer] = entity;
-		layers[r->zIndex].count++;
+		_layers[r->zIndex].entities[countAtLayer] = entity;
+		_layers[r->zIndex].count++;
 	}
 
 	// render by layer
 	for (size_t layer = 0; layer < MAX_LAYERS; layer++) {
-		size_t count = layers[layer].count;
+		size_t count = _layers[layer].count;
 		if (count < 1)
 			continue;
 
 		for (size_t i = 0; i < count; i++) {
-			Entity entity = layers[layer].entities[i];
+			Entity entity = _layers[layer].entities[i];
 
 			Position *p = GET_COMPONENT(Position, entity,
 						    COMPONENT_POSITION);

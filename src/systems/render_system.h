@@ -3,6 +3,8 @@
 
 #include "system.h"
 
+static constexpr size_t MAX_LAYERS = 50;
+
 typedef System RenderSystem;
 
 RenderSystem *RenderSystemCreate();
