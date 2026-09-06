@@ -8,11 +8,11 @@
  * user of the Entity-Component-System.
  */
 #include "game.h"
-#include "assets.h"
 #include "components.h"
 #include "constants.h"
 #include "coordinator.h"
 #include "debug.h"
+#include "player.h"
 #include "raylib.h"
 #include "screen.h"
 #include "systems/bullet_system.h"
@@ -86,57 +86,6 @@ static void _UpdateSystems(GameData *gameData, float dt)
 	}
 }
 
-static void _AssociateComponents(GameData *gameData)
-{
-	Entity player = gameData->player;
-	Entity global = gameData->global;
-
-	CoordinatorAddTag(player, TAG_PLAYER);
-
-	CoordinatorAddComponent(player, COMPONENT_POSITION,
-				&POSITION(GAME_VIEW_WIDTH / 2.0f - 24,
-					  GAME_VIEW_HEIGHT - 60));
-	CoordinatorAddComponent(player, COMPONENT_VELOCITY, &VELOCITY(0, 0));
-	CoordinatorAddComponent(player, COMPONENT_PLAYER_MODIFIERS,
-				&PLAYER_MODIFIERS(PLAYER_SPEED));
-	CoordinatorAddComponent(player, COMPONENT_HITBOX, &HITBOX(20, 20));
-
-	AssetId id = CoordinatorLoadAsset(
-		"resources/sprites/main_ship/base_full_health.png");
-	Rectangle frame = { 0, 0, 48, 48 };
-	CoordinatorAddComponent(player, COMPONENT_RENDER, &RENDER_S(id, frame));
-
-	CoordinatorAddComponent(global, COMPONENT_UI_MOUSE_INPUT_STATE,
-				&UI_MOUSE_INPUT_STATE(false));
-	CoordinatorAddComponent(global, COMPONENT_UI_CALLBACK,
-				&UICALLBACK(NULL));
-	CoordinatorAddComponent(player, COMPONENT_WEAPON_MODIFIER,
-				&WEAPON(NORMAL_FIRE_RATE, AUTO_CANNON_WEAPON,
-					BULLET_SPEED, BULLET_SIZE));
-	CoordinatorAddComponent(player, COMPONENT_PLAYER_INPUT,
-				&PLAYER_INPUT_INIT);
-
-#ifdef DEBUG // verifies that hash map + ref count asset manager are working
-	for (int i = 0; i < 10; i++) {
-		Entity e = CoordinatorCreateEntity();
-		CoordinatorAddComponent(e, COMPONENT_POSITION,
-					&POSITION(i * 15, 20));
-		CoordinatorAddComponent(e, COMPONENT_HITBOX, &HITBOX(20, 20));
-		id = CoordinatorLoadAsset(
-			"resources/sprites/main_ship/base_very_damaged.png");
-		CoordinatorAddComponent(e, COMPONENT_RENDER,
-					&RENDER_S(id, frame));
-	}
-
-	AssetLogInfo();
-	AssetLogRefCount(id);
-
-	if (CoordinatorIsPlayer(player)) {
-		LOG(L_INFO, "This entity with id %d is the player.", player);
-	}
-#endif
-}
-
 static void _RenderGameSystems(GameData *gameData)
 {
 	RenderSystem *renderSystem = SystemsPoolGetSystem(
@@ -150,12 +99,6 @@ static void _DrawGameViewport(GameData *gameData)
 {
 	DrawRectangle(gameCameraOffset.x, gameCameraOffset.y, GAME_VIEW_WIDTH,
 		      GAME_VIEW_HEIGHT, RAYWHITE);
-
-#ifdef DEBUG
-	DrawRectangle(gameCameraOffset.x, gameCameraOffset.y, 10, 10, BLUE);
-	DrawRectangle(gameCameraOffset.x + GAME_VIEW_WIDTH - 10,
-		      gameCameraOffset.y + GAME_VIEW_HEIGHT - 10, 10, 10, RED);
-#endif
 
 	/* Set clipping mode so systems can't draw outside the viewport. */
 	BeginScissorMode(gameCameraOffset.x, gameCameraOffset.y,
@@ -185,14 +128,25 @@ void GameInit(GameData *gameData)
 	_RegisterComponents();
 	_CreateSystems(gameData);
 
-	Entity global = CoordinatorCreateEntity();
-	Entity player = CoordinatorCreateEntity();
-	gameData->player = player;
-	gameData->global = global;
+	gameData->player = CoordinatorCreateEntity();
+
+#ifdef DEBUG
+	Entity d = CoordinatorCreateEntity();
+	Hitbox hb = { 40, 40 };
+	Render r = { .zIndex = 1,
+		     .renderColor = BLUE,
+		     .renderMode = RENDER_COLOR,
+		     .frame = { 0, 0, 0, 0 },
+		     .textureId = 0 };
+
+	CoordinatorAddComponent(d, COMPONENT_HITBOX, &hb);
+	CoordinatorAddComponent(d, COMPONENT_POSITION, &POSITION(100, 100));
+	CoordinatorAddComponent(d, COMPONENT_RENDER, &r);
+#endif // DEBUG
 
 	LOG(L_INFO, "Entities created successfully.");
 
-	_AssociateComponents(gameData);
+	PlayerInit(gameData->player);
 
 	// Initialize the virtual screen
 	ScreenInit(&gameData->screen, VIRTUAL_WIDTH, VIRTUAL_HEIGHT);

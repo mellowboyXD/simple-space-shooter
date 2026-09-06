@@ -78,14 +78,16 @@ typedef enum { RENDER_COLOR, RENDER_SPRITE } RenderMode;
  * } TextureCache;
  * ```
  */
-#define RENDER_C(color) ((Render){ RENDER_COLOR, (color), -1, { 0, 0, 0, 0 } })
-#define RENDER_S(textureId, frame) \
-	((Render){ RENDER_SPRITE, WHITE, (textureId), (frame) })
+#define RENDER_C(color, l) \
+	((Render){ RENDER_COLOR, (color), -1, { 0, 0, 0, 0 }, (l) })
+#define RENDER_S(textureId, frame, l) \
+	((Render){ RENDER_SPRITE, WHITE, (textureId), (frame), (l) })
 typedef struct {
 	RenderMode renderMode;
 	Color renderColor; // used this in mode RENDER_COLOR
 	AssetId textureId; // use this in mode RENDER_SPRITE
 	Rectangle frame; // use this in mode RENDER_SPRITE
+	size_t zIndex; // 0 is the base (lowest layer)
 } Render;
 
 typedef enum {
@@ -95,13 +97,19 @@ typedef enum {
 	ROCKET_WEAPON
 } WeaponType;
 
-#define WEAPON(f, t, bs, s) ((WeaponModifier){ 0, (f), (t), (bs), (s) })
+typedef struct {
+        WeaponType type;
+        AssetId textureId;
+        Rectangle frame;
+} WeaponSprite;
+
+#define WEAPON(f, bs, s, t) ((WeaponModifier){ 0, (f), (bs), (s), (t) })
 typedef struct {
 	float _cooldown; // time before next fire. Used internally to dictate when next to shoot
 	float fireRate;
-	WeaponType type;
-        float bulletSpeed;
-        float bulletSize;
+	float bulletSpeed;
+	float bulletSize;
+        WeaponSprite sprite;
 } WeaponModifier;
 
 #define TAG_OBJ ((Tag){ 0 })

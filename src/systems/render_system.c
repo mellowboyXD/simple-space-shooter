@@ -1,21 +1,39 @@
 #include "render_system.h"
 #include "assets.h"
+#include "components.h"
 #include "coordinator.h"
+#include "entity_manager.h"
 #include "raylib.h"
 
 #include "utils.h"
 #include <assert.h>
 
+struct _Layer {
+	Entity entities[MAX_ENTITIES];
+	size_t count;
+};
+
 extern const Vector2 gameCameraOffset; // declared by game.c
 
-static void _RenderInColorMode(Position *p, Hitbox *h, Color color)
+static struct _Layer _layers[MAX_LAYERS];
+
+static void _ResetLayers()
+{
+	for (size_t i = 0; i < MAX_LAYERS; i++) {
+		_layers[i].count = 0;
+	}
+}
+
+static void _RenderInColorMode(const Position *const p, const Hitbox *const h,
+			       const Color color)
 {
 	// apply game offset
 	DrawRectangle(p->x + gameCameraOffset.x, p->y + gameCameraOffset.y,
 		      h->width, h->height, color);
 }
 
-static void _RenderInSpriteMode(Position *p, AssetId textureId, Rectangle frame)
+static void _RenderInSpriteMode(const Position *const p,
+				const AssetId textureId, const Rectangle frame)
 {
 	Texture2D texture = AssetsGetTexture2D(textureId);
 
@@ -30,6 +48,21 @@ static void _RenderHitbox(const Position *const p, const Hitbox *const h,
 	Vector2 pos = GetHitboxPos(p, r, h, gameCameraOffset);
 
 	DrawRectangleLines(pos.x, pos.y, h->width, h->height, RED);
+}
+
+static void _RenderWeapon(const Position *const p, const Hitbox *const h,
+			  const Render *const r, const WeaponModifier *const w)
+{
+	if (r->renderMode == RENDER_COLOR) {
+		Hitbox hb = { w->sprite.frame.width, 5 };
+		Position pos = { p->x - hb.width / 2 + h->width / 2,
+				 p->y + h->height / 2 };
+		_RenderInColorMode(&pos, &hb, GRAY);
+		return;
+	}
+
+	Rectangle frame = w->sprite.frame;
+	_RenderInSpriteMode(p, w->sprite.textureId, frame);
 }
 
 RenderSystem *RenderSystemCreate()
@@ -47,23 +80,64 @@ RenderSystem *RenderSystemCreate()
 
 void RenderSystemUpdate(RenderSystem *self, [[maybe_unused]] float dt)
 {
+	_ResetLayers();
+
+	// gather entities and place them at the appropriate layer
 	for (size_t i = 0; i < self->count; i++) {
 		Entity entity = self->entities[i];
 
-		Position *p =
-			GET_COMPONENT(Position, entity, COMPONENT_POSITION);
-		Hitbox *h = GET_COMPONENT(Hitbox, entity, COMPONENT_HITBOX);
 		Render *r = GET_COMPONENT(Render, entity, COMPONENT_RENDER);
 
-		if (r->renderMode == RENDER_COLOR) {
-			_RenderInColorMode(p, h, r->renderColor);
-		} else if (r->renderMode == RENDER_SPRITE) {
-			AssetId textureId = r->textureId;
-			Rectangle frame = r->frame;
-			_RenderInSpriteMode(p, textureId, frame);
+		assert(r->zIndex < MAX_LAYERS && "Invalid zIndex");
+		if (r->zIndex >= MAX_LAYERS) {
+			continue;
+		}
+
+		size_t countAtLayer = _layers[r->zIndex].count;
+		assert(countAtLayer < MAX_ENTITIES && "Max entities at layer");
+		if (countAtLayer >= MAX_ENTITIES) {
+			continue;
+		}
+
+		_layers[r->zIndex].entities[countAtLayer] = entity;
+		_layers[r->zIndex].count++;
+	}
+
+	// render by layer
+	for (size_t layer = 0; layer < MAX_LAYERS; layer++) {
+		size_t count = _layers[layer].count;
+		if (count < 1)
+			continue;
+
+		for (size_t i = 0; i < count; i++) {
+			Entity entity = _layers[layer].entities[i];
+
+			Position *p = GET_COMPONENT(Position, entity,
+						    COMPONENT_POSITION);
+			Hitbox *h =
+				GET_COMPONENT(Hitbox, entity, COMPONENT_HITBOX);
+			Render *r =
+				GET_COMPONENT(Render, entity, COMPONENT_RENDER);
+
+			if (CoordinatorIsPlayer(entity) &&
+			    CoordinatorHasComponent(
+				    entity, COMPONENT_WEAPON_MODIFIER)) {
+				WeaponModifier *w = GET_COMPONENT(
+					WeaponModifier, entity,
+					COMPONENT_WEAPON_MODIFIER);
+				_RenderWeapon(p, h, r, w);
+			}
+
+			if (r->renderMode == RENDER_COLOR) {
+				_RenderInColorMode(p, h, r->renderColor);
+			} else if (r->renderMode == RENDER_SPRITE) {
+				AssetId textureId = r->textureId;
+				Rectangle frame = r->frame;
+				_RenderInSpriteMode(p, textureId, frame);
 #ifdef DEBUG // draw hitbox in debug mode
-			_RenderHitbox(p, h, r);
+				_RenderHitbox(p, h, r);
 #endif // DEBUG
+			}
 		}
 	}
 }

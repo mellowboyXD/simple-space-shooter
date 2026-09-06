@@ -7,7 +7,6 @@
 typedef struct {
 	SystemsPool systemsPool;
 	Entity player;
-	Entity global;
 	ScreenData screen;
 } GameData;
 
