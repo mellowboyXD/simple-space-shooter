@@ -22,8 +22,11 @@ static void _SpawnBullet(const Position *const pos, WeaponModifier *const wm)
 
 	Position bulletHbCenter =
 		GetHitboxCenter(pos, &r, &hb, (Vector2){ 0, 0 });
-	float offset = bulletHbCenter.x - pos->x;
-	Position spawnPos = { pos->x - offset, pos->y - offset };
+	float offsetX = bulletHbCenter.x - pos->x;
+	float offsetY = bulletHbCenter.y - pos->y;
+	float x = pos->x - offsetX;
+	float y = pos->y - offsetY;
+	Position spawnPos = { x, y - BULLET_SPAWN_OFFSET_Y };
 
 	CoordinatorAddComponent(bullet, COMPONENT_POSITION, &spawnPos);
 	CoordinatorAddComponent(bullet, COMPONENT_VELOCITY, &vel);

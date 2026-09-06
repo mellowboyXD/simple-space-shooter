@@ -60,8 +60,10 @@ static void _RenderWeapon(const Position *const p, const Hitbox *const h,
 			  const Render *const r, const WeaponModifier *const w)
 {
 	if (r->renderMode == RENDER_COLOR) {
-		Hitbox hb = { 10, 10 };
-		_RenderInColorMode(p, &hb, GRAY);
+		Hitbox hb = { w->sprite.frame.width, 5 };
+		Position pos = { p->x - hb.width / 2 + h->width / 2,
+				 p->y + h->height / 2 };
+		_RenderInColorMode(&pos, &hb, GRAY);
 		return;
 	}
 
@@ -93,9 +95,15 @@ void RenderSystemUpdate(RenderSystem *self, [[maybe_unused]] float dt)
 		Render *r = GET_COMPONENT(Render, entity, COMPONENT_RENDER);
 
 		assert(r->zIndex < MAX_LAYERS && "Invalid zIndex");
+		if (r->zIndex >= MAX_LAYERS) {
+			continue;
+		}
 
 		size_t countAtLayer = layers[r->zIndex].count;
 		assert(countAtLayer < MAX_ENTITIES && "Max entities at layer");
+		if (countAtLayer >= MAX_ENTITIES) {
+			continue;
+		}
 
 		layers[r->zIndex].entities[countAtLayer] = entity;
 		layers[r->zIndex].count++;
