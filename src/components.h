@@ -39,6 +39,7 @@ typedef enum {
 	COMPONENT_UI_MOUSE_INPUT_STATE,
 	COMPONENT_UI_CALLBACK,
 	COMPONENT_PLAYER_INPUT,
+        COMPONENT_ANIMATOR,
 	TAG_PLAYER,
 	TAG_BULLET,
 	TAG_FOR_CLEANUP,
@@ -98,9 +99,9 @@ typedef enum {
 } WeaponType;
 
 typedef struct {
-        WeaponType type;
-        AssetId textureId;
-        Rectangle frame;
+	WeaponType type;
+	AssetId textureId;
+	Rectangle frame;
 } WeaponSprite;
 
 #define WEAPON(f, bs, s, t) ((WeaponModifier){ 0, (f), (bs), (s), (t) })
@@ -109,7 +110,7 @@ typedef struct {
 	float fireRate;
 	float bulletSpeed;
 	float bulletSize;
-        WeaponSprite sprite;
+	WeaponSprite sprite;
 } WeaponModifier;
 
 #define TAG_OBJ ((Tag){ 0 })
@@ -125,5 +126,20 @@ typedef struct {
 	bool down;
 	bool fire;
 } PlayerInput;
+
+// Animation
+
+// index into a animation clip pool
+typedef size_t AnimClipId;
+
+typedef enum { ANIM_STOP, ANIM_PLAYING, ANIM_PAUSE } AnimState;
+
+typedef struct {
+        AnimClipId clipId;
+        float currentTime;
+        float previousTime; // "event sampling"
+        float animationSpeed;
+        AnimState animState;
+} Animator;
 
 #endif /* COMPONENTS_H */
