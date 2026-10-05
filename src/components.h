@@ -138,6 +138,7 @@ typedef struct {
         AnimClipId clipId;
         float currentTime;
         float previousTime; // "event sampling"
+        float totalDuration; // pre-computed total duration of the animation
         float animationSpeed;
         AnimState animState;
 } Animator;

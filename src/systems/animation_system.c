@@ -32,6 +32,12 @@ static constexpr AnimClipId MAX_ANIM_CLIPS = 100;
 
 static AnimClip animClips[MAX_ANIM_CLIPS];
 
+static AnimClip *_GetClip(AnimClipId clipId)
+{
+        // TODO: validate clip id
+        return animClips + clipId;
+}
+
 AnimationSystem *AnimationSystemCreate()
 {
 	AnimationSystem *self = CoordinatorRegisterSystem(
@@ -59,7 +65,23 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
                         continue;
                 }
 
+                // TODO: for now, we just skip render_mode COLOR
+                // this means events wont fire, we'll figure it out later
+                if (render->renderMode == RENDER_COLOR) {
+                        continue;
+                }
+
+                AnimClip *clip = _GetClip(animator->clipId);
+
                 animator->currentTime += round(dt * animator->animationSpeed);
-                if (animator->currentTime >= animator.totalDurations)
+                if (animator->currentTime >= animator->totalDuration) {
+                        if (clip->shouldLoop) {
+                                // start from beginning again
+                                animator->currentTime = 0;
+                        } else {
+                                // stop the animation
+                                animator->animState = ANIM_STOP;
+                        }
+                }
 	}
 }
