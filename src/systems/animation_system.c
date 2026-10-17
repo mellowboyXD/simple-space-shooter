@@ -1,6 +1,7 @@
 #include "animation_system.h"
 #include "components.h"
 #include "coordinator.h"
+#include <assert.h>
 #include <math.h>
 
 // AnimEvents describes what kind of event should occur at a particular frame
@@ -25,7 +26,7 @@ typedef struct {
 	AnimEvent *events;
 	size_t eventCount;
 	bool shouldLoop;
-	size_t totalDurations; // ms round up
+	float totalDurations; // ms round up
 } AnimClip;
 
 static constexpr AnimClipId MAX_ANIM_CLIPS = 100;
@@ -34,8 +35,33 @@ static AnimClip animClips[MAX_ANIM_CLIPS];
 
 static AnimClip *_GetClip(AnimClipId clipId)
 {
-        // TODO: validate clip id
-        return animClips + clipId;
+	// TODO: validate clip id
+	return animClips + clipId;
+}
+
+static int _GetClipFrameIndex(AnimClipId clipId, float currentTime)
+{
+	AnimClip *clip = _GetClip(clipId);
+
+	assert(clip != NULL && "Clip is null");
+	assert(currentTime <= clip->totalDurations &&
+	       "Current time cannot be larger than the total duration of clip.");
+
+	// what is the AnimFrame at this time?
+	float t = 0;
+	for (size_t i = 0; i < clip->frameCount; i++) {
+		assert(clip->frames != NULL && "Clip frames is null.");
+		AnimFrame *curr = clip->frames + i;
+		t += curr->duration;
+
+		if (t >= currentTime) {
+			return curr->frameIndex;
+		}
+	}
+
+	// Should be unreacheable as currentTime should fall within that
+	// durations ??
+	return -1;
 }
 
 AnimationSystem *AnimationSystemCreate()
@@ -61,27 +87,38 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
 		Animator *animator =
 			GET_COMPONENT(Animator, entity, COMPONENT_ANIMATOR);
 
-                if (animator->animState != ANIM_PLAYING) {
-                        continue;
-                }
+		if (animator->animState != ANIM_PLAYING) {
+			continue;
+		}
 
-                // TODO: for now, we just skip render_mode COLOR
-                // this means events wont fire, we'll figure it out later
-                if (render->renderMode == RENDER_COLOR) {
-                        continue;
-                }
+		// TODO: for now, we just skip render_mode COLOR
+		// this means events wont fire, we'll figure it out later
+		if (render->renderMode == RENDER_COLOR) {
+			continue;
+		}
 
-                AnimClip *clip = _GetClip(animator->clipId);
+		AnimClip *clip = _GetClip(animator->clipId);
 
-                animator->currentTime += round(dt * animator->animationSpeed);
-                if (animator->currentTime >= animator->totalDuration) {
-                        if (clip->shouldLoop) {
-                                // start from beginning again
-                                animator->currentTime = 0;
-                        } else {
-                                // stop the animation
-                                animator->animState = ANIM_STOP;
-                        }
-                }
+		animator->currentTime += round(dt * animator->animationSpeed);
+		if (animator->currentTime >= animator->totalDuration) {
+			if (clip->shouldLoop) {
+				// start from beginning again
+				animator->currentTime = 0;
+			} else {
+				// stop the animation
+				animator->animState = ANIM_STOP;
+			}
+		}
+
+		// slap current clip frame onto the renderer
+		if (animator->animState == ANIM_PLAYING) {
+			int frameIndex = _GetClipFrameIndex(
+				animator->clipId, animator->currentTime);
+                        assert(frameIndex > -1 && "Invalid frame Index");
+
+			assert(render->renderMode == RENDER_SPRITE &&
+			       "Should be rendering in sprite mode");
+			render->frame.x += (frameIndex * render->frame.width);
+		}
 	}
 }
