@@ -7,12 +7,6 @@
 // AnimEvents describes what kind of event should occur at a particular frame
 typedef enum { ANIM_EVENT_SHOOT } AnimEventType;
 
-// the current animation frame and how long to keep showing this frame
-typedef struct {
-	size_t frameIndex;
-	float duration; // ms
-} AnimFrame;
-
 // the animation event object and what frame it resides at
 typedef struct {
 	size_t frameIndex;
@@ -39,7 +33,7 @@ static AnimClip *_GetClip(AnimClipId clipId)
 	return animClips + clipId;
 }
 
-static int _GetClipFrameIndex(AnimClipId clipId, float currentTime)
+static AnimFrame *_ResolveFrame(AnimClipId clipId, float currentTime)
 {
 	AnimClip *clip = _GetClip(clipId);
 
@@ -55,13 +49,18 @@ static int _GetClipFrameIndex(AnimClipId clipId, float currentTime)
 		t += curr->duration;
 
 		if (t >= currentTime) {
-			return curr->frameIndex;
+			return curr;
 		}
 	}
 
 	// Should be unreacheable as currentTime should fall within that
 	// durations ??
-	return -1;
+	return NULL;
+}
+
+static bool _IsSameFrame(AnimFrame a, AnimFrame b)
+{
+	return a.frameIndex == b.frameIndex && a.duration == b.duration;
 }
 
 AnimationSystem *AnimationSystemCreate()
@@ -112,13 +111,20 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
 
 		// slap current clip frame onto the renderer
 		if (animator->animState == ANIM_PLAYING) {
-			int frameIndex = _GetClipFrameIndex(
+			AnimFrame *newFrame = _ResolveFrame(
 				animator->clipId, animator->currentTime);
-                        assert(frameIndex > -1 && "Invalid frame Index");
+			assert(newFrame != NULL && "Invalid new frame");
 
-			assert(render->renderMode == RENDER_SPRITE &&
-			       "Should be rendering in sprite mode");
-			render->frame.x += (frameIndex * render->frame.width);
+			if (!_IsSameFrame(*newFrame, animator->currentFrame)) {
+				// TODO: Fire all events belonging to the new frame
+
+				animator->currentFrame = *newFrame;
+
+				assert(render->renderMode == RENDER_SPRITE &&
+				       "Should be rendering in sprite mode");
+				render->frame.x += (newFrame->frameIndex *
+						    render->frame.width);
+			}
 		}
 	}
 }

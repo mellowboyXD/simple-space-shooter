@@ -134,8 +134,15 @@ typedef size_t AnimClipId;
 
 typedef enum { ANIM_STOP, ANIM_PLAYING, ANIM_PAUSE } AnimState;
 
+// the current animation frame and how long to keep showing this frame
+typedef struct {
+	size_t frameIndex;
+	float duration; // ms
+} AnimFrame;
+
 typedef struct {
         AnimClipId clipId;
+        AnimFrame currentFrame;
         float currentTime;
         float previousTime; // "event sampling"
         float totalDuration; // pre-computed total duration of the animation
