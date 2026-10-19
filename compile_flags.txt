@@ -1,5 +1,6 @@
 -I.
 -I./src
+-I./src/systems
 -I./include
 -std=c23
 -DDEBUG

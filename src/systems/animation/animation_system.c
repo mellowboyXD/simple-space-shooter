@@ -1,41 +1,12 @@
 #include "animation_system.h"
-#include "components.h"
+#include "animation.h"
 #include "coordinator.h"
 #include <assert.h>
 #include <math.h>
 
-// AnimEvents describes what kind of event should occur at a particular frame
-typedef enum { ANIM_EVENT_SHOOT } AnimEventType;
-
-// the animation event object and what frame it resides at
-typedef struct {
-	size_t frameIndex;
-	AnimEventType eventType;
-} AnimEvent;
-
-// the animation clip component itself
-typedef struct {
-	AnimFrame *frames;
-	size_t frameCount;
-	AnimEvent *events;
-	size_t eventCount;
-	bool shouldLoop;
-	float totalDurations; // ms round up
-} AnimClip;
-
-static constexpr AnimClipId MAX_ANIM_CLIPS = 100;
-
-static AnimClip animClips[MAX_ANIM_CLIPS];
-
-static AnimClip *_GetClip(AnimClipId clipId)
-{
-	// TODO: validate clip id
-	return animClips + clipId;
-}
-
 static AnimFrame *_ResolveFrame(AnimClipId clipId, float currentTime)
 {
-	AnimClip *clip = _GetClip(clipId);
+	AnimClip *clip = AnimationGetClip(clipId);
 
 	assert(clip != NULL && "Clip is null");
 	assert(currentTime <= clip->totalDurations &&
@@ -96,7 +67,7 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
 			continue;
 		}
 
-		AnimClip *clip = _GetClip(animator->clipId);
+		AnimClip *clip = AnimationGetClip(animator->clipId);
 
 		animator->currentTime += round(dt * animator->animationSpeed);
 		if (animator->currentTime >= animator->totalDuration) {
