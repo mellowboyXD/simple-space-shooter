@@ -1,6 +1,7 @@
 #ifndef COORDINATOR_H
 #define COORDINATOR_H
 
+#include "animation/animation.h"
 #include "assets.h"
 #include "components.h"
 #include "entity_manager.h"
@@ -38,5 +39,9 @@ System *CoordinatorGetSystem(SystemType type);
 /* Assets related functions */
 AssetId CoordinatorLoadAsset(const char *filename);
 void CoordinatorUnloadAsset(AssetId id);
+
+/* Animation related functions */
+// returns a pointer to the animation clip or null
+AnimClip *CoordinatorGetAnimClip(AnimClipId clipId);
 
 #endif /* COORDINATOR_H */

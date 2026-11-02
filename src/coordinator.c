@@ -4,6 +4,7 @@
  */
 
 #include "coordinator.h"
+#include "animation/animation.h"
 #include "component_manager.h"
 #include "components.h"
 #include "debug.h"
@@ -19,6 +20,7 @@
 static ComponentManager componentManager = { 0 };
 static EntityManager entityManager = { 0 };
 static SystemManager systemManager = { 0 };
+static AnimManager animationManager = { 0 };
 static bool initCalled = false;
 
 // if convention is followed, nothing should break here.
@@ -40,6 +42,8 @@ void CoordinatorInit()
 	ComponentManagerInit(&componentManager);
 	EntityManagerInit(&entityManager);
 	SystemManagerInit(&systemManager);
+
+        AnimationInit(&animationManager);
 
 	AssetsInit();
 
@@ -104,8 +108,8 @@ Signature CoordinatorGetEntitySignature(Entity entity)
 
 int CoordinatorGetEntityCount()
 {
-        ASSERT_INITIALIZED(initCalled);
-        return EntityManagerCount(&entityManager);
+	ASSERT_INITIALIZED(initCalled);
+	return EntityManagerCount(&entityManager);
 }
 
 // ===== Component related functions =====
@@ -173,9 +177,9 @@ void *CoordinatorGetComponent(Entity entity, ComponentType type)
 
 bool CoordinatorHasComponent(Entity entity, ComponentType type)
 {
-        ASSERT_INITIALIZED(initCalled);
-        ASSERT_COMPONENT_TYPE(type);
-        return ComponentManagerHas(&componentManager, type, entity);
+	ASSERT_INITIALIZED(initCalled);
+	ASSERT_COMPONENT_TYPE(type);
+	return ComponentManagerHas(&componentManager, type, entity);
 }
 
 // tags an entity
@@ -253,4 +257,13 @@ void CoordinatorUnloadAsset(AssetId id)
 {
 	ASSERT_INITIALIZED(initCalled);
 	AssetUnloadTexture(id);
+}
+
+// ===== Animation Related functions =====
+
+AnimClip *CoordinatorGetAnimClip(AnimClipId clipId)
+{
+        ASSERT_INITIALIZED(initCalled);
+        LOG(L_INFO, "Coordinator is retrieving animation clip.");
+        return AnimationGetClip(&animationManager, clipId);
 }

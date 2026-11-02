@@ -1,13 +1,10 @@
 #include "animation_system.h"
-#include "animation.h"
 #include "coordinator.h"
 #include <assert.h>
 #include <math.h>
 
-static AnimFrame *_ResolveFrame(AnimClipId clipId, float currentTime)
+static AnimFrame *_ResolveFrame(AnimClip *clip, float currentTime)
 {
-	AnimClip *clip = AnimationGetClip(clipId);
-
 	assert(clip != NULL && "Clip is null");
 	assert(currentTime <= clip->totalDurations &&
 	       "Current time cannot be larger than the total duration of clip.");
@@ -67,7 +64,8 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
 			continue;
 		}
 
-		AnimClip *clip = AnimationGetClip(animator->clipId);
+		AnimClip *clip = CoordinatorGetAnimClip(animator->clipId);
+                assert(clip != NULL && "clip should not be null");
 
 		animator->currentTime += round(dt * animator->animationSpeed);
 		if (animator->currentTime >= animator->totalDuration) {
@@ -82,8 +80,8 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
 
 		// slap current clip frame onto the renderer
 		if (animator->animState == ANIM_PLAYING) {
-			AnimFrame *newFrame = _ResolveFrame(
-				animator->clipId, animator->currentTime);
+			AnimFrame *newFrame =
+				_ResolveFrame(clip, animator->currentTime);
 			assert(newFrame != NULL && "Invalid new frame");
 
 			if (!_IsSameFrame(*newFrame, animator->currentFrame)) {

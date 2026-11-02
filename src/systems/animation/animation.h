@@ -42,13 +42,10 @@ typedef struct {
 void AnimationInit(AnimManager *self);
 
 // Deinitializes the animation manager
-void AnimationManagerDeinit(AnimManager *self);
-
-// Creates an animation clip component
-AnimClip AnimationCreateClip(AnimManager *self, size_t nFrames, size_t nEvents,
-			     bool shouldLoop);
+void AnimationDeinit(AnimManager *self);
 
 // Retrieves a Clip from the clip pool
+// Could return NULL
 AnimClip *AnimationGetClip(AnimManager *self, AnimClipId clipId);
 
 // Appends a frame to the clip specified by clipId. returns true on success
