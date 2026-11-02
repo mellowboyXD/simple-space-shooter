@@ -10,21 +10,24 @@ static AnimFrame *_ResolveFrame(AnimClip *clip, float currentTime)
 	assert(currentTime <= clip->totalDurations &&
 	       "Current time cannot be larger than the total duration of clip.");
 
+        if (currentTime >= clip->totalDurations) {
+                // hold last frame
+                return clip->frames + (clip->frameCount - 1);
+        } 
+
 	// what is the AnimFrame at this time?
-	float t = 0;
+	float t = 0.0f;
 	for (size_t i = 0; i < clip->frameCount; i++) {
 		assert(clip->frames != NULL && "Clip frames is null.");
-		AnimFrame *curr = clip->frames + i;
-		t += curr->duration;
+		t += clip->frames[i].duration;
 
-		if (t >= currentTime) {
-			return curr;
+		if (t > currentTime) {
+			return clip->frames + i;
 		}
 	}
 
-	// Should be unreacheable as currentTime should fall within that
-	// durations ??
-	return NULL;
+        // last frame if slightly below totalDurations
+	return clip->frames + (clip->frameCount - 1);
 }
 
 static bool _IsSameFrame(AnimFrame a, AnimFrame b)
@@ -54,10 +57,6 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
 		Animator *animator =
 			GET_COMPONENT(Animator, entity, COMPONENT_ANIMATOR);
 
-		if (animator->animState != ANIM_PLAYING) {
-			continue;
-		}
-
 		// TODO: for now, we just skip render_mode COLOR
 		// this means events wont fire, we'll figure it out later
 		if (render->renderMode == RENDER_COLOR) {
@@ -67,11 +66,16 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
 		AnimClip *clip = CoordinatorGetAnimClip(animator->clipId);
 		assert(clip != NULL && "clip should not be null");
 
-		animator->currentTime += round(dt * animator->animationSpeed);
-		if (animator->currentTime >= animator->totalDuration) {
+		animator->currentTime += dt * animator->animationSpeed;
+		if (animator->currentTime >= clip->totalDurations) {
 			if (clip->shouldLoop) {
 				// start from beginning again
-				animator->currentTime = 0;
+				animator->currentTime =
+					fmodf(animator->currentTime,
+					      clip->totalDurations);
+				if (animator->currentTime < 0.0f)
+					animator->currentTime +=
+						clip->totalDurations;
 			} else {
 				// stop the animation
 				animator->animState = ANIM_STOP;
@@ -87,7 +91,8 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
 			if (!_IsSameFrame(*newFrame, animator->currentFrame)) {
 				// TODO: Fire all events belonging to the new frame
 
-                                LOG(L_DEBUG, "New FRAME");
+				LOG(L_DEBUG, "New FRAME idx: %d",
+				    newFrame->frameIndex);
 
 				animator->currentFrame = *newFrame;
 

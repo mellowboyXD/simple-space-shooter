@@ -136,52 +136,139 @@ void GameInit(GameData *gameData)
 	gameData->player = CoordinatorCreateEntity();
 
 #ifdef DEBUG
-        LOG(L_DEBUG, "Creating debug entity");
+	LOG(L_DEBUG, "Creating debug entity");
 	Entity d = CoordinatorCreateEntity();
 	Hitbox hb = { 32, 32 };
-        AssetId id = CoordinatorLoadAsset("resources/sprites/weapons/rocket_projectile.png");
-        LOG(L_DEBUG, "Asset Loaded successfully");
+	AssetId id = CoordinatorLoadAsset(
+		"resources/sprites/weapons/rocket_projectile.png");
+	LOG(L_DEBUG, "Asset Loaded successfully");
 
-	Render r = {
-		.zIndex = 1,
-		.renderColor = BLUE,
-		.renderMode = RENDER_SPRITE,
-		.frame = { 0, 0, 32, 32 },
-		.textureId = id
+	Render r = { .zIndex = 1,
+		     .renderColor = BLUE,
+		     .renderMode = RENDER_SPRITE,
+		     .frame = { 0, 0, 32, 32 },
+		     .textureId = id };
+
+	LOG(L_DEBUG, "Created render component");
+
+	AnimClip clip = { .frameCount = 3,
+			  .totalDurations = 1,
+			  .shouldLoop = true };
+	// Lets do a dirty malloc. I am running out of time
+	// let os free, idc
+	// TODO: add CreateClip back to animation API
+	clip.frames = malloc(sizeof(*clip.frames) * clip.frameCount);
+
+	assert(clip.frames != NULL && "Why are frames null?");
+	clip.frames[0] = (AnimFrame){ .frameIndex = 0, .duration = 0.33 };
+	clip.frames[1] = (AnimFrame){ .frameIndex = 1, .duration = 0.33 };
+	clip.frames[2] = (AnimFrame){ .frameIndex = 2, .duration = 0.33 };
+
+	LOG(L_DEBUG, "Created clip");
+
+	LOG(L_DEBUG,
+	    "Attempting to add register clip to the animation manager.");
+	CoordinatorAddAnimClip(clip);
+
+	Animator animator = {
+		.animationSpeed = 2.0,
+		.animState = ANIM_PLAYING,
+		.clipId = 0,
+		.currentFrame = (AnimFrame){ .frameIndex = 0, .duration = 1 },
 	};
-
-        LOG(L_DEBUG, "Created render component");
-
-        AnimClip clip = {
-                .frameCount = 3,
-                .totalDurations = 15,
-        };
-        // Lets do a dirty malloc. I am running out of time
-        // let os free, idc
-        // TODO: add CreateClip back to animation API
-        clip.frames = malloc(sizeof(*clip.frames) * clip.frameCount);
-
-        assert(clip.frames != NULL && "Why are frames null?");
-        clip.frames[0] = (AnimFrame){.frameIndex = 0, .duration = 5};
-        clip.frames[1] = (AnimFrame){.frameIndex = 1, .duration = 5};
-        clip.frames[2] = (AnimFrame){.frameIndex = 2, .duration = 5};
-
-        LOG(L_DEBUG, "Created clip");
-
-        LOG(L_DEBUG, "Attempting to add register clip to the animation manager.");
-        CoordinatorAddAnimClip(clip);
-
-        Animator animator = {
-                .animationSpeed = 1.0,
-                .animState = ANIM_PLAYING,
-                .clipId = 0,
-                .currentFrame = (AnimFrame){.frameIndex = 0, .duration = 5},
-        };
 
 	CoordinatorAddComponent(d, COMPONENT_HITBOX, &hb);
 	CoordinatorAddComponent(d, COMPONENT_POSITION, &POSITION(100, 100));
 	CoordinatorAddComponent(d, COMPONENT_RENDER, &r);
-        CoordinatorAddComponent(d, COMPONENT_ANIMATOR, &animator);
+	CoordinatorAddComponent(d, COMPONENT_ANIMATOR, &animator);
+
+	LOG(L_DEBUG, "Creating debug entity");
+	Entity anim = CoordinatorCreateEntity();
+	LOG(L_DEBUG, "Asset Loaded successfully");
+
+	Render anim_r = { .zIndex = 1,
+			  .renderColor = BLUE,
+			  .renderMode = RENDER_SPRITE,
+			  .frame = { 0, 0, 48, 48 },
+			  .textureId = CoordinatorLoadAsset(
+				  "resources/sprites/weapons/rockets.png") };
+
+	LOG(L_DEBUG, "Created render component");
+
+	AnimClip anim_clip = { .frameCount = 17, .shouldLoop = false };
+	// Lets do a dirty malloc. I am running out of time
+	// let os free, idc
+	// TODO: add CreateClip back to animation API
+	anim_clip.frames = malloc(sizeof(*anim_clip.frames) * anim_clip.frameCount);
+
+	assert(anim_clip.frames != NULL && "Why are frames null?");
+	for (size_t i = 0; i < anim_clip.frameCount; i++) {
+		anim_clip.frames[i] =
+			(AnimFrame){ .frameIndex = i, .duration = 0.25 };
+		anim_clip.totalDurations += 0.25;
+	}
+
+	LOG(L_DEBUG, "Created clip");
+
+	LOG(L_DEBUG,
+	    "Attempting to add register clip to the animation manager.");
+	CoordinatorAddAnimClip(anim_clip);
+
+	Animator anim_animator = {
+		.animationSpeed = 1.5,
+		.animState = ANIM_PLAYING,
+		.clipId = 1,
+		.currentFrame = anim_clip.frames[0],
+	};
+
+	CoordinatorAddComponent(anim, COMPONENT_HITBOX, &HITBOX(48, 48));
+	CoordinatorAddComponent(anim, COMPONENT_POSITION, &POSITION(156, 100));
+	CoordinatorAddComponent(anim, COMPONENT_RENDER, &anim_r);
+	CoordinatorAddComponent(anim, COMPONENT_ANIMATOR, &anim_animator);
+
+	LOG(L_DEBUG, "Creating debug entity");
+	Entity test = CoordinatorCreateEntity();
+	LOG(L_DEBUG, "Asset Loaded successfully");
+
+	Render test_r = { .zIndex = 1,
+			  .renderColor = BLUE,
+			  .renderMode = RENDER_SPRITE,
+			  .frame = { 0, 0, 64, 64 },
+			  .textureId = CoordinatorLoadAsset(
+				  "resources/sprites/shield/round_shield.png") };
+
+	LOG(L_DEBUG, "Created render component");
+
+	AnimClip test_clip = { .frameCount = 12, .shouldLoop = true };
+	// Lets do a dirty malloc. I am running out of time
+	// let os free, idc
+	// TODO: add CreateClip back to animation API
+	test_clip.frames = malloc(sizeof(*test_clip.frames) * test_clip.frameCount);
+
+	assert(test_clip.frames != NULL && "Why are frames null?");
+	for (size_t i = 0; i < test_clip.frameCount; i++) {
+		test_clip.frames[i] =
+			(AnimFrame){ .frameIndex = i, .duration = 0.2 };
+		test_clip.totalDurations += 0.2;
+	}
+
+	LOG(L_DEBUG, "Created clip");
+
+	LOG(L_DEBUG,
+	    "Attempting to add register clip to the animation manager.");
+	CoordinatorAddAnimClip(test_clip);
+
+	Animator test_animator = {
+		.animationSpeed = 1.4,
+		.animState = ANIM_PLAYING,
+		.clipId = 2,
+		.currentFrame = test_clip.frames[0],
+	};
+
+	CoordinatorAddComponent(test, COMPONENT_HITBOX, &HITBOX(64, 64));
+	CoordinatorAddComponent(test, COMPONENT_POSITION, &POSITION(220, 100));
+	CoordinatorAddComponent(test, COMPONENT_RENDER, &test_r);
+	CoordinatorAddComponent(test, COMPONENT_ANIMATOR, &test_animator);
 #endif // DEBUG
 
 	LOG(L_INFO, "Entities created successfully.");
