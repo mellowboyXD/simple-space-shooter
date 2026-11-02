@@ -43,5 +43,6 @@ void CoordinatorUnloadAsset(AssetId id);
 /* Animation related functions */
 // returns a pointer to the animation clip or null
 AnimClip *CoordinatorGetAnimClip(AnimClipId clipId);
+bool CoordinatorAddAnimClip(AnimClip clip);
 
 #endif /* COORDINATOR_H */

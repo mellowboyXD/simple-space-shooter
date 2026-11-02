@@ -1,5 +1,6 @@
 #include "animation_system.h"
 #include "coordinator.h"
+#include "debug.h"
 #include <assert.h>
 #include <math.h>
 
@@ -48,7 +49,6 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
 {
 	for (size_t i = 0; i < self->count; i++) {
 		Entity entity = self->entities[i];
-
 		Render *render =
 			GET_COMPONENT(Render, entity, COMPONENT_RENDER);
 		Animator *animator =
@@ -65,7 +65,7 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
 		}
 
 		AnimClip *clip = CoordinatorGetAnimClip(animator->clipId);
-                assert(clip != NULL && "clip should not be null");
+		assert(clip != NULL && "clip should not be null");
 
 		animator->currentTime += round(dt * animator->animationSpeed);
 		if (animator->currentTime >= animator->totalDuration) {
@@ -86,6 +86,8 @@ void AnimationSystemUpdate(AnimationSystem *self, float dt)
 
 			if (!_IsSameFrame(*newFrame, animator->currentFrame)) {
 				// TODO: Fire all events belonging to the new frame
+
+                                LOG(L_DEBUG, "New FRAME");
 
 				animator->currentFrame = *newFrame;
 

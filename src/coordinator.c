@@ -264,6 +264,11 @@ void CoordinatorUnloadAsset(AssetId id)
 AnimClip *CoordinatorGetAnimClip(AnimClipId clipId)
 {
         ASSERT_INITIALIZED(initCalled);
-        LOG(L_INFO, "Coordinator is retrieving animation clip.");
         return AnimationGetClip(&animationManager, clipId);
+}
+
+bool CoordinatorAddAnimClip(AnimClip clip)
+{
+        ASSERT_INITIALIZED(initCalled);
+        return AnimationAddClip(&animationManager, clip);
 }

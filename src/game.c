@@ -8,6 +8,8 @@
  * user of the Entity-Component-System.
  */
 #include "game.h"
+#include "animation/animation.h"
+#include "animation/animation_system.h"
 #include "components.h"
 #include "constants.h"
 #include "coordinator.h"
@@ -29,6 +31,7 @@
 #include <assert.h>
 #include <stddef.h>
 #include <stdio.h>
+#include <stdlib.h>
 
 const Vector2 gameCameraOffset = { GAME_VIEW_X, GAME_VIEW_Y };
 
@@ -43,6 +46,7 @@ static void _RegisterComponents()
 	REGISTER_COMPONENT(WeaponModifier, COMPONENT_WEAPON_MODIFIER);
 	REGISTER_COMPONENT(PlayerInput, COMPONENT_PLAYER_INPUT);
 	REGISTER_COMPONENT(PlayerModifiers, COMPONENT_PLAYER_MODIFIERS);
+	REGISTER_COMPONENT(Animator, COMPONENT_ANIMATOR);
 
 	// tags need registration just like regular components
 	REGISTER_COMPONENT(Tag, TAG_PLAYER);
@@ -56,6 +60,7 @@ static void _CreateSystems(GameData *gameData)
 	SystemsPoolAddSystem(&gameData->systemsPool, KBInputSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool,
 			     VelocityInputSystemCreate());
+	SystemsPoolAddSystem(&gameData->systemsPool, AnimationSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, BulletSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, CollisionSystemCreate());
 	SystemsPoolAddSystem(&gameData->systemsPool, MovementSystemCreate());
@@ -131,17 +136,52 @@ void GameInit(GameData *gameData)
 	gameData->player = CoordinatorCreateEntity();
 
 #ifdef DEBUG
+        LOG(L_DEBUG, "Creating debug entity");
 	Entity d = CoordinatorCreateEntity();
-	Hitbox hb = { 40, 40 };
-	Render r = { .zIndex = 1,
-		     .renderColor = BLUE,
-		     .renderMode = RENDER_COLOR,
-		     .frame = { 0, 0, 0, 0 },
-		     .textureId = 0 };
+	Hitbox hb = { 32, 32 };
+        AssetId id = CoordinatorLoadAsset("resources/sprites/weapons/rocket_projectile.png");
+        LOG(L_DEBUG, "Asset Loaded successfully");
+
+	Render r = {
+		.zIndex = 1,
+		.renderColor = BLUE,
+		.renderMode = RENDER_SPRITE,
+		.frame = { 0, 0, 32, 32 },
+		.textureId = id
+	};
+
+        LOG(L_DEBUG, "Created render component");
+
+        AnimClip clip = {
+                .frameCount = 3,
+                .totalDurations = 15,
+        };
+        // Lets do a dirty malloc. I am running out of time
+        // let os free, idc
+        // TODO: add CreateClip back to animation API
+        clip.frames = malloc(sizeof(*clip.frames) * clip.frameCount);
+
+        assert(clip.frames != NULL && "Why are frames null?");
+        clip.frames[0] = (AnimFrame){.frameIndex = 0, .duration = 5};
+        clip.frames[1] = (AnimFrame){.frameIndex = 1, .duration = 5};
+        clip.frames[2] = (AnimFrame){.frameIndex = 2, .duration = 5};
+
+        LOG(L_DEBUG, "Created clip");
+
+        LOG(L_DEBUG, "Attempting to add register clip to the animation manager.");
+        CoordinatorAddAnimClip(clip);
+
+        Animator animator = {
+                .animationSpeed = 1.0,
+                .animState = ANIM_PLAYING,
+                .clipId = 0,
+                .currentFrame = (AnimFrame){.frameIndex = 0, .duration = 5},
+        };
 
 	CoordinatorAddComponent(d, COMPONENT_HITBOX, &hb);
 	CoordinatorAddComponent(d, COMPONENT_POSITION, &POSITION(100, 100));
 	CoordinatorAddComponent(d, COMPONENT_RENDER, &r);
+        CoordinatorAddComponent(d, COMPONENT_ANIMATOR, &animator);
 #endif // DEBUG
 
 	LOG(L_INFO, "Entities created successfully.");

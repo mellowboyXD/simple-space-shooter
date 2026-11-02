@@ -55,7 +55,7 @@ bool AnimationAddClip(AnimManager *self, AnimClip clip)
 {
         ASSERT_MANAGER_NOT_NULL;
         assert(self->count < MAX_ANIM_CLIPS && "Not enough space to add new clip");
-        if (self->count < MAX_ANIM_CLIPS) {
+        if (self->count >= MAX_ANIM_CLIPS) {
                 return false;
         }
 
